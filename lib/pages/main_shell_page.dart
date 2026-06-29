@@ -45,7 +45,7 @@ class MainShellPageState extends State<MainShellPage> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, -2),
             ),
@@ -87,7 +87,7 @@ class MainShellPageState extends State<MainShellPage> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.navy.withOpacity(0.35),
+                                color: AppColors.navy.withValues(alpha: 0.35),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
 import '../core/app_routes.dart';
 import '../models/enums.dart';
-import '../models/transfer_model.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
 import '../widgets/transfer_card.dart';
@@ -165,10 +164,10 @@ class _StatusKpi extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         decoration: BoxDecoration(
-          color: selected ? color.withOpacity(0.12) : Colors.white,
+          color: selected ? color.withValues(alpha: 0.12) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: selected ? color : AppColors.divider, width: selected ? 1.5 : 1),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4, offset: const Offset(0, 1))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 1))],
         ),
         child: Column(
           children: [

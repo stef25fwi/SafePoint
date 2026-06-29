@@ -304,7 +304,7 @@ class _FormSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -405,7 +405,7 @@ class _VulnChip extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? color.withOpacity(0.12) : Colors.white,
+          color: selected ? color.withValues(alpha: 0.12) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: selected ? color : AppColors.divider, width: selected ? 1.5 : 1),
         ),

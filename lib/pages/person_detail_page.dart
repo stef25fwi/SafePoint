@@ -27,7 +27,6 @@ class PersonDetailPage extends StatelessWidget {
     }
 
     final checkins = state.getPersonCheckins(personId);
-    final needs = state.getPersonNeeds(personId);
     final alerts = state.getPersonAlerts(personId);
     final family = person.familyId != null ? state.getFamilyById(person.familyId!) : null;
 
@@ -294,7 +293,7 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
@@ -454,9 +453,9 @@ class _ActionBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: onTap != null ? color.withOpacity(0.08) : AppColors.grayLight,
+          color: onTap != null ? color.withValues(alpha: 0.08) : AppColors.grayLight,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: onTap != null ? color.withOpacity(0.3) : AppColors.divider),
+          border: Border.all(color: onTap != null ? color.withValues(alpha: 0.3) : AppColors.divider),
         ),
         child: Column(
           children: [

@@ -10,7 +10,6 @@ class AppTheme {
         primary: AppColors.blue,
         secondary: AppColors.navy,
         surface: AppColors.bgCard,
-        background: AppColors.bgPage,
       ),
       scaffoldBackgroundColor: AppColors.bgPage,
       appBarTheme: const AppBarTheme(
@@ -19,10 +18,10 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 1,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.bgCard,
         elevation: 1,
-        shadowColor: Colors.black.withOpacity(0.08),
+        shadowColor: Colors.black.withValues(alpha: 0.08),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
