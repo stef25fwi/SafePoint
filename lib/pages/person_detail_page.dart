@@ -28,6 +28,7 @@ class PersonDetailPage extends StatelessWidget {
 
     final checkins = state.getPersonCheckins(personId);
     final alerts = state.getPersonAlerts(personId);
+    final dynamicNeeds = state.getPersonNeeds(personId);
     final family = person.familyId != null ? state.getFamilyById(person.familyId!) : null;
 
     return Scaffold(
@@ -126,12 +127,12 @@ class PersonDetailPage extends StatelessWidget {
                     isChip: true,
                     chipText: person.currentZone,
                   ),
-                  if (person.vulnerabilityFlags.isNotEmpty || person.needFlags.isNotEmpty)
+                  if (person.vulnerabilityFlags.isNotEmpty || person.needFlags.isNotEmpty || dynamicNeeds.isNotEmpty)
                     _ProfileRowNeeds(
                       icon: Icons.favorite_outline,
                       label: 'Besoins',
                       vulnerabilities: person.vulnerabilityFlags,
-                      needs: person.needFlags,
+                      needs: [...person.needFlags, ...dynamicNeeds.map((n) => n.type)],
                     ),
                 ],
               ),
