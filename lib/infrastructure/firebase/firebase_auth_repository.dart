@@ -93,12 +93,13 @@ class FirebaseAuthRepository implements AuthRepository {
     await _auth.currentUser?.updatePassword(newPassword);
   }
 
+  @override
   Future<UserModel?> signInWithGoogle() async {
     try {
       late GoogleSignInAccount? googleUser;
       if (kIsWeb) {
         googleUser = await GoogleSignIn(
-          clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+          clientId: '779368619357-c2gbmtiralba9rtuvumj59ta62posn7l.apps.googleusercontent.com',
           scopes: ['email', 'profile'],
         ).signIn();
       } else {

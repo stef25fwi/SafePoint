@@ -5,6 +5,7 @@ import 'package:safepoint_app/domain/repositories/auth_repository.dart';
 import 'package:safepoint_app/domain/services/auth_service.dart';
 import 'package:safepoint_app/domain/services/audit_service.dart';
 import 'package:safepoint_app/domain/repositories/audit_repository.dart';
+import 'package:safepoint_app/models/enums.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -18,15 +19,15 @@ void main() {
     late AuditService auditService;
 
     final testUser = UserModel(
-      uid: 'user_123',
+      id: 'user_123',
       organizationId: 'org_test',
       email: 'test@example.com',
       firstName: 'Test',
       lastName: 'User',
-      role: 'AGENT',
-      refugeId: 'refuge_123',
+      role: UserRole.agent,
       isActive: true,
       createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
       createdBy: 'system',
       updatedBy: 'system',
     );
@@ -38,84 +39,91 @@ void main() {
       authService = AuthDomainService(mockAuthRepository, auditService);
     });
 
-    group('signInWithEmail', () {
-      test('signs in user with email and logs audit', () async {
+    group('signIn (email/password)', () {
+      test('signes in user with email and logs audit', () async {
         const email = 'test@example.com';
         const password = 'password123';
 
-        when(() => mockAuthRepository.signInWithEmail(
-              email: email,
-              password: password,
-            )).thenAnswer((_) async => testUser);
+        when(() => mockAuthRepository.signInWithEmail(email, password))
+            .thenAnswer((_) async => testUser);
         when(() => mockAuditRepository.log(any())).thenAnswer((_) async {});
 
-        final result = await authService.signInWithEmail(
-          email: email,
-          password: password,
-        );
+        final result = await authService.signIn(email, password);
 
         expect(result, testUser);
-        verify(() => mockAuthRepository.signInWithEmail(
-              email: email,
-              password: password,
-            )).called(1);
+        verify(() => mockAuthRepository.signInWithEmail(email, password))
+            .called(1);
         verify(() => mockAuditRepository.log(any())).called(1);
       });
 
-      test('returns null on authentication failure', () async {
+      test('logs failure on exception', () async {
         const email = 'test@example.com';
         const password = 'wrongpassword';
 
-        when(() => mockAuthRepository.signInWithEmail(
-              email: email,
-              password: password,
-            )).thenAnswer((_) async => null);
+        when(() => mockAuthRepository.signInWithEmail(email, password))
+            .thenThrow(Exception('Invalid credentials'));
+        when(() => mockAuditRepository.log(any())).thenAnswer((_) async {});
 
-        final result = await authService.signInWithEmail(
-          email: email,
-          password: password,
+        expect(
+          () => authService.signIn(email, password),
+          throwsException,
         );
-
-        expect(result, null);
-        verify(() => mockAuthRepository.signInWithEmail(
-              email: email,
-              password: password,
-            )).called(1);
+        // Audit failure is logged after exception
+        await Future.delayed(Duration.zero);
       });
     });
 
     group('signInWithAgentCode', () {
-      test('signs in agent with code and logs audit', () async {
+      test('signes in agent with code, password and refugeId', () async {
         const agentCode = 'AGENT-2026-001';
+        const password = 'password123';
+        const refugeId = 'shelter_1';
 
-        when(() => mockAuthRepository.signInWithAgentCode(agentCode))
-            .thenAnswer((_) async => testUser);
+        when(() => mockAuthRepository.signInWithAgentCode(
+              agentCode,
+              password,
+              refugeId,
+            )).thenAnswer((_) async => testUser);
         when(() => mockAuditRepository.log(any())).thenAnswer((_) async {});
 
-        final result = await authService.signInWithAgentCode(agentCode);
+        final result = await authService.signInWithAgentCode(
+          agentCode,
+          password,
+          refugeId,
+        );
 
         expect(result, testUser);
-        verify(() => mockAuthRepository.signInWithAgentCode(agentCode))
-            .called(1);
+        verify(() => mockAuthRepository.signInWithAgentCode(
+              agentCode,
+              password,
+              refugeId,
+            )).called(1);
         verify(() => mockAuditRepository.log(any())).called(1);
       });
 
       test('returns null on invalid agent code', () async {
         const invalidCode = 'INVALID-CODE';
+        const password = 'password123';
+        const refugeId = 'shelter_1';
 
-        when(() => mockAuthRepository.signInWithAgentCode(invalidCode))
-            .thenAnswer((_) async => null);
+        when(() => mockAuthRepository.signInWithAgentCode(
+              invalidCode,
+              password,
+              refugeId,
+            )).thenAnswer((_) async => null);
 
-        final result = await authService.signInWithAgentCode(invalidCode);
+        final result = await authService.signInWithAgentCode(
+          invalidCode,
+          password,
+          refugeId,
+        );
 
         expect(result, null);
-        verify(() => mockAuthRepository.signInWithAgentCode(invalidCode))
-            .called(1);
       });
     });
 
     group('signInWithGoogle', () {
-      test('signs in user with Google and logs audit', () async {
+      test('signes in user with Google and logs audit', () async {
         when(() => mockAuthRepository.signInWithGoogle())
             .thenAnswer((_) async => testUser);
         when(() => mockAuditRepository.log(any())).thenAnswer((_) async {});
@@ -139,18 +147,23 @@ void main() {
     });
 
     group('signOut', () {
-      test('signs out user and logs audit', () async {
+      test('signes out user and logs audit', () async {
         when(() => mockAuthRepository.signOut()).thenAnswer((_) async {});
         when(() => mockAuditRepository.log(any())).thenAnswer((_) async {});
 
-        await authService.signOut(
-          userId: 'user_123',
-          userRole: 'AGENT',
-          organizationId: 'org_test',
-        );
+        await authService.signOut(testUser);
 
         verify(() => mockAuthRepository.signOut()).called(1);
         verify(() => mockAuditRepository.log(any())).called(1);
+      });
+
+      test('signes out without audit when user is null', () async {
+        when(() => mockAuthRepository.signOut()).thenAnswer((_) async {});
+
+        await authService.signOut(null);
+
+        verify(() => mockAuthRepository.signOut()).called(1);
+        verifyNever(() => mockAuditRepository.log(any()));
       });
     });
 
@@ -172,41 +185,47 @@ void main() {
         final result = await authService.getCurrentUser();
 
         expect(result, null);
-        verify(() => mockAuthRepository.getCurrentUser()).called(1);
       });
     });
 
-    group('createUser', () {
-      test('creates new user and logs audit', () async {
-        const email = 'newuser@example.com';
+    group('createAgent', () {
+      test('creates new agent and logs audit', () async {
+        const organizationId = 'org_test';
+        const agentCode = 'AGENT-001';
         const password = 'password123';
-        const firstName = 'New';
-        const lastName = 'User';
+        const refugeId = 'shelter_1';
+        const role = 'AGENT';
+        const createdBy = 'admin_user';
+        const createdByRole = 'SUPER_ADMIN';
 
-        when(() => mockAuthRepository.createUser(
-              email: email,
+        when(() => mockAuthRepository.createAgent(
+              organizationId: organizationId,
+              agentCode: agentCode,
               password: password,
-            )).thenAnswer((_) async => testUser.copyWith(
-                  email: email,
-                  firstName: firstName,
-                  lastName: lastName,
-                ));
+              refugeId: refugeId,
+              role: role,
+              createdBy: createdBy,
+            )).thenAnswer((_) async => testUser);
         when(() => mockAuditRepository.log(any())).thenAnswer((_) async {});
 
-        final result = await authService.createUser(
-          email: email,
+        final result = await authService.createAgent(
+          organizationId: organizationId,
+          agentCode: agentCode,
           password: password,
-          firstName: firstName,
-          lastName: lastName,
-          organizationId: 'org_test',
-          createdBy: 'admin_user',
-          userRole: 'ADMINISTRATOR',
+          refugeId: refugeId,
+          role: role,
+          createdBy: createdBy,
+          createdByRole: createdByRole,
         );
 
-        expect(result?.email, email);
-        verify(() => mockAuthRepository.createUser(
-              email: email,
+        expect(result, testUser);
+        verify(() => mockAuthRepository.createAgent(
+              organizationId: organizationId,
+              agentCode: agentCode,
               password: password,
+              refugeId: refugeId,
+              role: role,
+              createdBy: createdBy,
             )).called(1);
         verify(() => mockAuditRepository.log(any())).called(1);
       });

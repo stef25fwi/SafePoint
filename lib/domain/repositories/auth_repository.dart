@@ -30,6 +30,9 @@ abstract class AuthRepository {
     required String createdBy,
   });
 
+  // Connexion via Google OAuth
+  Future<UserModel?> signInWithGoogle();
+
   // Mise à jour du mot de passe
   Future<void> updatePassword(String newPassword);
 

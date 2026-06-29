@@ -51,6 +51,10 @@ class ApiAuthRepository implements AuthRepository {
       throw UnimplementedError('[V2] POST /users (admin Keycloak)');
 
   @override
+  Future<UserModel?> signInWithGoogle() =>
+      throw UnimplementedError('[V2] Keycloak Google OAuth flow');
+
+  @override
   Future<void> updatePassword(String newPassword) =>
       throw UnimplementedError('[V2] PUT /me/password');
 

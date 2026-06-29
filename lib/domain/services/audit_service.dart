@@ -36,18 +36,14 @@ class AuditService {
       metadata: metadata,
     );
     // Fire-and-forget : ne pas bloquer l'action principale si l'audit échoue
-    _repo.log(entry).catchError((e) {
-      // ignore: avoid_print
-      // ignore: unnecessary_null_comparison
-      if (e != null) {
-      }
-    });
+    _repo.log(entry).catchError((_) {});
   }
 
   Future<List<AuditLogModel>> getLogs({
     required String organizationId,
     String? userId,
     String? action,
+    String? targetType,
     DateTime? from,
     DateTime? to,
     int limit = 100,
@@ -57,6 +53,7 @@ class AuditService {
       organizationId: organizationId,
       userId: userId,
       action: action,
+      targetType: targetType,
       from: from,
       to: to,
       limit: limit,

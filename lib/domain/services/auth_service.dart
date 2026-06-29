@@ -88,6 +88,22 @@ class AuthDomainService {
     await _repo.signOut();
   }
 
+  Future<UserModel?> signInWithGoogle() async {
+    final user = await _repo.signInWithGoogle();
+    if (user != null) {
+      await _audit.log(
+        organizationId: user.organizationId,
+        userId: user.id,
+        role: user.role.keycloakName,
+        action: AuditAction.login,
+        targetType: 'user',
+        targetId: user.id,
+        metadata: {'method': 'google'},
+      );
+    }
+    return user;
+  }
+
   Future<UserModel?> getCurrentUser() => _repo.getCurrentUser();
 
   Future<UserModel> createAgent({
