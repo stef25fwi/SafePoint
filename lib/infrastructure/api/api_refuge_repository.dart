@@ -15,7 +15,7 @@ import 'api_client.dart';
 //   PATCH  /refuges/:id/zones
 // ---------------------------------------------------------------------------
 class ApiRefugeRepository implements RefugeRepository {
-  const ApiRefugeRepository(this._client);
+  ApiRefugeRepository(this._client);
 
   // ignore: unused_field
   final ApiClient _client;

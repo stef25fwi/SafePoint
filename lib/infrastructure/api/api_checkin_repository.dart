@@ -12,7 +12,7 @@ import 'api_client.dart';
 //   GET    /checkins/count?refugeId=&eventId=
 // ---------------------------------------------------------------------------
 class ApiCheckinRepository implements CheckinRepository {
-  const ApiCheckinRepository(this._client);
+  ApiCheckinRepository(this._client);
 
   // ignore: unused_field
   final ApiClient _client;

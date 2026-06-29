@@ -11,7 +11,7 @@ import 'api_client.dart';
 //   GET    /audit-logs/export?from=&to=
 // ---------------------------------------------------------------------------
 class ApiAuditRepository implements AuditRepository {
-  const ApiAuditRepository(this._client);
+  ApiAuditRepository(this._client);
 
   // ignore: unused_field
   final ApiClient _client;
