@@ -13,6 +13,7 @@ import '../domain/repositories/audit_repository.dart';
 import '../domain/repositories/crisis_event_repository.dart';
 import '../domain/repositories/family_repository.dart';
 import '../domain/repositories/need_repository.dart';
+import '../domain/repositories/file_repository.dart';
 
 // Firebase implementations (V1)
 import '../infrastructure/firebase/firebase_auth_repository.dart';
@@ -25,6 +26,7 @@ import '../infrastructure/firebase/firebase_audit_repository.dart';
 import '../infrastructure/firebase/firebase_crisis_event_repository.dart';
 import '../infrastructure/firebase/firebase_family_repository.dart';
 import '../infrastructure/firebase/firebase_need_repository.dart';
+import '../infrastructure/firebase/firebase_file_repository.dart';
 
 // API implementations (V2 placeholders)
 import '../infrastructure/api/api_client.dart';
@@ -44,6 +46,7 @@ import '../domain/services/refuge_service.dart';
 import '../domain/services/alert_service.dart';
 import '../domain/services/transfer_service.dart';
 import '../domain/services/crisis_event_service.dart';
+import '../domain/services/file_service.dart';
 
 import '../core/constants/app_constants.dart';
 
@@ -73,6 +76,7 @@ class ServiceLocator {
   late CrisisEventRepository _crisisEventRepository;
   late FamilyRepository _familyRepository;
   late NeedRepository _needRepository;
+  late FileRepository _fileRepository;
 
   // Domain services
   late AuditService _auditService;
@@ -82,6 +86,7 @@ class ServiceLocator {
   late AlertService _alertService;
   late TransferService _transferService;
   late CrisisEventService _crisisEventService;
+  late FileService _fileService;
 
   // ---------------------------------------------------------------------------
   // Initialisation — appelée depuis main.dart après Firebase.initializeApp
@@ -113,6 +118,7 @@ class ServiceLocator {
     _crisisEventRepository = FirebaseCrisisEventRepository();
     _familyRepository = FirebaseFamilyRepository();
     _needRepository = FirebaseNeedRepository();
+    _fileRepository = FirebaseFileRepository();
   }
 
   void _initApiImplementations() {
@@ -142,6 +148,7 @@ class ServiceLocator {
     _alertService = AlertService(_alertRepository, _auditService);
     _transferService = TransferService(_transferRepository, _auditService);
     _crisisEventService = CrisisEventService(_crisisEventRepository, _auditService);
+    _fileService = FileService(_fileRepository, _auditService);
   }
 
   // ---------------------------------------------------------------------------
@@ -156,10 +163,12 @@ class ServiceLocator {
   AlertService get alertService => _alertService;
   TransferService get transferService => _transferService;
   CrisisEventService get crisisEventService => _crisisEventService;
+  FileService get fileService => _fileService;
 
   // Repositories directs (pour cas spéciaux)
   FamilyRepository get familyRepository => _familyRepository;
   NeedRepository get needRepository => _needRepository;
+  FileRepository get fileRepository => _fileRepository;
 }
 
 // Vérifie si Firebase est disponible

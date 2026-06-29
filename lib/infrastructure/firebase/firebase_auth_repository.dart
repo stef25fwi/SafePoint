@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -89,6 +91,63 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> updatePassword(String newPassword) async {
     await _auth.currentUser?.updatePassword(newPassword);
+  }
+
+  Future<UserModel?> signInWithGoogle() async {
+    try {
+      late GoogleSignInAccount? googleUser;
+      if (kIsWeb) {
+        googleUser = await GoogleSignIn(
+          clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+          scopes: ['email', 'profile'],
+        ).signIn();
+      } else {
+        googleUser = await GoogleSignIn().signIn();
+      }
+
+      if (googleUser == null) return null;
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCred = await _auth.signInWithCredential(credential);
+      final uid = userCred.user!.uid;
+
+      var userDoc = await _db
+          .collection(FirestoreCollections.users)
+          .doc(uid)
+          .get();
+
+      if (!userDoc.exists) {
+        final now = DateTime.now();
+        final newUser = UserModel(
+          id: uid,
+          organizationId: AppDefaults.organizationId,
+          email: userCred.user!.email ?? '',
+          firstName: userCred.user!.displayName?.split(' ').first ?? '',
+          lastName: userCred.user!.displayName?.split(' ').skip(1).join(' ') ?? '',
+          role: UserRole.agent,
+          isActive: true,
+          createdAt: now,
+          updatedAt: now,
+          createdBy: AppDefaults.systemUserId,
+          updatedBy: AppDefaults.systemUserId,
+        );
+        await _db
+            .collection(FirestoreCollections.users)
+            .doc(uid)
+            .set(_userToMap(newUser));
+        return newUser;
+      }
+
+      return _userFromDoc(userDoc);
+    } catch (e) {
+      debugPrint('[GoogleSignIn] Error: $e');
+      return null;
+    }
   }
 
   @override
