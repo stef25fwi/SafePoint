@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:uuid/uuid.dart';
 import '../models/emergency_event_model.dart';
 import '../models/shelter_model.dart';
 import '../models/person_model.dart';
@@ -215,8 +214,6 @@ class AppState extends ChangeNotifier {
   late List<AlertModel> _alerts;
   late List<TransferModel> _transfers;
   late List<NeedModel> _needs;
-
-  final _uuid = const Uuid();
 
   void _initMockData() {
     final now = DateTime.now();

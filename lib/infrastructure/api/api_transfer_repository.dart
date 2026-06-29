@@ -17,6 +17,7 @@ import 'api_client.dart';
 class ApiTransferRepository implements TransferRepository {
   const ApiTransferRepository(this._client);
 
+  // ignore: unused_field
   final ApiClient _client;
 
   @override

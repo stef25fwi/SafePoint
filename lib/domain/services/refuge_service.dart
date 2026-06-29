@@ -8,6 +8,7 @@ class RefugeService {
   RefugeService(this._repo, this._audit);
 
   final RefugeRepository _repo;
+  // ignore: unused_field
   final AuditService _audit;
 
   Stream<List<ShelterModel>> refugesStream(String organizationId) =>

@@ -14,6 +14,7 @@ import 'api_client.dart';
 class ApiCheckinRepository implements CheckinRepository {
   const ApiCheckinRepository(this._client);
 
+  // ignore: unused_field
   final ApiClient _client;
 
   @override

@@ -16,6 +16,7 @@ import 'api_client.dart';
 class ApiPersonRepository implements PersonRepository {
   const ApiPersonRepository(this._client);
 
+  // ignore: unused_field
   final ApiClient _client;
 
   @override

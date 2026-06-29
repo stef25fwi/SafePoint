@@ -117,7 +117,7 @@ class ServiceLocator {
 
   void _initApiImplementations() {
     // V2 : configurer baseUrl depuis variables d'environnement sécurisées
-    const client = ApiClient(
+    final client = ApiClient(
       baseUrl: 'https://api.safepoint.guadeloupe.fr', // V2 Cloud Temple
       organizationId: AppDefaults.organizationId,
     );

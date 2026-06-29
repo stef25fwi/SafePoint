@@ -13,6 +13,7 @@ import 'api_client.dart';
 class ApiAuditRepository implements AuditRepository {
   const ApiAuditRepository(this._client);
 
+  // ignore: unused_field
   final ApiClient _client;
 
   @override

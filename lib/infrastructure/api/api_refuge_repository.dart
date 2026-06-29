@@ -17,6 +17,7 @@ import 'api_client.dart';
 class ApiRefugeRepository implements RefugeRepository {
   const ApiRefugeRepository(this._client);
 
+  // ignore: unused_field
   final ApiClient _client;
 
   @override
