@@ -27,22 +27,31 @@ class SafePointApp extends StatelessWidget {
           title: 'safepointapp.',
           theme: AppTheme.light,
           debugShowCheckedModeBanner: false,
-          // Cadre responsive global : centré et borné sur grand écran,
-          // plein écran sur téléphone.
-          builder: (context, child) =>
-              ResponsiveAppFrame(child: child ?? const SizedBox.shrink()),
           initialRoute: state.isLoggedIn ? AppRoutes.shell : AppRoutes.login,
+          // Le shell gère sa propre responsivité (rail desktop / bottom nav
+          // mobile). Les pages autonomes sont centrées et bornées sur grand
+          // écran via ResponsiveAppFrame ; sur mobile, c'est un passe-plat.
           routes: {
-            AppRoutes.login: (_) => const LoginPage(),
+            AppRoutes.login: (_) =>
+                const ResponsiveAppFrame(child: LoginPage()),
             AppRoutes.shell: (_) => const MainShellPage(),
-            AppRoutes.personForm: (_) => const PersonFormPage(),
-            AppRoutes.personDetail: (_) => const PersonDetailPage(),
-            AppRoutes.families: (_) => const FamiliesPage(),
-            AppRoutes.transfers: (_) => const TransfersPage(),
-            AppRoutes.createTransfer: (_) => const CreateTransferPage(),
-            AppRoutes.crisisActivation: (_) => const CrisisActivationPage(),
-            AppRoutes.shelterDetail: (_) => const ShelterDetailPage(),
-            AppRoutes.analytics: (_) => const AnalyticsPage(),
+            AppRoutes.personForm: (_) =>
+                const ResponsiveAppFrame(child: PersonFormPage()),
+            AppRoutes.personDetail: (_) =>
+                const ResponsiveAppFrame(child: PersonDetailPage()),
+            AppRoutes.families: (_) =>
+                const ResponsiveAppFrame(child: FamiliesPage()),
+            AppRoutes.transfers: (_) =>
+                const ResponsiveAppFrame(child: TransfersPage()),
+            AppRoutes.createTransfer: (_) =>
+                const ResponsiveAppFrame(child: CreateTransferPage()),
+            AppRoutes.crisisActivation: (_) =>
+                const ResponsiveAppFrame(child: CrisisActivationPage()),
+            AppRoutes.shelterDetail: (_) =>
+                const ResponsiveAppFrame(child: ShelterDetailPage()),
+            AppRoutes.analytics: (_) =>
+                const ResponsiveAppFrame(
+                    maxWidth: 1100, child: AnalyticsPage()),
           },
         ),
       ),

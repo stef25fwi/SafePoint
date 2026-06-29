@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
+import '../core/responsive.dart';
 import '../models/enums.dart';
 import '../services/app_state.dart';
 import 'dashboard_page.dart';
@@ -46,12 +47,117 @@ class MainShellPageState extends State<MainShellPage> {
     }
   }
 
+  // ── Layout desktop : rail latéral + contenu centré large ──────────
+  Widget _buildWide(
+      BuildContext context, AppState state, int alertCount, bool canScan) {
+    final roleColor = _roleColor(state.currentRole);
+    return Scaffold(
+      backgroundColor: AppColors.bgPage,
+      body: Row(
+        children: [
+          NavigationRail(
+            selectedIndex: _currentIndex,
+            onDestinationSelected: (i) => _onSelect(context, i, canScan),
+            labelType: NavigationRailLabelType.all,
+            backgroundColor: Colors.white,
+            indicatorColor: AppColors.blueLight,
+            selectedIconTheme: const IconThemeData(color: AppColors.navy),
+            selectedLabelTextStyle: const TextStyle(
+                color: AppColors.navy, fontWeight: FontWeight.w600),
+            unselectedIconTheme:
+                const IconThemeData(color: AppColors.grayText),
+            leading: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                children: [
+                  const CircleAvatar(
+                    radius: 22,
+                    backgroundColor: AppColors.navy,
+                    child: Icon(Icons.volcano, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: roleColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.badge_outlined, size: 14, color: roleColor),
+                  ),
+                ],
+              ),
+            ),
+            destinations: [
+              const NavigationRailDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home),
+                label: Text('Accueil'),
+              ),
+              const NavigationRailDestination(
+                icon: Icon(Icons.group_outlined),
+                selectedIcon: Icon(Icons.group),
+                label: Text('Personnes'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(canScan ? Icons.qr_code_scanner : Icons.lock_outline),
+                selectedIcon: const Icon(Icons.qr_code_scanner),
+                label: const Text('Scanner'),
+              ),
+              NavigationRailDestination(
+                icon: Badge(
+                  isLabelVisible: alertCount > 0,
+                  label: Text(alertCount > 99 ? '99+' : '$alertCount'),
+                  child: const Icon(Icons.notifications_outlined),
+                ),
+                selectedIcon: const Icon(Icons.notifications),
+                label: const Text('Alertes'),
+              ),
+              const NavigationRailDestination(
+                icon: Icon(Icons.bar_chart_outlined),
+                selectedIcon: Icon(Icons.bar_chart),
+                label: Text('Rapports'),
+              ),
+            ],
+          ),
+          const VerticalDivider(width: 1, thickness: 1),
+          Expanded(
+            child: ResponsiveCenter(
+              maxWidth: 1100,
+              child: IndexedStack(
+                index: _currentIndex,
+                children: _pages,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onSelect(BuildContext context, int index, bool canScan) {
+    if (index == 2 && !canScan) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Accès réservé aux agents de pointage'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+    setTab(index);
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final alertCount = state.openAlerts.length;
-
     final canScan = state.canCheckIn;
+
+    // Desktop / grande tablette : rail de navigation latéral, contenu large.
+    if (context.isDesktop) {
+      return _buildWide(context, state, alertCount, canScan);
+    }
 
     return Scaffold(
       body: IndexedStack(
