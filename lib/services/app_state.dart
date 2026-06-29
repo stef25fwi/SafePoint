@@ -202,7 +202,7 @@ class AppState extends ChangeNotifier {
         originCommune: 'Gourbeyre',
         currentZone: 'Dortoir C',
         status: PersonStatus.nonPointee,
-        vulnerabilityFlags: ['personne_agee'],
+        vulnerabilityFlags: ['personne_agee', 'sans_papiers', 'isolement'],
         needFlags: [],
         createdAt: now.subtract(const Duration(hours: 6)),
         lastCheckinAt: null,
@@ -729,6 +729,39 @@ class AppState extends ChangeNotifier {
     _needs.add(need);
     if (_firestoreEnabled) {
       _fs.saveNeed(need);
+    }
+    notifyListeners();
+  }
+
+  void createFamilyCheckin({
+    required List<String> personIds,
+    required String familyId,
+    required CheckinType type,
+  }) {
+    final now = DateTime.now();
+    for (var i = 0; i < personIds.length; i++) {
+      final personId = personIds[i];
+      final checkin = CheckinModel(
+        id: 'checkin_${now.millisecondsSinceEpoch}_$i',
+        eventId: 'event_1',
+        shelterId: currentShelterId,
+        personId: personId,
+        familyId: familyId,
+        type: type,
+        createdAt: now,
+      );
+      _checkins.add(checkin);
+      final idx = _persons.indexWhere((p) => p.id == personId);
+      if (idx >= 0) {
+        _persons[idx] = _persons[idx].copyWith(
+          status: PersonStatus.present,
+          lastCheckinAt: now,
+        );
+      }
+      if (_firestoreEnabled) {
+        _fs.saveCheckin(checkin);
+        _fs.updatePersonStatus(personId, PersonStatus.present, now);
+      }
     }
     notifyListeners();
   }

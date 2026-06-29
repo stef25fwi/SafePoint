@@ -25,6 +25,12 @@ class DashboardPage extends StatelessWidget {
     final needs = state.currentNeeds;
     final recentCheckins = state.recentCheckins.take(3).toList();
 
+    // Indicators – situations requiring attention
+    final nonPointeeCount = persons.where((p) => p.status == PersonStatus.nonPointee).length;
+    final sansTelCount = persons.where((p) => p.phone == null).length;
+    final sansPapiersCount = persons.where((p) => p.vulnerabilityFlags.contains('sans_papiers')).length;
+    final ageesSeulCount = persons.where((p) => p.vulnerabilityFlags.contains('personne_agee') && p.familyId == null).length;
+
     return Scaffold(
       backgroundColor: AppColors.bgPage,
       body: CustomScrollView(
@@ -135,6 +141,43 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
           ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+          // Situations à surveiller
+          if (nonPointeeCount + sansTelCount + sansPapiersCount + ageesSeulCount > 0)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.visibility_outlined, size: 20, color: AppColors.orange),
+                          SizedBox(width: 8),
+                          Text('Situations à surveiller', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (nonPointeeCount > 0)
+                        _AlertIndicator(icon: Icons.person_off_outlined, label: 'Non pointé(e)s', count: nonPointeeCount, color: AppColors.grayText, bgColor: AppColors.grayLight),
+                      if (sansTelCount > 0)
+                        _AlertIndicator(icon: Icons.phone_disabled_outlined, label: 'Sans téléphone', count: sansTelCount, color: AppColors.blueText, bgColor: AppColors.blueLight),
+                      if (sansPapiersCount > 0)
+                        _AlertIndicator(icon: Icons.badge_outlined, label: 'Sans papiers d\'identité', count: sansPapiersCount, color: AppColors.orangeText, bgColor: AppColors.orangeLight),
+                      if (ageesSeulCount > 0)
+                        _AlertIndicator(icon: Icons.elderly_outlined, label: 'Personnes âgées seules', count: ageesSeulCount, color: AppColors.purpleText, bgColor: AppColors.purpleLight),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           // Besoins urgents
@@ -281,6 +324,44 @@ class DashboardPage extends StatelessWidget {
 
   void _goToFamilies(BuildContext context) {
     Navigator.pushNamed(context, AppRoutes.families);
+  }
+}
+
+class _AlertIndicator extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final int count;
+  final Color color;
+  final Color bgColor;
+
+  const _AlertIndicator({
+    required this.icon,
+    required this.label,
+    required this.count,
+    required this.color,
+    required this.bgColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary))),
+          Text('$count', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color)),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right, size: 18, color: AppColors.textHint),
+        ],
+      ),
+    );
   }
 }
 
