@@ -28,13 +28,14 @@ class DefaultFirebaseOptions {
     measurementId: 'G-JNF8JDBE8F',
   );
 
-  // Android — Ajouter app Android → copier apiKey et appId ici
+  // Android — configuré le 2026-06-29
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_ANDROID_API_KEY',
-    appId: 'REPLACE_WITH_ANDROID_APP_ID',
+    apiKey: 'AIzaSyATFHDeH5DctPI0pWE2-NLZzEHZQ66LtCk',
+    appId: '1:779368619357:android:b0e2f469f0ca82492fdcb4',
     messagingSenderId: '779368619357',
     projectId: 'safepoint-b36fd',
     storageBucket: 'safepoint-b36fd.firebasestorage.app',
+    androidClientId: '779368619357-c2gbmtiralba9rtuvumj59ta62posn7l.apps.googleusercontent.com',
   );
 
   // iOS — configuré le 2026-06-29
