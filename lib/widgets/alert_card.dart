@@ -157,11 +157,13 @@ class AlertCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 13, color: AppColors.textSecondary),
+                      const Icon(Icons.location_on_outlined,
+                          size: 13, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         alert.location!,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -176,7 +178,8 @@ class AlertCard extends StatelessWidget {
                         color: _borderColor,
                         onTap: onTreat!,
                       ),
-                    if (alert.status == AlertStatus.inProgress && onResolve != null) ...[
+                    if (alert.status == AlertStatus.inProgress &&
+                        onResolve != null) ...[
                       _ActionButton(
                         label: 'Résoudre',
                         color: AppColors.green,

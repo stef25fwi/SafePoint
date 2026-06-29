@@ -40,7 +40,9 @@ class TransferModel {
   int get personCount => personIds.length;
 
   String get displayName {
-    if (familyName != null) return '$familyName – $personCount personne${personCount > 1 ? 's' : ''}';
+    if (familyName != null) {
+      return '$familyName – $personCount personne${personCount > 1 ? 's' : ''}';
+    }
     return '$personCount personne${personCount > 1 ? 's' : ''}';
   }
 

@@ -33,9 +33,16 @@ class _PersonFormPageState extends State<PersonFormPage> {
   final Set<NeedType> _needFlags = {};
 
   final _communes = [
-    'Saint-Claude', 'Gourbeyre', 'Basse-Terre', 'Trois-Rivières',
-    'Capesterre-Belle-Eau', 'Vieux-Fort', 'Vieux-Habitants',
-    'Baillif', 'Bouillante', 'Pointe-Noire',
+    'Saint-Claude',
+    'Gourbeyre',
+    'Basse-Terre',
+    'Trois-Rivières',
+    'Capesterre-Belle-Eau',
+    'Vieux-Fort',
+    'Vieux-Habitants',
+    'Baillif',
+    'Bouillante',
+    'Pointe-Noire',
   ];
 
   @override
@@ -73,7 +80,7 @@ class _PersonFormPageState extends State<PersonFormPage> {
     setState(() => _isLoading = true);
 
     final state = context.read<AppState>();
-    final uuid = const Uuid();
+    const uuid = Uuid();
     final personId = uuid.v4();
 
     final person = PersonModel(
@@ -81,12 +88,14 @@ class _PersonFormPageState extends State<PersonFormPage> {
       eventId: 'event_1',
       shelterId: state.currentShelterId,
       familyId: _selectedFamilyId,
-      qrCode: 'rv://event/event_1/person/$personId/token/${uuid.v4().substring(0, 8)}',
+      qrCode:
+          'rv://event/event_1/person/$personId/token/${uuid.v4().substring(0, 8)}',
       firstName: _firstNameCtrl.text.trim(),
       lastName: _lastNameCtrl.text.trim().toUpperCase(),
       ageApprox: int.tryParse(_ageCtrl.text),
       originCommune: _selectedCommune,
-      originSector: _sectorCtrl.text.trim().isEmpty ? null : _sectorCtrl.text.trim(),
+      originSector:
+          _sectorCtrl.text.trim().isEmpty ? null : _sectorCtrl.text.trim(),
       phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
       currentZone: _selectedZone,
       status: _initialStatus,
@@ -100,7 +109,8 @@ class _PersonFormPageState extends State<PersonFormPage> {
 
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, AppRoutes.personDetail, arguments: personId);
+    Navigator.pushReplacementNamed(context, AppRoutes.personDetail,
+        arguments: personId);
   }
 
   @override
@@ -118,18 +128,28 @@ class _PersonFormPageState extends State<PersonFormPage> {
             children: [
               AppHeader(
                 title: 'safepointapp.',
-                subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
+                subtitle:
+                    'Centre d\'hébergement – ${state.currentShelter.name}',
                 showBack: true,
                 showNotification: false,
               ),
               // Progress
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Column(
                   children: [
-                    const Text('Nouvelle fiche', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                    const Text('Nouvelle fiche',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary)),
                     const SizedBox(height: 2),
-                    const Text('Étape 1 sur 2', style: TextStyle(fontSize: 13, color: AppColors.blue, fontWeight: FontWeight.w600)),
+                    const Text('Étape 1 sur 2',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.blue,
+                            fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     LinearProgressIndicator(
                       value: 0.5,
@@ -155,35 +175,48 @@ class _PersonFormPageState extends State<PersonFormPage> {
                         children: [
                           Row(
                             children: [
-                              Expanded(child: _field('Nom *', _lastNameCtrl, Icons.person_outline, required: true)),
+                              Expanded(
+                                  child: _field('Nom *', _lastNameCtrl,
+                                      Icons.person_outline,
+                                      required: true)),
                               const SizedBox(width: 10),
-                              Expanded(child: _field('Prénom *', _firstNameCtrl, Icons.person_outline, required: true)),
+                              Expanded(
+                                  child: _field('Prénom *', _firstNameCtrl,
+                                      Icons.person_outline,
+                                      required: true)),
                             ],
                           ),
                           const SizedBox(height: 12),
-                          _field('Âge / Date de naissance *', _ageCtrl, Icons.calendar_today_outlined,
-                              hint: 'JJ / MM / AAAA ou âge', keyboardType: TextInputType.number),
+                          _field('Âge / Date de naissance *', _ageCtrl,
+                              Icons.calendar_today_outlined,
+                              hint: 'JJ / MM / AAAA ou âge',
+                              keyboardType: TextInputType.number),
                           const SizedBox(height: 12),
                           _Dropdown(
                             icon: Icons.location_on_outlined,
                             hint: 'Commune d\'origine *',
                             value: _selectedCommune,
                             items: _communes,
-                            onChanged: (v) => setState(() => _selectedCommune = v),
+                            onChanged: (v) =>
+                                setState(() => _selectedCommune = v),
                           ),
                           const SizedBox(height: 12),
-                          _field('Secteur / Quartier', _sectorCtrl, Icons.business_outlined),
+                          _field('Secteur / Quartier', _sectorCtrl,
+                              Icons.business_outlined),
                           const SizedBox(height: 12),
                           _field('Téléphone', _phoneCtrl, Icons.phone_outlined,
-                              hint: '06 12 34 56 78', keyboardType: TextInputType.phone),
+                              hint: '06 12 34 56 78',
+                              keyboardType: TextInputType.phone),
                           const SizedBox(height: 12),
                           _Dropdown(
                             icon: Icons.group_outlined,
                             hint: 'Groupe familial',
                             value: _selectedFamilyId,
                             items: families.map((f) => f.id).toList(),
-                            displayItems: families.map((f) => f.displayName).toList(),
-                            onChanged: (v) => setState(() => _selectedFamilyId = v),
+                            displayItems:
+                                families.map((f) => f.displayName).toList(),
+                            onChanged: (v) =>
+                                setState(() => _selectedFamilyId = v),
                             nullable: true,
                           ),
                         ],
@@ -200,12 +233,55 @@ class _PersonFormPageState extends State<PersonFormPage> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              _VulnChip(label: 'Enfant', icon: Icons.child_care, flag: 'enfant', selected: _vulnerabilityFlags.contains('enfant'), onTap: () => _toggleVulnerability('enfant'), color: AppColors.blue),
-                              _VulnChip(label: 'Personne âgée', icon: Icons.elderly, flag: 'personne_agee', selected: _vulnerabilityFlags.contains('personne_agee'), onTap: () => _toggleVulnerability('personne_agee'), color: AppColors.purple),
-                              _VulnChip(label: 'PMR', icon: Icons.accessible, flag: 'pmr', selected: _vulnerabilityFlags.contains('pmr'), onTap: () => _toggleVulnerability('pmr'), color: AppColors.green),
-                              _VulnChip(label: 'Traitement médical', icon: Icons.medical_services_outlined, flag: 'medical', selected: _needFlags.contains(NeedType.medical), onTap: () => _toggleNeed(NeedType.medical), color: AppColors.red),
-                              _VulnChip(label: 'Grossesse', icon: Icons.pregnant_woman, flag: 'grossesse', selected: _vulnerabilityFlags.contains('grossesse'), onTap: () => _toggleVulnerability('grossesse'), color: Colors.pink),
-                              _VulnChip(label: 'Animal', icon: Icons.pets_outlined, flag: 'animal', selected: _needFlags.contains(NeedType.animal), onTap: () => _toggleNeed(NeedType.animal), color: AppColors.amber),
+                              _VulnChip(
+                                  label: 'Enfant',
+                                  icon: Icons.child_care,
+                                  flag: 'enfant',
+                                  selected:
+                                      _vulnerabilityFlags.contains('enfant'),
+                                  onTap: () => _toggleVulnerability('enfant'),
+                                  color: AppColors.blue),
+                              _VulnChip(
+                                  label: 'Personne âgée',
+                                  icon: Icons.elderly,
+                                  flag: 'personne_agee',
+                                  selected: _vulnerabilityFlags
+                                      .contains('personne_agee'),
+                                  onTap: () =>
+                                      _toggleVulnerability('personne_agee'),
+                                  color: AppColors.purple),
+                              _VulnChip(
+                                  label: 'PMR',
+                                  icon: Icons.accessible,
+                                  flag: 'pmr',
+                                  selected: _vulnerabilityFlags.contains('pmr'),
+                                  onTap: () => _toggleVulnerability('pmr'),
+                                  color: AppColors.green),
+                              _VulnChip(
+                                  label: 'Traitement médical',
+                                  icon: Icons.medical_services_outlined,
+                                  flag: 'medical',
+                                  selected:
+                                      _needFlags.contains(NeedType.medical),
+                                  onTap: () => _toggleNeed(NeedType.medical),
+                                  color: AppColors.red),
+                              _VulnChip(
+                                  label: 'Grossesse',
+                                  icon: Icons.pregnant_woman,
+                                  flag: 'grossesse',
+                                  selected:
+                                      _vulnerabilityFlags.contains('grossesse'),
+                                  onTap: () =>
+                                      _toggleVulnerability('grossesse'),
+                                  color: Colors.pink),
+                              _VulnChip(
+                                  label: 'Animal',
+                                  icon: Icons.pets_outlined,
+                                  flag: 'animal',
+                                  selected:
+                                      _needFlags.contains(NeedType.animal),
+                                  onTap: () => _toggleNeed(NeedType.animal),
+                                  color: AppColors.amber),
                             ],
                           ),
                         ],
@@ -230,11 +306,21 @@ class _PersonFormPageState extends State<PersonFormPage> {
                             icon: Icons.shield_outlined,
                             hint: 'Statut initial *',
                             value: _initialStatus.name,
-                            items: [PersonStatus.present.name, PersonStatus.nonPointee.name, PersonStatus.aVerifier.name],
-                            displayItems: ['Présent(e)', 'Non pointé(e)', 'Suivi requis'],
+                            items: [
+                              PersonStatus.present.name,
+                              PersonStatus.nonPointee.name,
+                              PersonStatus.aVerifier.name
+                            ],
+                            displayItems: const [
+                              'Présent(e)',
+                              'Non pointé(e)',
+                              'Suivi requis'
+                            ],
                             onChanged: (v) {
                               if (v != null) {
-                                setState(() => _initialStatus = PersonStatus.values.firstWhere((s) => s.name == v));
+                                setState(() => _initialStatus = PersonStatus
+                                    .values
+                                    .firstWhere((s) => s.name == v));
                               }
                             },
                           ),
@@ -246,7 +332,11 @@ class _PersonFormPageState extends State<PersonFormPage> {
                       ElevatedButton.icon(
                         onPressed: _isLoading ? null : _submit,
                         icon: _isLoading
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white))
                             : const Icon(Icons.qr_code_2),
                         label: const Text('Enregistrer et générer le QR'),
                       ),
@@ -267,7 +357,10 @@ class _PersonFormPageState extends State<PersonFormPage> {
     );
   }
 
-  Widget _field(String label, TextEditingController ctrl, IconData icon, {
+  Widget _field(
+    String label,
+    TextEditingController ctrl,
+    IconData icon, {
     String? hint,
     bool required = false,
     TextInputType keyboardType = TextInputType.text,
@@ -280,7 +373,9 @@ class _PersonFormPageState extends State<PersonFormPage> {
         hintText: hint ?? label,
         labelText: null,
       ),
-      validator: required ? (v) => v == null || v.trim().isEmpty ? 'Champ requis' : null : null,
+      validator: required
+          ? (v) => v == null || v.trim().isEmpty ? 'Champ requis' : null
+          : null,
     );
   }
 }
@@ -304,7 +399,12 @@ class _FormSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2))
+        ],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -314,7 +414,11 @@ class _FormSection extends StatelessWidget {
             children: [
               Icon(icon, size: 18, color: iconColor),
               const SizedBox(width: 8),
-              Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary)),
             ],
           ),
           const SizedBox(height: 14),
@@ -361,17 +465,26 @@ class _Dropdown extends StatelessWidget {
             children: [
               Icon(icon, size: 18, color: AppColors.textSecondary),
               const SizedBox(width: 10),
-              Text(hint, style: const TextStyle(color: AppColors.textHint, fontSize: 14)),
+              Text(hint,
+                  style:
+                      const TextStyle(color: AppColors.textHint, fontSize: 14)),
             ],
           ),
-          icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
+          icon: const Icon(Icons.keyboard_arrow_down,
+              color: AppColors.textSecondary),
           items: [
             if (nullable)
-              DropdownMenuItem<String>(value: null, child: Text('Aucun', style: const TextStyle(color: AppColors.textSecondary, fontSize: 14))),
+              const DropdownMenuItem<String>(
+                  value: null,
+                  child: Text('Aucun',
+                      style: TextStyle(
+                          color: AppColors.textSecondary, fontSize: 14))),
             ...items.asMap().entries.map((e) => DropdownMenuItem<String>(
-              value: e.value,
-              child: Text(displayItems?[e.key] ?? e.value, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),
-            )),
+                  value: e.value,
+                  child: Text(displayItems?[e.key] ?? e.value,
+                      style: const TextStyle(
+                          fontSize: 14, color: AppColors.textPrimary)),
+                )),
           ],
           onChanged: onChanged,
         ),
@@ -407,12 +520,15 @@ class _VulnChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? color.withValues(alpha: 0.12) : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: selected ? color : AppColors.divider, width: selected ? 1.5 : 1),
+          border: Border.all(
+              color: selected ? color : AppColors.divider,
+              width: selected ? 1.5 : 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: selected ? color : AppColors.textSecondary),
+            Icon(icon,
+                size: 16, color: selected ? color : AppColors.textSecondary),
             const SizedBox(width: 6),
             Text(
               label,

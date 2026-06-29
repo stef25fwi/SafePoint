@@ -19,56 +19,56 @@ class StatusBadge extends StatelessWidget {
   factory StatusBadge.fromPersonStatus(PersonStatus status) {
     switch (status) {
       case PersonStatus.present:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Présent(e)',
           textColor: AppColors.greenText,
           bgColor: AppColors.greenLight,
         );
       case PersonStatus.nonPointee:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Non pointé(e)',
           textColor: AppColors.grayText,
           bgColor: AppColors.grayLight,
         );
       case PersonStatus.aVerifier:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Suivi requis',
           textColor: AppColors.orangeText,
           bgColor: AppColors.orangeLight,
         );
       case PersonStatus.transfertEnAttente:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Transfert en attente',
           textColor: AppColors.blueText,
           bgColor: AppColors.blueLight,
           outlined: true,
         );
       case PersonStatus.transfertEnCours:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Transfert en cours',
           textColor: AppColors.blueText,
           bgColor: AppColors.blueLight,
         );
       case PersonStatus.transferee:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Transféré(e)',
           textColor: AppColors.purpleText,
           bgColor: AppColors.purpleLight,
         );
       case PersonStatus.sortieTemporaire:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Sortie temp.',
           textColor: AppColors.orangeText,
           bgColor: AppColors.orangeLight,
         );
       case PersonStatus.sortieDefinitive:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Sorti(e)',
           textColor: AppColors.grayText,
           bgColor: AppColors.grayLight,
         );
       case PersonStatus.hospitalisee:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Hospitalisé(e)',
           textColor: AppColors.redText,
           bgColor: AppColors.redLight,
@@ -79,25 +79,25 @@ class StatusBadge extends StatelessWidget {
   factory StatusBadge.fromTransferStatus(TransferStatus status) {
     switch (status) {
       case TransferStatus.pending:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'En attente',
           textColor: AppColors.orangeText,
           bgColor: AppColors.orangeLight,
         );
       case TransferStatus.inProgress:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'En cours',
           textColor: AppColors.blueText,
           bgColor: AppColors.blueLight,
         );
       case TransferStatus.confirmed:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Confirmé',
           textColor: AppColors.greenText,
           bgColor: AppColors.greenLight,
         );
       case TransferStatus.cancelled:
-        return StatusBadge(
+        return const StatusBadge(
           label: 'Annulé',
           textColor: AppColors.grayText,
           bgColor: AppColors.grayLight,
@@ -112,7 +112,9 @@ class StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(20),
-        border: outlined ? Border.all(color: textColor.withValues(alpha: 0.4)) : null,
+        border: outlined
+            ? Border.all(color: textColor.withValues(alpha: 0.4))
+            : null,
       ),
       child: Text(
         label,
@@ -139,20 +141,20 @@ class FamilyStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isSeparated) {
-      return StatusBadge(
+      return const StatusBadge(
         label: 'Séparée',
         textColor: AppColors.orangeText,
         bgColor: AppColors.orangeLight,
       );
     }
     if (isToVerify) {
-      return StatusBadge(
+      return const StatusBadge(
         label: 'À vérifier',
-        textColor: const Color(0xFFD97706),
-        bgColor: const Color(0xFFFEF3C7),
+        textColor: Color(0xFFD97706),
+        bgColor: Color(0xFFFEF3C7),
       );
     }
-    return StatusBadge(
+    return const StatusBadge(
       label: 'Complète',
       textColor: AppColors.greenText,
       bgColor: AppColors.greenLight,

@@ -19,7 +19,8 @@ class DashboardPage extends StatelessWidget {
     final state = context.watch<AppState>();
     final shelter = state.currentShelter;
     final persons = state.allPersons;
-    final presentCount = persons.where((p) => p.status == PersonStatus.present).length;
+    final presentCount =
+        persons.where((p) => p.status == PersonStatus.present).length;
     final alertCount = state.openAlerts.length;
     final familyCount = state.currentFamilies.length;
     final needs = state.currentNeeds;
@@ -39,7 +40,8 @@ class DashboardPage extends StatelessWidget {
                   alertCount: alertCount,
                   onNotificationTap: () => _goToAlerts(context),
                 ),
-                CrisisBanner(label: 'Événement actif : ${state.activeEvent.name}'),
+                CrisisBanner(
+                    label: 'Événement actif : ${state.activeEvent.name}'),
                 const SizedBox(height: 12),
               ],
             ),
@@ -51,7 +53,8 @@ class DashboardPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  Expanded(child: KpiCard(
+                  Expanded(
+                      child: KpiCard(
                     title: 'Présents',
                     value: '$presentCount',
                     icon: Icons.group_outlined,
@@ -59,14 +62,16 @@ class DashboardPage extends StatelessWidget {
                     onTap: () => _goToPersons(context),
                   )),
                   const SizedBox(width: 10),
-                  Expanded(child: KpiCard(
+                  Expanded(
+                      child: KpiCard(
                     title: 'Places restantes',
                     value: '${shelter.placesRestantes}',
                     icon: Icons.bed_outlined,
                     color: AppColors.green,
                   )),
                   const SizedBox(width: 10),
-                  Expanded(child: KpiCard(
+                  Expanded(
+                      child: KpiCard(
                     title: 'Familles',
                     value: '$familyCount',
                     icon: Icons.family_restroom,
@@ -74,7 +79,8 @@ class DashboardPage extends StatelessWidget {
                     onTap: () => _goToFamilies(context),
                   )),
                   const SizedBox(width: 10),
-                  Expanded(child: KpiCard(
+                  Expanded(
+                      child: KpiCard(
                     title: 'Alertes',
                     value: '$alertCount',
                     icon: Icons.warning_amber_rounded,
@@ -95,7 +101,12 @@ class DashboardPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2))
+                  ],
                 ),
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -103,27 +114,36 @@ class DashboardPage extends StatelessWidget {
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.qr_code_scanner, size: 20, color: AppColors.navy),
+                        Icon(Icons.qr_code_scanner,
+                            size: 20, color: AppColors.navy),
                         SizedBox(width: 8),
-                        Text('Pointage rapide', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                        Text('Pointage rapide',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary)),
                       ],
                     ),
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        Expanded(child: _QuickAction(
+                        Expanded(
+                            child: _QuickAction(
                           icon: Icons.qr_code_scanner,
                           label: 'Scanner QR',
                           onTap: () => _goToScanner(context),
                         )),
                         const SizedBox(width: 10),
-                        Expanded(child: _QuickAction(
+                        Expanded(
+                            child: _QuickAction(
                           icon: Icons.person_add_alt_1,
                           label: 'Ajouter\nune personne',
-                          onTap: () => Navigator.pushNamed(context, AppRoutes.personForm),
+                          onTap: () => Navigator.pushNamed(
+                              context, AppRoutes.personForm),
                         )),
                         const SizedBox(width: 10),
-                        Expanded(child: _QuickAction(
+                        Expanded(
+                            child: _QuickAction(
                           icon: Icons.groups,
                           label: 'Pointer un\ngroupe',
                           onTap: () => _goToFamilies(context),
@@ -146,7 +166,12 @@ class DashboardPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2))
+                    ],
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -159,12 +184,15 @@ class DashboardPage extends StatelessWidget {
                         onAction: () => _goToAlerts(context),
                       ),
                       const SizedBox(height: 12),
-                      ...needs.map((n) => _NeedRow(
-                        icon: _needIcon(n.type),
-                        label: n.type.label,
-                        count: needs.where((x) => x.type == n.type).length,
-                        urgent: n.urgency == 'critical',
-                      )).toSet().toList(),
+                      ...needs
+                          .map((n) => _NeedRow(
+                                icon: _needIcon(n.type),
+                                label: n.type.label,
+                                count:
+                                    needs.where((x) => x.type == n.type).length,
+                                urgent: n.urgency == 'critical',
+                              ))
+                          .toSet(),
                     ],
                   ),
                 ),
@@ -181,7 +209,12 @@ class DashboardPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2))
+                    ],
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -193,7 +226,8 @@ class DashboardPage extends StatelessWidget {
                         iconColor: AppColors.navy,
                       ),
                       const SizedBox(height: 12),
-                      ...recentCheckins.map((c) => _ActivityRow(checkin: c, state: state)),
+                      ...recentCheckins
+                          .map((c) => _ActivityRow(checkin: c, state: state)),
                     ],
                   ),
                 ),
@@ -209,7 +243,12 @@ class DashboardPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2))
+                  ],
                 ),
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -217,12 +256,21 @@ class DashboardPage extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.bar_chart, size: 20, color: AppColors.navy),
+                        const Icon(Icons.bar_chart,
+                            size: 20, color: AppColors.navy),
                         const SizedBox(width: 8),
-                        const Expanded(child: Text('Capacité du centre', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
+                        const Expanded(
+                            child: Text('Capacité du centre',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary))),
                         Text(
                           '${shelter.currentCount} / ${shelter.capacity}',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.blue),
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.blue),
                         ),
                       ],
                     ),
@@ -232,14 +280,17 @@ class DashboardPage extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: shelter.capacityPercent,
                         backgroundColor: AppColors.divider,
-                        color: shelter.capacityPercent > 0.9 ? AppColors.red : AppColors.blue,
+                        color: shelter.capacityPercent > 0.9
+                            ? AppColors.red
+                            : AppColors.blue,
                         minHeight: 8,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       '${(shelter.capacityPercent * 100).toStringAsFixed(0)} % de capacité utilisée',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -254,13 +305,20 @@ class DashboardPage extends StatelessWidget {
 
   IconData _needIcon(NeedType type) {
     switch (type) {
-      case NeedType.medical: return Icons.medical_services_outlined;
-      case NeedType.babyKit: return Icons.child_friendly_outlined;
-      case NeedType.blanket: return Icons.airline_seat_flat_angled;
-      case NeedType.water: return Icons.water_drop_outlined;
-      case NeedType.food: return Icons.restaurant_outlined;
-      case NeedType.animal: return Icons.pets_outlined;
-      default: return Icons.inventory_2_outlined;
+      case NeedType.medical:
+        return Icons.medical_services_outlined;
+      case NeedType.babyKit:
+        return Icons.child_friendly_outlined;
+      case NeedType.blanket:
+        return Icons.airline_seat_flat_angled;
+      case NeedType.water:
+        return Icons.water_drop_outlined;
+      case NeedType.food:
+        return Icons.restaurant_outlined;
+      case NeedType.animal:
+        return Icons.pets_outlined;
+      default:
+        return Icons.inventory_2_outlined;
     }
   }
 
@@ -297,7 +355,11 @@ class _OfflineBannerSimple extends StatelessWidget {
         children: [
           Icon(Icons.wifi_off, color: Colors.white, size: 14),
           SizedBox(width: 6),
-          Text('Mode hors connexion', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12)),
+          Text('Mode hors connexion',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12)),
         ],
       ),
     );
@@ -309,7 +371,8 @@ class _QuickAction extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _QuickAction({required this.icon, required this.label, required this.onTap});
+  const _QuickAction(
+      {required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -328,7 +391,10 @@ class _QuickAction extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.navy),
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.navy),
               textAlign: TextAlign.center,
             ),
           ],
@@ -344,7 +410,11 @@ class _NeedRow extends StatelessWidget {
   final int count;
   final bool urgent;
 
-  const _NeedRow({required this.icon, required this.label, required this.count, required this.urgent});
+  const _NeedRow(
+      {required this.icon,
+      required this.label,
+      required this.count,
+      required this.urgent});
 
   @override
   Widget build(BuildContext context) {
@@ -355,14 +425,17 @@ class _NeedRow extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.orangeLight,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: AppColors.orange, size: 18),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary))),
+          Expanded(
+              child: Text(label,
+                  style: const TextStyle(
+                      fontSize: 14, color: AppColors.textPrimary))),
           Text(
             '$count',
             style: TextStyle(
@@ -388,7 +461,9 @@ class _ActivityRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final person = state.getPersonById(checkin.personId);
-    final family = checkin.familyId != null ? state.getFamilyById(checkin.familyId!) : null;
+    final family = checkin.familyId != null
+        ? state.getFamilyById(checkin.familyId!)
+        : null;
     final h = checkin.createdAt.hour.toString().padLeft(2, '0');
     final m = checkin.createdAt.minute.toString().padLeft(2, '0');
 
@@ -412,17 +487,23 @@ class _ActivityRow extends StatelessWidget {
               children: [
                 Text(
                   _title(person?.fullName, family?.displayName),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary),
                 ),
                 if (person != null)
                   Text(
                     person.currentZone ?? '',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
                   ),
               ],
             ),
           ),
-          Text('$h:$m', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+          Text('$h:$m',
+              style: const TextStyle(
+                  fontSize: 12, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -431,7 +512,9 @@ class _ActivityRow extends StatelessWidget {
   String _title(String? personName, String? familyName) {
     switch (checkin.type) {
       case CheckinType.arrival:
-        return familyName != null ? 'Arrivée de ${familyName}' : 'Arrivée de ${personName ?? "inconnu"}';
+        return familyName != null
+            ? 'Arrivée de $familyName'
+            : 'Arrivée de ${personName ?? "inconnu"}';
       case CheckinType.mealBreakfast:
         return 'Pointage repas – Petit-déjeuner';
       case CheckinType.mealLunch:
@@ -451,34 +534,46 @@ class _ActivityRow extends StatelessWidget {
 
   Color get _iconBg {
     switch (checkin.type) {
-      case CheckinType.arrival: return AppColors.greenLight;
+      case CheckinType.arrival:
+        return AppColors.greenLight;
       case CheckinType.mealBreakfast:
       case CheckinType.mealLunch:
-      case CheckinType.mealDinner: return AppColors.orangeLight;
-      case CheckinType.transferDeparture: return AppColors.blueLight;
-      default: return AppColors.grayLight;
+      case CheckinType.mealDinner:
+        return AppColors.orangeLight;
+      case CheckinType.transferDeparture:
+        return AppColors.blueLight;
+      default:
+        return AppColors.grayLight;
     }
   }
 
   Color get _iconColor {
     switch (checkin.type) {
-      case CheckinType.arrival: return AppColors.green;
+      case CheckinType.arrival:
+        return AppColors.green;
       case CheckinType.mealBreakfast:
       case CheckinType.mealLunch:
-      case CheckinType.mealDinner: return AppColors.orange;
-      case CheckinType.transferDeparture: return AppColors.blue;
-      default: return AppColors.grayText;
+      case CheckinType.mealDinner:
+        return AppColors.orange;
+      case CheckinType.transferDeparture:
+        return AppColors.blue;
+      default:
+        return AppColors.grayText;
     }
   }
 
   IconData get _icon {
     switch (checkin.type) {
-      case CheckinType.arrival: return Icons.group;
+      case CheckinType.arrival:
+        return Icons.group;
       case CheckinType.mealBreakfast:
       case CheckinType.mealLunch:
-      case CheckinType.mealDinner: return Icons.restaurant_outlined;
-      case CheckinType.transferDeparture: return Icons.directions_bus;
-      default: return Icons.check_circle_outline;
+      case CheckinType.mealDinner:
+        return Icons.restaurant_outlined;
+      case CheckinType.transferDeparture:
+        return Icons.directions_bus;
+      default:
+        return Icons.check_circle_outline;
     }
   }
 }

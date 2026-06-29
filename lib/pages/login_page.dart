@@ -46,7 +46,9 @@ class _LoginPageState extends State<LoginPage> {
     });
     await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
-    context.read<AppState>().login(_agentCodeController.text, _selectedShelterId);
+    context
+        .read<AppState>()
+        .login(_agentCodeController.text, _selectedShelterId);
     Navigator.of(context).pushReplacementNamed(AppRoutes.shell);
   }
 
@@ -54,7 +56,9 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
-    context.read<AppState>().login('offline', _selectedShelterId, offline: true);
+    context
+        .read<AppState>()
+        .login('offline', _selectedShelterId, offline: true);
     Navigator.of(context).pushReplacementNamed(AppRoutes.shell);
   }
 
@@ -68,11 +72,11 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               const SizedBox(height: 32),
               // Logo + Title
-              Column(
+              const Column(
                 children: [
-                  const VolcanoLogo(size: 80),
-                  const SizedBox(height: 16),
-                  const Text(
+                  VolcanoLogo(size: 80),
+                  SizedBox(height: 16),
+                  Text(
                     'safepointapp.',
                     style: TextStyle(
                       fontSize: 28,
@@ -80,15 +84,17 @@ class _LoginPageState extends State<LoginPage> {
                       color: AppColors.navy,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     'Accès sécurisé – Gestion de crise',
-                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                    style:
+                        TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              const CrisisBanner(label: 'Événement actif : Éruption volcanique – Soufrière'),
+              const CrisisBanner(
+                  label: 'Événement actif : Éruption volcanique – Soufrière'),
               const SizedBox(height: 20),
 
               // Form card
@@ -111,33 +117,46 @@ class _LoginPageState extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Agent code
-                      const Text('Code agent', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary)),
+                      const Text('Code agent',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: AppColors.textPrimary)),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _agentCodeController,
                         decoration: const InputDecoration(
                           hintText: 'Entrez votre code agent',
-                          prefixIcon: Icon(Icons.person_outline, color: AppColors.textSecondary),
+                          prefixIcon: Icon(Icons.person_outline,
+                              color: AppColors.textSecondary),
                         ),
                         textInputAction: TextInputAction.next,
                       ),
                       const SizedBox(height: 16),
 
                       // Password
-                      const Text('Mot de passe', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary)),
+                      const Text('Mot de passe',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: AppColors.textPrimary)),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           hintText: 'Entrez votre mot de passe',
-                          prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                          prefixIcon: const Icon(Icons.lock_outline,
+                              color: AppColors.textSecondary),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
                               color: AppColors.textSecondary,
                             ),
-                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                            onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword),
                           ),
                         ),
                         textInputAction: TextInputAction.done,
@@ -146,7 +165,11 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 16),
 
                       // Shelter selector
-                      const Text('Centre affecté', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary)),
+                      const Text('Centre affecté',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: AppColors.textPrimary)),
                       const SizedBox(height: 8),
                       Container(
                         decoration: BoxDecoration(
@@ -159,20 +182,26 @@ class _LoginPageState extends State<LoginPage> {
                           child: DropdownButton<String>(
                             value: _selectedShelterId,
                             isExpanded: true,
-                            icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
+                            icon: const Icon(Icons.keyboard_arrow_down,
+                                color: AppColors.textSecondary),
                             items: _shelters.map((s) {
                               return DropdownMenuItem<String>(
                                 value: s['id'],
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.business_outlined, size: 18, color: AppColors.blue),
+                                    const Icon(Icons.business_outlined,
+                                        size: 18, color: AppColors.blue),
                                     const SizedBox(width: 10),
-                                    Text(s['name']!, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),
+                                    Text(s['name']!,
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.textPrimary)),
                                   ],
                                 ),
                               );
                             }).toList(),
-                            onChanged: (v) => setState(() => _selectedShelterId = v!),
+                            onChanged: (v) =>
+                                setState(() => _selectedShelterId = v!),
                           ),
                         ),
                       ),
@@ -186,18 +215,25 @@ class _LoginPageState extends State<LoginPage> {
                             height: 20,
                             child: Checkbox(
                               value: _rememberMe,
-                              onChanged: (v) => setState(() => _rememberMe = v!),
+                              onChanged: (v) =>
+                                  setState(() => _rememberMe = v!),
                               activeColor: AppColors.blue,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4)),
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Text('Se souvenir de moi', style: TextStyle(fontSize: 13, color: AppColors.textPrimary)),
+                          const Text('Se souvenir de moi',
+                              style: TextStyle(
+                                  fontSize: 13, color: AppColors.textPrimary)),
                           const Spacer(),
                           GestureDetector(
                             child: const Text(
                               'Mot de passe oublié ?',
-                              style: TextStyle(fontSize: 13, color: AppColors.blue, fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.blue,
+                                  fontWeight: FontWeight.w600),
                             ),
                           ),
                         ],
@@ -205,7 +241,9 @@ class _LoginPageState extends State<LoginPage> {
 
                       if (_error != null) ...[
                         const SizedBox(height: 12),
-                        Text(_error!, style: const TextStyle(color: AppColors.red, fontSize: 13)),
+                        Text(_error!,
+                            style: const TextStyle(
+                                color: AppColors.red, fontSize: 13)),
                       ],
                       const SizedBox(height: 20),
 
@@ -213,7 +251,11 @@ class _LoginPageState extends State<LoginPage> {
                       ElevatedButton(
                         onPressed: _isLoading ? null : _signIn,
                         child: _isLoading
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white))
                             : const Text('Se connecter'),
                       ),
                       const SizedBox(height: 12),
@@ -259,14 +301,16 @@ class _LoginPageState extends State<LoginPage> {
                         icon: Icons.sync,
                         color: AppColors.green,
                         title: 'Synchronisation automatique',
-                        subtitle: 'Les données sont mises à jour en temps réel.',
+                        subtitle:
+                            'Les données sont mises à jour en temps réel.',
                       ),
                       SizedBox(height: 14),
                       _FeatureItem(
                         icon: Icons.wifi_outlined,
                         color: AppColors.orange,
                         title: 'Utilisable hors ligne',
-                        subtitle: 'Accédez aux fonctionnalités essentielles sans réseau.',
+                        subtitle:
+                            'Accédez aux fonctionnalités essentielles sans réseau.',
                       ),
                     ],
                   ),
@@ -312,9 +356,15 @@ class _FeatureItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary)),
+              Text(title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: AppColors.textPrimary)),
               const SizedBox(height: 2),
-              Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text(subtitle,
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textSecondary)),
             ],
           ),
         ),
