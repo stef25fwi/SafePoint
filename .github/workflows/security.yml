@@ -1,0 +1,76 @@
+name: Security & Dependency Checks
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+
+jobs:
+  dependency-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check for outdated packages
+        run: flutter pub outdated
+        continue-on-error: true
+
+      - name: Check for vulnerable packages
+        run: |
+          flutter pub global activate dart_code_checker
+          dart_code_checker --pub-check
+        continue-on-error: true
+
+  credential-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: TruffleHog secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check for unused imports
+        run: dart fix --dry-run lib/ test/
+        continue-on-error: true
+
+      - name: Verify no TODO comments in critical files
+        run: |
+          if grep -r "TODO.*Firebase\|TODO.*Security\|TODO.*Auth" lib/domain/ lib/infrastructure/; then
+            echo "Critical TODOs found"
+            exit 1
+          fi
+        continue-on-error: true

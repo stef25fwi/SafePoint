@@ -14,6 +14,7 @@ import '../domain/repositories/crisis_event_repository.dart';
 import '../domain/repositories/family_repository.dart';
 import '../domain/repositories/need_repository.dart';
 import '../domain/repositories/file_repository.dart';
+import '../domain/repositories/messaging_repository.dart';
 
 // Firebase implementations (V1)
 import '../infrastructure/firebase/firebase_auth_repository.dart';
@@ -27,6 +28,7 @@ import '../infrastructure/firebase/firebase_crisis_event_repository.dart';
 import '../infrastructure/firebase/firebase_family_repository.dart';
 import '../infrastructure/firebase/firebase_need_repository.dart';
 import '../infrastructure/firebase/firebase_file_repository.dart';
+import '../infrastructure/firebase/firebase_messaging_repository.dart';
 
 // API implementations (V2 placeholders)
 import '../infrastructure/api/api_client.dart';
@@ -47,6 +49,7 @@ import '../domain/services/alert_service.dart';
 import '../domain/services/transfer_service.dart';
 import '../domain/services/crisis_event_service.dart';
 import '../domain/services/file_service.dart';
+import '../domain/services/messaging_service.dart';
 
 import '../core/constants/app_constants.dart';
 
@@ -77,6 +80,7 @@ class ServiceLocator {
   late FamilyRepository _familyRepository;
   late NeedRepository _needRepository;
   late FileRepository _fileRepository;
+  late MessagingRepository _messagingRepository;
 
   // Domain services
   late AuditService _auditService;
@@ -87,6 +91,7 @@ class ServiceLocator {
   late TransferService _transferService;
   late CrisisEventService _crisisEventService;
   late FileService _fileService;
+  late MessagingService _messagingService;
 
   // ---------------------------------------------------------------------------
   // Initialisation — appelée depuis main.dart après Firebase.initializeApp
@@ -119,6 +124,7 @@ class ServiceLocator {
     _familyRepository = FirebaseFamilyRepository();
     _needRepository = FirebaseNeedRepository();
     _fileRepository = FirebaseFileRepository();
+    _messagingRepository = FirebaseMessagingRepository();
   }
 
   void _initApiImplementations() {
@@ -149,6 +155,7 @@ class ServiceLocator {
     _transferService = TransferService(_transferRepository, _auditService);
     _crisisEventService = CrisisEventService(_crisisEventRepository, _auditService);
     _fileService = FileService(_fileRepository, _auditService);
+    _messagingService = MessagingService(_messagingRepository, _auditService);
   }
 
   // ---------------------------------------------------------------------------
@@ -164,11 +171,13 @@ class ServiceLocator {
   TransferService get transferService => _transferService;
   CrisisEventService get crisisEventService => _crisisEventService;
   FileService get fileService => _fileService;
+  MessagingService get messagingService => _messagingService;
 
   // Repositories directs (pour cas spéciaux)
   FamilyRepository get familyRepository => _familyRepository;
   NeedRepository get needRepository => _needRepository;
   FileRepository get fileRepository => _fileRepository;
+  MessagingRepository get messagingRepository => _messagingRepository;
 }
 
 // Vérifie si Firebase est disponible
