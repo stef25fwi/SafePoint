@@ -36,7 +36,8 @@ class AppHeader extends StatelessWidget {
                   color: AppColors.blueLight,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new, size: 18, color: AppColors.blue),
+                child: const Icon(Icons.arrow_back_ios_new,
+                    size: 18, color: AppColors.blue),
               ),
             ),
             const SizedBox(width: 10),
@@ -72,10 +73,12 @@ class AppHeader extends StatelessWidget {
             Stack(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.notifications_outlined, size: 26, color: AppColors.textSecondary),
+                  icon: const Icon(Icons.notifications_outlined,
+                      size: 26, color: AppColors.textSecondary),
                   onPressed: onNotificationTap,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  constraints:
+                      const BoxConstraints(minWidth: 36, minHeight: 36),
                 ),
                 if (alertCount > 0)
                   Positioned(

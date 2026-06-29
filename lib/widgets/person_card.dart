@@ -36,22 +36,26 @@ class PersonCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today_outlined, size: 13, color: AppColors.textSecondary),
+                      const Icon(Icons.calendar_today_outlined,
+                          size: 13, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         '${person.displayAge} ans',
-                        style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                            fontSize: 13, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 13, color: AppColors.textSecondary),
+                      const Icon(Icons.location_on_outlined,
+                          size: 13, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         person.currentZone ?? 'Zone non définie',
-                        style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                            fontSize: 13, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -61,7 +65,8 @@ class PersonCard extends StatelessWidget {
             const SizedBox(width: 8),
             StatusBadge.fromPersonStatus(person.status),
             const SizedBox(width: 6),
-            const Icon(Icons.chevron_right, color: AppColors.textHint, size: 20),
+            const Icon(Icons.chevron_right,
+                color: AppColors.textHint, size: 20),
           ],
         ),
       ),
@@ -77,14 +82,20 @@ class _PersonAvatar extends StatelessWidget {
 
   Color get _bgColor {
     if (person.status == PersonStatus.aVerifier) return AppColors.orangeLight;
-    if (person.vulnerabilityFlags.contains('personne_agee')) return const Color(0xFFE8EAF6);
-    if (person.vulnerabilityFlags.contains('enfant')) return const Color(0xFFE3F2FD);
+    if (person.vulnerabilityFlags.contains('personne_agee')) {
+      return const Color(0xFFE8EAF6);
+    }
+    if (person.vulnerabilityFlags.contains('enfant')) {
+      return const Color(0xFFE3F2FD);
+    }
     return AppColors.grayLight;
   }
 
   Color get _iconColor {
     if (person.status == PersonStatus.aVerifier) return AppColors.orangeText;
-    if (person.vulnerabilityFlags.contains('personne_agee')) return AppColors.navy;
+    if (person.vulnerabilityFlags.contains('personne_agee')) {
+      return AppColors.navy;
+    }
     if (person.vulnerabilityFlags.contains('enfant')) return AppColors.blue;
     return AppColors.textSecondary;
   }

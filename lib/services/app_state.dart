@@ -37,7 +37,16 @@ class AppState extends ChangeNotifier {
       capacity: 350,
       currentCount: 217,
       status: ShelterStatus.open,
-      zones: ['Dortoir A', 'Dortoir B', 'Dortoir C', 'Espace familles', 'Zone PMR', 'Zone A – Accueil', 'Zone B – Soins', 'Zone C – Hébergement'],
+      zones: [
+        'Dortoir A',
+        'Dortoir B',
+        'Dortoir C',
+        'Espace familles',
+        'Zone PMR',
+        'Zone A – Accueil',
+        'Zone B – Soins',
+        'Zone C – Hébergement'
+      ],
     ),
     const ShelterModel(
       id: 'shelter_2',
@@ -339,7 +348,8 @@ class AppState extends ChangeNotifier {
         type: 'medical_need',
         severity: AlertSeverity.critical,
         title: 'Besoin médical prioritaire – Élise FÉLIX',
-        description: 'Femme enceinte signalant des douleurs et besoin de suivi.',
+        description:
+            'Femme enceinte signalant des douleurs et besoin de suivi.',
         status: AlertStatus.open,
         location: 'Zone B – Soins',
         createdAt: now.subtract(const Duration(hours: 1, minutes: 45)),
@@ -458,8 +468,9 @@ class AppState extends ChangeNotifier {
   ShelterModel get currentShelter =>
       shelters.firstWhere((s) => s.id == currentShelterId);
 
-  List<PersonModel> get allPersons =>
-      _persons.where((p) => !p.isDeleted && p.shelterId == currentShelterId).toList();
+  List<PersonModel> get allPersons => _persons
+      .where((p) => !p.isDeleted && p.shelterId == currentShelterId)
+      .toList();
 
   List<PersonModel> get presentPersons =>
       allPersons.where((p) => p.status == PersonStatus.present).toList();
@@ -470,8 +481,10 @@ class AppState extends ChangeNotifier {
   List<FamilyModel> get currentFamilies =>
       _families.where((f) => f.shelterId == currentShelterId).toList();
 
-  List<AlertModel> get openAlerts =>
-      _alerts.where((a) => a.shelterId == currentShelterId && a.status != AlertStatus.resolved).toList();
+  List<AlertModel> get openAlerts => _alerts
+      .where((a) =>
+          a.shelterId == currentShelterId && a.status != AlertStatus.resolved)
+      .toList();
 
   List<AlertModel> get allAlerts =>
       _alerts.where((a) => a.shelterId == currentShelterId).toList();
@@ -480,12 +493,16 @@ class AppState extends ChangeNotifier {
       _checkins.where((c) => c.shelterId == currentShelterId).toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-  List<TransferModel> get currentTransfers =>
-      _transfers.where((t) => t.fromShelterId == currentShelterId || t.toShelterId == currentShelterId).toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  List<TransferModel> get currentTransfers => _transfers
+      .where((t) =>
+          t.fromShelterId == currentShelterId ||
+          t.toShelterId == currentShelterId)
+      .toList()
+    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-  List<NeedModel> get currentNeeds =>
-      _needs.where((n) => n.shelterId == currentShelterId && n.status == 'open').toList();
+  List<NeedModel> get currentNeeds => _needs
+      .where((n) => n.shelterId == currentShelterId && n.status == 'open')
+      .toList();
 
   PersonModel? getPersonById(String id) {
     try {
@@ -513,18 +530,23 @@ class AppState extends ChangeNotifier {
   }
 
   List<NeedModel> getPersonNeeds(String personId) {
-    return _needs.where((n) => n.personId == personId && n.status == 'open').toList();
+    return _needs
+        .where((n) => n.personId == personId && n.status == 'open')
+        .toList();
   }
 
   List<PersonModel> getFamilyMembers(String familyId) {
-    return _persons.where((p) => p.familyId == familyId && !p.isDeleted).toList();
+    return _persons
+        .where((p) => p.familyId == familyId && !p.isDeleted)
+        .toList();
   }
 
   // Counts per shelter for reports
   Map<String, int> get countsByShelterId {
     final map = <String, int>{};
     for (final s in shelters) {
-      map[s.id] = _persons.where((p) => p.shelterId == s.id && !p.isDeleted).length;
+      map[s.id] =
+          _persons.where((p) => p.shelterId == s.id && !p.isDeleted).length;
     }
     return map;
   }
@@ -559,7 +581,8 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void createCheckin({required String personId, required CheckinType type, String? notes}) {
+  void createCheckin(
+      {required String personId, required CheckinType type, String? notes}) {
     final checkin = CheckinModel(
       id: 'checkin_${DateTime.now().millisecondsSinceEpoch}',
       eventId: 'event_1',
@@ -579,9 +602,12 @@ class AppState extends ChangeNotifier {
         newStatus = PersonStatus.sortieDefinitive;
       } else if (type == CheckinType.exitTemporary) {
         newStatus = PersonStatus.sortieTemporaire;
-      } else if (type == CheckinType.arrival || type == CheckinType.presence ||
-          type == CheckinType.mealBreakfast || type == CheckinType.mealLunch ||
-          type == CheckinType.mealDinner || type == CheckinType.night) {
+      } else if (type == CheckinType.arrival ||
+          type == CheckinType.presence ||
+          type == CheckinType.mealBreakfast ||
+          type == CheckinType.mealLunch ||
+          type == CheckinType.mealDinner ||
+          type == CheckinType.night) {
         newStatus = PersonStatus.present;
       }
       _persons[idx] = _persons[idx].copyWith(

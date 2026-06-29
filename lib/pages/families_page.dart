@@ -21,7 +21,10 @@ class _FamiliesPageState extends State<FamiliesPage> {
   List<FamilyModel> _filtered(List<FamilyModel> families) {
     var list = families;
     if (_search.isNotEmpty) {
-      list = list.where((f) => f.displayName.toLowerCase().contains(_search.toLowerCase())).toList();
+      list = list
+          .where((f) =>
+              f.displayName.toLowerCase().contains(_search.toLowerCase()))
+          .toList();
     }
     switch (_filter) {
       case FamilyFilter.separated:
@@ -29,7 +32,9 @@ class _FamiliesPageState extends State<FamiliesPage> {
       case FamilyFilter.childrenAlone:
         return list.where((f) => f.hasChildrenAlone).toList();
       case FamilyFilter.complete:
-        return list.where((f) => !f.isSeparated && !f.hasChildrenAlone).toList();
+        return list
+            .where((f) => !f.isSeparated && !f.hasChildrenAlone)
+            .toList();
       case FamilyFilter.all:
         return list;
     }
@@ -39,9 +44,12 @@ class _FamiliesPageState extends State<FamiliesPage> {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final families = _filtered(state.currentFamilies);
-    final completeCount = state.currentFamilies.where((f) => !f.isSeparated).length;
-    final separatedCount = state.currentFamilies.where((f) => f.isSeparated).length;
-    final childAloneCount = state.currentFamilies.where((f) => f.hasChildrenAlone).length;
+    final completeCount =
+        state.currentFamilies.where((f) => !f.isSeparated).length;
+    final separatedCount =
+        state.currentFamilies.where((f) => f.isSeparated).length;
+    final childAloneCount =
+        state.currentFamilies.where((f) => f.hasChildrenAlone).length;
 
     return Scaffold(
       backgroundColor: AppColors.bgPage,
@@ -61,8 +69,14 @@ class _FamiliesPageState extends State<FamiliesPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Familles et regroupement', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                  Text('${state.currentFamilies.length} groupes familiaux', style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                  const Text('Familles et regroupement',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary)),
+                  Text('${state.currentFamilies.length} groupes familiaux',
+                      style: const TextStyle(
+                          fontSize: 13, color: AppColors.textSecondary)),
                 ],
               ),
             ),
@@ -74,11 +88,26 @@ class _FamiliesPageState extends State<FamiliesPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                Expanded(child: _FamilyKpi(icon: Icons.family_restroom, label: 'Complètes', value: completeCount, color: AppColors.purple)),
+                Expanded(
+                    child: _FamilyKpi(
+                        icon: Icons.family_restroom,
+                        label: 'Complètes',
+                        value: completeCount,
+                        color: AppColors.purple)),
                 const SizedBox(width: 10),
-                Expanded(child: _FamilyKpi(icon: Icons.group_off, label: 'Séparées', value: separatedCount, color: AppColors.orange)),
+                Expanded(
+                    child: _FamilyKpi(
+                        icon: Icons.group_off,
+                        label: 'Séparées',
+                        value: separatedCount,
+                        color: AppColors.orange)),
                 const SizedBox(width: 10),
-                Expanded(child: _FamilyKpi(icon: Icons.child_care, label: 'Enfants seuls', value: childAloneCount, color: AppColors.blue)),
+                Expanded(
+                    child: _FamilyKpi(
+                        icon: Icons.child_care,
+                        label: 'Enfants seuls',
+                        value: childAloneCount,
+                        color: AppColors.blue)),
               ],
             ),
           ),
@@ -91,13 +120,22 @@ class _FamiliesPageState extends State<FamiliesPage> {
               onChanged: (v) => setState(() => _search = v),
               decoration: InputDecoration(
                 hintText: 'Rechercher une famille',
-                prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
+                prefixIcon:
+                    const Icon(Icons.search, color: AppColors.textSecondary),
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.divider)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.divider)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.blue, width: 1.5)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.divider)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.divider)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide:
+                        const BorderSide(color: AppColors.blue, width: 1.5)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               ),
             ),
           ),
@@ -110,13 +148,29 @@ class _FamiliesPageState extends State<FamiliesPage> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                _FChip(label: 'Toutes', filter: FamilyFilter.all, current: _filter, onTap: (f) => setState(() => _filter = f)),
+                _FChip(
+                    label: 'Toutes',
+                    filter: FamilyFilter.all,
+                    current: _filter,
+                    onTap: (f) => setState(() => _filter = f)),
                 const SizedBox(width: 8),
-                _FChip(label: 'Complètes', filter: FamilyFilter.complete, current: _filter, onTap: (f) => setState(() => _filter = f)),
+                _FChip(
+                    label: 'Complètes',
+                    filter: FamilyFilter.complete,
+                    current: _filter,
+                    onTap: (f) => setState(() => _filter = f)),
                 const SizedBox(width: 8),
-                _FChip(label: 'Séparées', filter: FamilyFilter.separated, current: _filter, onTap: (f) => setState(() => _filter = f)),
+                _FChip(
+                    label: 'Séparées',
+                    filter: FamilyFilter.separated,
+                    current: _filter,
+                    onTap: (f) => setState(() => _filter = f)),
                 const SizedBox(width: 8),
-                _FChip(label: 'Enfants seuls', filter: FamilyFilter.childrenAlone, current: _filter, onTap: (f) => setState(() => _filter = f)),
+                _FChip(
+                    label: 'Enfants seuls',
+                    filter: FamilyFilter.childrenAlone,
+                    current: _filter,
+                    onTap: (f) => setState(() => _filter = f)),
               ],
             ),
           ),
@@ -124,9 +178,12 @@ class _FamiliesPageState extends State<FamiliesPage> {
 
           Expanded(
             child: families.isEmpty
-                ? const Center(child: Text('Aucune famille trouvée', style: TextStyle(color: AppColors.textSecondary)))
+                ? const Center(
+                    child: Text('Aucune famille trouvée',
+                        style: TextStyle(color: AppColors.textSecondary)))
                 : ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     itemCount: families.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (ctx, i) => _FamilyCard(
@@ -134,7 +191,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
                       state: state,
                       onTap: () {},
                       onMarkSeparated: () {
-                        state.markFamilySeparated(families[i].id, !families[i].isSeparated);
+                        state.markFamilySeparated(
+                            families[i].id, !families[i].isSeparated);
                       },
                     ),
                   ),
@@ -151,7 +209,11 @@ class _FamilyKpi extends StatelessWidget {
   final int value;
   final Color color;
 
-  const _FamilyKpi({required this.icon, required this.label, required this.value, required this.color});
+  const _FamilyKpi(
+      {required this.icon,
+      required this.label,
+      required this.value,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +222,12 @@ class _FamilyKpi extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Row(
         children: [
@@ -169,8 +236,15 @@ class _FamilyKpi extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-              Text('$value', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color, height: 1.1)),
+              Text(label,
+                  style: const TextStyle(
+                      fontSize: 11, color: AppColors.textSecondary)),
+              Text('$value',
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                      height: 1.1)),
             ],
           ),
         ],
@@ -185,7 +259,11 @@ class _FamilyCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onMarkSeparated;
 
-  const _FamilyCard({required this.family, required this.state, required this.onTap, required this.onMarkSeparated});
+  const _FamilyCard(
+      {required this.family,
+      required this.state,
+      required this.onTap,
+      required this.onMarkSeparated});
 
   Color get _iconBgColor {
     if (family.isSeparated) return AppColors.orangeLight;
@@ -207,7 +285,12 @@ class _FamilyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2))
+        ],
       ),
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -217,19 +300,26 @@ class _FamilyCard extends StatelessWidget {
               Container(
                 width: 42,
                 height: 42,
-                decoration: BoxDecoration(color: _iconBgColor, shape: BoxShape.circle),
+                decoration:
+                    BoxDecoration(color: _iconBgColor, shape: BoxShape.circle),
                 child: Icon(Icons.family_restroom, color: _iconColor, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   '${family.displayName} – ${family.membersCount} personne${family.membersCount > 1 ? 's' : ''}',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary),
                 ),
               ),
-              FamilyStatusBadge(isSeparated: family.isSeparated, isToVerify: family.hasChildrenAlone),
+              FamilyStatusBadge(
+                  isSeparated: family.isSeparated,
+                  isToVerify: family.hasChildrenAlone),
               const SizedBox(width: 6),
-              const Icon(Icons.chevron_right, size: 18, color: AppColors.textHint),
+              const Icon(Icons.chevron_right,
+                  size: 18, color: AppColors.textHint),
             ],
           ),
           if (members.isNotEmpty) ...[
@@ -237,16 +327,17 @@ class _FamilyCard extends StatelessWidget {
             Row(
               children: [
                 ...members.take(4).map((m) => Container(
-                  margin: const EdgeInsets.only(right: 6),
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.grayLight,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(Icons.person, size: 18, color: AppColors.grayText),
-                )),
+                      margin: const EdgeInsets.only(right: 6),
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppColors.grayLight,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(Icons.person,
+                          size: 18, color: AppColors.grayText),
+                    )),
                 if (family.membersCount > 4)
                   Container(
                     width: 36,
@@ -256,7 +347,12 @@ class _FamilyCard extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
                     ),
-                    child: Center(child: Text('+${family.membersCount - 4}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.blue))),
+                    child: Center(
+                        child: Text('+${family.membersCount - 4}',
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.blue))),
                   ),
               ],
             ),
@@ -264,7 +360,8 @@ class _FamilyCard extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
+              const Icon(Icons.location_on_outlined,
+                  size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 4),
               const Text(
                 'Zone assignée : ',
@@ -272,13 +369,19 @@ class _FamilyCard extends StatelessWidget {
               ),
               Text(
                 family.assignedZone ?? 'Non définie',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.navy),
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.navy),
               ),
               const Spacer(),
-              const Icon(Icons.group_outlined, size: 14, color: AppColors.textSecondary),
+              const Icon(Icons.group_outlined,
+                  size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 4),
-              Text('${family.membersCount} personne${family.membersCount > 1 ? 's' : ''}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text(
+                  '${family.membersCount} personne${family.membersCount > 1 ? 's' : ''}',
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textSecondary)),
             ],
           ),
         ],
@@ -293,7 +396,11 @@ class _FChip extends StatelessWidget {
   final FamilyFilter current;
   final Function(FamilyFilter) onTap;
 
-  const _FChip({required this.label, required this.filter, required this.current, required this.onTap});
+  const _FChip(
+      {required this.label,
+      required this.filter,
+      required this.current,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +414,11 @@ class _FChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: sel ? AppColors.navy : AppColors.divider),
         ),
-        child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: sel ? Colors.white : AppColors.textPrimary)),
+        child: Text(label,
+            style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: sel ? Colors.white : AppColors.textPrimary)),
       ),
     );
   }

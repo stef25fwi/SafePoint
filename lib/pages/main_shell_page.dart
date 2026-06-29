@@ -83,7 +83,9 @@ class MainShellPageState extends State<MainShellPage> {
                           width: 54,
                           height: 54,
                           decoration: BoxDecoration(
-                            color: _currentIndex == 2 ? AppColors.blue : AppColors.navy,
+                            color: _currentIndex == 2
+                                ? AppColors.blue
+                                : AppColors.navy,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -93,7 +95,8 @@ class MainShellPageState extends State<MainShellPage> {
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 26),
+                          child: const Icon(Icons.qr_code_scanner,
+                              color: Colors.white, size: 26),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -101,7 +104,9 @@ class MainShellPageState extends State<MainShellPage> {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: _currentIndex == 2 ? AppColors.blue : AppColors.grayText,
+                            color: _currentIndex == 2
+                                ? AppColors.blue
+                                : AppColors.grayText,
                           ),
                         ),
                       ],
@@ -226,7 +231,8 @@ class _NavItemWithBadge extends StatelessWidget {
                     right: -8,
                     top: -6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 1),
                       decoration: BoxDecoration(
                         color: AppColors.red,
                         borderRadius: BorderRadius.circular(10),
@@ -234,7 +240,10 @@ class _NavItemWithBadge extends StatelessWidget {
                       ),
                       child: Text(
                         badge > 99 ? '99+' : '$badge',
-                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

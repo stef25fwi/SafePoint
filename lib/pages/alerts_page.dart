@@ -14,7 +14,8 @@ class AlertsPage extends StatefulWidget {
   State<AlertsPage> createState() => _AlertsPageState();
 }
 
-class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateMixin {
+class _AlertsPageState extends State<AlertsPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabCtrl;
 
   @override
@@ -33,9 +34,18 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
     final all = state.allAlerts;
     switch (tab) {
       case AlertTab.critical:
-        return all.where((a) => a.severity == AlertSeverity.critical && a.status != AlertStatus.resolved).toList();
+        return all
+            .where((a) =>
+                a.severity == AlertSeverity.critical &&
+                a.status != AlertStatus.resolved)
+            .toList();
       case AlertTab.toTreat:
-        return all.where((a) => (a.status == AlertStatus.open || a.status == AlertStatus.inProgress) && a.severity != AlertSeverity.critical).toList();
+        return all
+            .where((a) =>
+                (a.status == AlertStatus.open ||
+                    a.status == AlertStatus.inProgress) &&
+                a.severity != AlertSeverity.critical)
+            .toList();
       case AlertTab.resolved:
         return all.where((a) => a.status == AlertStatus.resolved).toList();
     }
@@ -45,8 +55,13 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final totalOpen = state.openAlerts.length;
-    final criticalCount = state.allAlerts.where((a) => a.severity == AlertSeverity.critical && a.status != AlertStatus.resolved).length;
-    final inProgressCount = state.allAlerts.where((a) => a.status == AlertStatus.inProgress).length;
+    final criticalCount = state.allAlerts
+        .where((a) =>
+            a.severity == AlertSeverity.critical &&
+            a.status != AlertStatus.resolved)
+        .length;
+    final inProgressCount =
+        state.allAlerts.where((a) => a.status == AlertStatus.inProgress).length;
     final needsCount = state.currentNeeds.length;
 
     return Scaffold(
@@ -66,12 +81,22 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
               children: [
                 const Expanded(
                   child: Text('Alertes et besoins urgents',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary)),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  decoration: BoxDecoration(color: AppColors.red, borderRadius: BorderRadius.circular(20)),
-                  child: Text('$totalOpen alertes', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                      color: AppColors.red,
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Text('$totalOpen alertes',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13)),
                 ),
               ],
             ),
@@ -97,7 +122,8 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: AppColors.textPrimary,
                 unselectedLabelColor: AppColors.textSecondary,
-                labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                labelStyle:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 dividerColor: Colors.transparent,
                 padding: const EdgeInsets.all(4),
                 tabs: const [
@@ -105,7 +131,8 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.warning_rounded, size: 16, color: AppColors.red),
+                        Icon(Icons.warning_rounded,
+                            size: 16, color: AppColors.red),
                         SizedBox(width: 4),
                         Text('Critiques'),
                       ],
@@ -125,7 +152,8 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.check_circle, size: 16, color: AppColors.green),
+                        Icon(Icons.check_circle,
+                            size: 16, color: AppColors.green),
                         SizedBox(width: 4),
                         Text('Résolues'),
                       ],
@@ -142,11 +170,23 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                _AlertKpi(icon: Icons.warning_rounded, label: 'Critiques', value: criticalCount, color: AppColors.red),
+                _AlertKpi(
+                    icon: Icons.warning_rounded,
+                    label: 'Critiques',
+                    value: criticalCount,
+                    color: AppColors.red),
                 const SizedBox(width: 10),
-                _AlertKpi(icon: Icons.schedule, label: 'En cours', value: inProgressCount, color: AppColors.orange),
+                _AlertKpi(
+                    icon: Icons.schedule,
+                    label: 'En cours',
+                    value: inProgressCount,
+                    color: AppColors.orange),
                 const SizedBox(width: 10),
-                _AlertKpi(icon: Icons.inventory_2_outlined, label: 'Besoins', value: needsCount, color: AppColors.blue),
+                _AlertKpi(
+                    icon: Icons.inventory_2_outlined,
+                    label: 'Besoins',
+                    value: needsCount,
+                    color: AppColors.blue),
               ],
             ),
           ),
@@ -162,19 +202,27 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(tab == AlertTab.resolved ? Icons.check_circle_outline : Icons.notifications_off_outlined,
-                            size: 48, color: AppColors.textHint),
+                        Icon(
+                            tab == AlertTab.resolved
+                                ? Icons.check_circle_outline
+                                : Icons.notifications_off_outlined,
+                            size: 48,
+                            color: AppColors.textHint),
                         const SizedBox(height: 12),
                         Text(
-                          tab == AlertTab.resolved ? 'Aucune alerte résolue' : 'Aucune alerte',
-                          style: const TextStyle(color: AppColors.textSecondary),
+                          tab == AlertTab.resolved
+                              ? 'Aucune alerte résolue'
+                              : 'Aucune alerte',
+                          style:
+                              const TextStyle(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
                   );
                 }
                 return ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   itemCount: alerts.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (ctx, i) => AlertCard(
@@ -203,7 +251,11 @@ class _AlertKpi extends StatelessWidget {
   final int value;
   final Color color;
 
-  const _AlertKpi({required this.icon, required this.label, required this.value, required this.color});
+  const _AlertKpi(
+      {required this.icon,
+      required this.label,
+      required this.value,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +265,12 @@ class _AlertKpi extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 1))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 4,
+                offset: const Offset(0, 1))
+          ],
         ),
         child: Row(
           children: [
@@ -222,8 +279,15 @@ class _AlertKpi extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                Text('$value', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color, height: 1.1)),
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 11, color: AppColors.textSecondary)),
+                Text('$value',
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                        height: 1.1)),
               ],
             ),
           ],

@@ -86,16 +86,22 @@ class TransferCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Origine', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                    const Text('Origine',
+                        style: TextStyle(
+                            fontSize: 11, color: AppColors.textSecondary)),
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Icon(Icons.business, size: 14, color: _iconColor.withValues(alpha: 0.7)),
+                        Icon(Icons.business,
+                            size: 14, color: _iconColor.withValues(alpha: 0.7)),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             transfer.fromShelterName,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary),
                           ),
                         ),
                       ],
@@ -105,22 +111,30 @@ class TransferCard extends StatelessWidget {
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Icon(Icons.arrow_forward, size: 18, color: AppColors.textSecondary),
+                child: Icon(Icons.arrow_forward,
+                    size: 18, color: AppColors.textSecondary),
               ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Destination', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                    const Text('Destination',
+                        style: TextStyle(
+                            fontSize: 11, color: AppColors.textSecondary)),
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Icon(Icons.business, size: 14, color: AppColors.green.withValues(alpha: 0.8)),
+                        Icon(Icons.business,
+                            size: 14,
+                            color: AppColors.green.withValues(alpha: 0.8)),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             transfer.toShelterName,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary),
                           ),
                         ),
                       ],
@@ -133,7 +147,8 @@ class TransferCard extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              const Icon(Icons.calendar_today_outlined, size: 14, color: AppColors.textSecondary),
+              const Icon(Icons.calendar_today_outlined,
+                  size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 4),
               Text(
                 transfer.departedAt != null
@@ -141,7 +156,8 @@ class TransferCard extends StatelessWidget {
                     : transfer.departurePlannedAt != null
                         ? 'Départ prévu : Aujourd\'hui • ${fmt.format(transfer.departurePlannedAt!)}'
                         : 'Heure non définie',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: const TextStyle(
+                    fontSize: 12, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -149,7 +165,8 @@ class TransferCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.check_circle_outline, size: 14, color: AppColors.green),
+                const Icon(Icons.check_circle_outline,
+                    size: 14, color: AppColors.green),
                 const SizedBox(width: 4),
                 Text(
                   'Arrivée confirmée • ${fmt.format(transfer.arrivalConfirmedAt!)}',
@@ -158,7 +175,8 @@ class TransferCard extends StatelessWidget {
               ],
             ),
           ],
-          if (transfer.status == TransferStatus.inProgress && onConfirmArrival != null) ...[
+          if (transfer.status == TransferStatus.inProgress &&
+              onConfirmArrival != null) ...[
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
@@ -169,13 +187,15 @@ class TransferCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   side: const BorderSide(color: AppColors.blue),
                   foregroundColor: AppColors.blue,
-                  textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  textStyle: const TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 child: const Text('Confirmer l\'arrivée'),
               ),
             ),
           ],
-          if (transfer.status == TransferStatus.pending && onMarkDeparted != null) ...[
+          if (transfer.status == TransferStatus.pending &&
+              onMarkDeparted != null) ...[
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
@@ -185,7 +205,8 @@ class TransferCard extends StatelessWidget {
                   minimumSize: const Size(0, 36),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   backgroundColor: AppColors.blue,
-                  textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  textStyle: const TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 child: const Text('Marquer départ'),
               ),
