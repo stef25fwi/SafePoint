@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
+import '../core/app_routes.dart';
 import '../models/alert_model.dart';
 import '../models/enums.dart';
 import '../services/app_state.dart';
@@ -227,13 +228,19 @@ class _AlertsPageState extends State<AlertsPage>
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (ctx, i) => AlertCard(
                     alert: alerts[i],
-                    onTreat: alerts[i].status == AlertStatus.open
+                    onTreat: alerts[i].status == AlertStatus.open &&
+                            state.canResolveAlerts
                         ? () => state.markAlertInProgress(alerts[i].id)
                         : null,
-                    onResolve: alerts[i].status == AlertStatus.inProgress
+                    onResolve: alerts[i].status == AlertStatus.inProgress &&
+                            state.canResolveAlerts
                         ? () => state.resolveAlert(alerts[i].id)
                         : null,
-                    onSee: alerts[i].type == 'stock_low' ? () {} : null,
+                    onSee: alerts[i].type == 'stock_low'
+                        ? () => Navigator.pushNamed(context,
+                            AppRoutes.shelterDetail,
+                            arguments: alerts[i].shelterId)
+                        : null,
                   ),
                 );
               }).toList(),

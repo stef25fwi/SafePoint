@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
+import '../models/enums.dart';
 import '../services/app_state.dart';
 import 'dashboard_page.dart';
 import 'persons_page.dart';
@@ -30,110 +31,178 @@ class MainShellPageState extends State<MainShellPage> {
     setState(() => _currentIndex = index);
   }
 
+  Color _roleColor(UserRole role) {
+    switch (role) {
+      case UserRole.agentAccueil:
+        return AppColors.blue;
+      case UserRole.responsableCentre:
+        return AppColors.green;
+      case UserRole.celluleCrise:
+        return AppColors.orange;
+      case UserRole.prefectureLecture:
+        return AppColors.purple;
+      case UserRole.admin:
+        return AppColors.red;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final alertCount = state.openAlerts.length;
+
+    final canScan = state.canCheckIn;
 
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: _pages,
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: SizedBox(
-            height: 60,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Role indicator strip
+          Container(
+            width: double.infinity,
+            color: _roleColor(state.currentRole).withValues(alpha: 0.1),
+            padding: const EdgeInsets.symmetric(vertical: 3),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _NavItem(
-                  icon: Icons.home_outlined,
-                  activeIcon: Icons.home,
-                  label: 'Accueil',
-                  index: 0,
-                  current: _currentIndex,
-                  onTap: () => setTab(0),
-                ),
-                _NavItem(
-                  icon: Icons.group_outlined,
-                  activeIcon: Icons.group,
-                  label: 'Personnes',
-                  index: 1,
-                  current: _currentIndex,
-                  onTap: () => setTab(1),
-                ),
-                // Scanner center button (elevated)
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setTab(2),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 54,
-                          height: 54,
-                          decoration: BoxDecoration(
-                            color: _currentIndex == 2
-                                ? AppColors.blue
-                                : AppColors.navy,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.navy.withValues(alpha: 0.35),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(Icons.qr_code_scanner,
-                              color: Colors.white, size: 26),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Scanner',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: _currentIndex == 2
-                                ? AppColors.blue
-                                : AppColors.grayText,
-                          ),
-                        ),
-                      ],
-                    ),
+                Icon(Icons.badge_outlined,
+                    size: 12, color: _roleColor(state.currentRole)),
+                const SizedBox(width: 4),
+                Text(
+                  state.currentRole.label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: _roleColor(state.currentRole),
                   ),
-                ),
-                _NavItemWithBadge(
-                  icon: Icons.notifications_outlined,
-                  activeIcon: Icons.notifications,
-                  label: 'Alertes',
-                  index: 3,
-                  current: _currentIndex,
-                  badge: alertCount,
-                  onTap: () => setTab(3),
-                ),
-                _NavItem(
-                  icon: Icons.bar_chart_outlined,
-                  activeIcon: Icons.bar_chart,
-                  label: 'Rapports',
-                  index: 4,
-                  current: _currentIndex,
-                  onTap: () => setTab(4),
                 ),
               ],
             ),
           ),
-        ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              child: SizedBox(
+                height: 60,
+                child: Row(
+                  children: [
+                    _NavItem(
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home,
+                      label: 'Accueil',
+                      index: 0,
+                      current: _currentIndex,
+                      onTap: () => setTab(0),
+                    ),
+                    _NavItem(
+                      icon: Icons.group_outlined,
+                      activeIcon: Icons.group,
+                      label: 'Personnes',
+                      index: 1,
+                      current: _currentIndex,
+                      onTap: () => setTab(1),
+                    ),
+                    // Scanner center button (locked for prefectureLecture)
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          if (!canScan) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Accès réservé aux agents de pointage'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            return;
+                          }
+                          setTab(2);
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 54,
+                              height: 54,
+                              decoration: BoxDecoration(
+                                color: !canScan
+                                    ? AppColors.grayText
+                                    : _currentIndex == 2
+                                        ? AppColors.blue
+                                        : AppColors.navy,
+                                shape: BoxShape.circle,
+                                boxShadow: canScan
+                                    ? [
+                                        BoxShadow(
+                                          color: AppColors.navy
+                                              .withValues(alpha: 0.35),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ]
+                                    : [],
+                              ),
+                              child: Icon(
+                                canScan
+                                    ? Icons.qr_code_scanner
+                                    : Icons.lock_outline,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Scanner',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: !canScan
+                                    ? AppColors.textHint
+                                    : _currentIndex == 2
+                                        ? AppColors.blue
+                                        : AppColors.grayText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _NavItemWithBadge(
+                      icon: Icons.notifications_outlined,
+                      activeIcon: Icons.notifications,
+                      label: 'Alertes',
+                      index: 3,
+                      current: _currentIndex,
+                      badge: alertCount,
+                      onTap: () => setTab(3),
+                    ),
+                    _NavItem(
+                      icon: Icons.bar_chart_outlined,
+                      activeIcon: Icons.bar_chart,
+                      label: 'Rapports',
+                      index: 4,
+                      current: _currentIndex,
+                      onTap: () => setTab(4),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

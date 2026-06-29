@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
 import '../core/app_routes.dart';
+import '../models/enums.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
 import '../widgets/crisis_banner.dart';
@@ -21,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   String? _error;
   String _selectedShelterId = 'shelter_1';
+  UserRole _selectedRole = UserRole.agentAccueil;
 
   final List<Map<String, String>> _shelters = [
     {'id': 'shelter_1', 'name': 'Gymnase de Baie-Mahault'},
@@ -46,9 +48,11 @@ class _LoginPageState extends State<LoginPage> {
     });
     await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
-    context
-        .read<AppState>()
-        .login(_agentCodeController.text, _selectedShelterId);
+    context.read<AppState>().login(
+          _agentCodeController.text,
+          _selectedShelterId,
+          role: _selectedRole,
+        );
     Navigator.of(context).pushReplacementNamed(AppRoutes.shell);
   }
 
@@ -56,10 +60,28 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
-    context
-        .read<AppState>()
-        .login('offline', _selectedShelterId, offline: true);
+    context.read<AppState>().login(
+          'offline',
+          _selectedShelterId,
+          offline: true,
+          role: _selectedRole,
+        );
     Navigator.of(context).pushReplacementNamed(AppRoutes.shell);
+  }
+
+  IconData _roleIcon(UserRole role) {
+    switch (role) {
+      case UserRole.agentAccueil:
+        return Icons.badge_outlined;
+      case UserRole.responsableCentre:
+        return Icons.manage_accounts_outlined;
+      case UserRole.celluleCrise:
+        return Icons.warning_amber_outlined;
+      case UserRole.prefectureLecture:
+        return Icons.account_balance_outlined;
+      case UserRole.admin:
+        return Icons.admin_panel_settings_outlined;
+    }
   }
 
   @override
@@ -202,6 +224,49 @@ class _LoginPageState extends State<LoginPage> {
                             }).toList(),
                             onChanged: (v) =>
                                 setState(() => _selectedShelterId = v!),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Role selector
+                      const Text('Profil d\'accès',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: AppColors.textPrimary)),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.divider),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<UserRole>(
+                            value: _selectedRole,
+                            isExpanded: true,
+                            icon: const Icon(Icons.keyboard_arrow_down,
+                                color: AppColors.textSecondary),
+                            items: UserRole.values.map((r) {
+                              return DropdownMenuItem<UserRole>(
+                                value: r,
+                                child: Row(
+                                  children: [
+                                    Icon(_roleIcon(r),
+                                        size: 18, color: AppColors.navy),
+                                    const SizedBox(width: 10),
+                                    Text(r.label,
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.textPrimary)),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (v) =>
+                                setState(() => _selectedRole = v!),
                           ),
                         ),
                       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../models/emergency_event_model.dart';
 import '../models/shelter_model.dart';
 import '../models/person_model.dart';
@@ -8,6 +9,7 @@ import '../models/alert_model.dart';
 import '../models/transfer_model.dart';
 import '../models/need_model.dart';
 import '../models/enums.dart';
+import 'firestore_service.dart';
 
 class AppState extends ChangeNotifier {
   // Auth
@@ -17,8 +19,40 @@ class AppState extends ChangeNotifier {
   UserRole currentRole = UserRole.responsableCentre;
   bool isOffline = false;
 
+  // ── Permission helpers ─────────────────────────────────────────
+  bool get canCreatePerson => currentRole != UserRole.prefectureLecture;
+  bool get canCheckIn => currentRole != UserRole.prefectureLecture;
+  bool get canSeeNominativeData => currentRole != UserRole.prefectureLecture;
+  bool get canResolveAlerts =>
+      currentRole == UserRole.responsableCentre ||
+      currentRole == UserRole.celluleCrise ||
+      currentRole == UserRole.admin;
+  bool get canValidateTransfers =>
+      currentRole == UserRole.responsableCentre ||
+      currentRole == UserRole.admin;
+  bool get canExportData =>
+      currentRole == UserRole.celluleCrise || currentRole == UserRole.admin;
+  bool get isAdmin => currentRole == UserRole.admin;
+  bool get canActivateCrisis =>
+      currentRole == UserRole.prefectureLecture || currentRole == UserRole.admin;
+  bool get isCrisisActive => activeEvent.status == EventStatus.active;
+  bool get canEditShelter =>
+      currentRole == UserRole.responsableCentre || currentRole == UserRole.admin;
+
+  // Firestore disponible si Firebase est initialisé
+  bool get _firestoreEnabled {
+    try {
+      Firebase.app();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  FirestoreService get _fs => FirestoreService.instance;
+
   // --- Mock Data ---
-  final EmergencyEventModel activeEvent = EmergencyEventModel(
+  EmergencyEventModel activeEvent = EmergencyEventModel(
     id: 'event_1',
     name: 'Éruption volcanique – Soufrière',
     type: 'eruption',
@@ -43,10 +77,22 @@ class AppState extends ChangeNotifier {
         'Dortoir C',
         'Espace familles',
         'Zone PMR',
-        'Zone A – Accueil',
-        'Zone B – Soins',
-        'Zone C – Hébergement'
+        'Infirmerie',
+        'Zone repas',
+        'Zone animaux',
       ],
+      responsableName: 'Marc THÉODORE',
+      responsablePhone: '0690 11 22 33',
+      agentNames: ['Agent LUREL', 'Agent NESTOR', 'Agent BAPTISTE'],
+      stock: {
+        'eau': 650,
+        'repas': 230,
+        'couvertures': 180,
+        'lits': 120,
+        'masques': 85,
+        'couches': 48,
+        'medicaments': 12,
+      },
     ),
     const ShelterModel(
       id: 'shelter_2',
@@ -57,7 +103,19 @@ class AppState extends ChangeNotifier {
       capacity: 280,
       currentCount: 324,
       status: ShelterStatus.full,
-      zones: ['Salle A', 'Salle B', 'Espace familles', 'Zone médicale'],
+      zones: ['Salle A', 'Salle B', 'Espace familles', 'Zone médicale', 'Zone repas'],
+      responsableName: 'Sophie JEAN-MARIE',
+      responsablePhone: '0690 44 55 66',
+      agentNames: ['Agent FELIX', 'Agent PIERRE'],
+      stock: {
+        'eau': 200,
+        'repas': 290,
+        'couvertures': 210,
+        'lits': 75,
+        'masques': 0,
+        'couches': 15,
+        'medicaments': 8,
+      },
     ),
     const ShelterModel(
       id: 'shelter_3',
@@ -68,7 +126,19 @@ class AppState extends ChangeNotifier {
       capacity: 400,
       currentCount: 242,
       status: ShelterStatus.open,
-      zones: ['Hall principal', 'Annexe A', 'Zone PMR', 'Espace enfants'],
+      zones: ['Hall principal', 'Annexe A', 'Zone PMR', 'Espace enfants', 'Infirmerie'],
+      responsableName: 'Paul DUMONT',
+      responsablePhone: '0690 77 88 99',
+      agentNames: ['Agent MARTIN', 'Agent DUPONT', 'Agent LACOUR', 'Agent RIVIÈRE'],
+      stock: {
+        'eau': 900,
+        'repas': 260,
+        'couvertures': 300,
+        'lits': 200,
+        'masques': 150,
+        'couches': 30,
+        'medicaments': 20,
+      },
     ),
   ];
 
@@ -188,7 +258,7 @@ class AppState extends ChangeNotifier {
         originCommune: 'Gourbeyre',
         currentZone: 'Dortoir C',
         status: PersonStatus.nonPointee,
-        vulnerabilityFlags: ['personne_agee'],
+        vulnerabilityFlags: ['personne_agee', 'sans_papiers', 'isolement'],
         needFlags: [],
         createdAt: now.subtract(const Duration(hours: 6)),
         lastCheckinAt: null,
@@ -552,10 +622,16 @@ class AppState extends ChangeNotifier {
   }
 
   // Actions
-  void login(String agentCode, String shelterId, {bool offline = false}) {
+  void login(
+    String agentCode,
+    String shelterId, {
+    bool offline = false,
+    UserRole role = UserRole.agentAccueil,
+  }) {
     isLoggedIn = true;
     currentAgentCode = agentCode;
     currentShelterId = shelterId;
+    currentRole = role;
     isOffline = offline;
     notifyListeners();
   }
@@ -569,15 +645,19 @@ class AppState extends ChangeNotifier {
 
   void addPerson(PersonModel person) {
     _persons.add(person);
-    // Add arrival checkin
-    _checkins.add(CheckinModel(
+    final arrivalCheckin = CheckinModel(
       id: 'checkin_${DateTime.now().millisecondsSinceEpoch}',
       eventId: 'event_1',
       shelterId: currentShelterId,
       personId: person.id,
       type: CheckinType.arrival,
       createdAt: DateTime.now(),
-    ));
+    );
+    _checkins.add(arrivalCheckin);
+    if (_firestoreEnabled) {
+      _fs.savePerson(person);
+      _fs.saveCheckin(arrivalCheckin);
+    }
     notifyListeners();
   }
 
@@ -596,12 +676,14 @@ class AppState extends ChangeNotifier {
 
     // Update person status
     final idx = _persons.indexWhere((p) => p.id == personId);
+    PersonStatus? newStatus;
     if (idx >= 0) {
-      PersonStatus? newStatus;
       if (type == CheckinType.exitFinal) {
         newStatus = PersonStatus.sortieDefinitive;
       } else if (type == CheckinType.exitTemporary) {
         newStatus = PersonStatus.sortieTemporaire;
+      } else if (type == CheckinType.medical) {
+        newStatus = PersonStatus.hospitalisee;
       } else if (type == CheckinType.arrival ||
           type == CheckinType.presence ||
           type == CheckinType.mealBreakfast ||
@@ -615,16 +697,26 @@ class AppState extends ChangeNotifier {
         lastCheckinAt: DateTime.now(),
       );
     }
+    if (_firestoreEnabled) {
+      _fs.saveCheckin(checkin);
+      if (newStatus != null) {
+        _fs.updatePersonStatus(personId, newStatus, DateTime.now());
+      }
+    }
     notifyListeners();
   }
 
   void resolveAlert(String alertId) {
     final idx = _alerts.indexWhere((a) => a.id == alertId);
     if (idx >= 0) {
+      final resolved = DateTime.now();
       _alerts[idx] = _alerts[idx].copyWith(
         status: AlertStatus.resolved,
-        resolvedAt: DateTime.now(),
+        resolvedAt: resolved,
       );
+      if (_firestoreEnabled) {
+        _fs.updateAlertStatus(alertId, AlertStatus.resolved, resolvedAt: resolved);
+      }
     }
     notifyListeners();
   }
@@ -633,6 +725,9 @@ class AppState extends ChangeNotifier {
     final idx = _alerts.indexWhere((a) => a.id == alertId);
     if (idx >= 0) {
       _alerts[idx] = _alerts[idx].copyWith(status: AlertStatus.inProgress);
+      if (_firestoreEnabled) {
+        _fs.updateAlertStatus(alertId, AlertStatus.inProgress);
+      }
     }
     notifyListeners();
   }
@@ -640,10 +735,18 @@ class AppState extends ChangeNotifier {
   void confirmTransferArrival(String transferId) {
     final idx = _transfers.indexWhere((t) => t.id == transferId);
     if (idx >= 0) {
+      final now = DateTime.now();
       _transfers[idx] = _transfers[idx].copyWith(
         status: TransferStatus.confirmed,
-        arrivalConfirmedAt: DateTime.now(),
+        arrivalConfirmedAt: now,
       );
+      if (_firestoreEnabled) {
+        _fs.updateTransferStatus(
+          transferId,
+          TransferStatus.confirmed,
+          arrivalConfirmedAt: now,
+        );
+      }
     }
     notifyListeners();
   }
@@ -651,16 +754,27 @@ class AppState extends ChangeNotifier {
   void markTransferDeparted(String transferId) {
     final idx = _transfers.indexWhere((t) => t.id == transferId);
     if (idx >= 0) {
+      final now = DateTime.now();
       _transfers[idx] = _transfers[idx].copyWith(
         status: TransferStatus.inProgress,
-        departedAt: DateTime.now(),
+        departedAt: now,
       );
+      if (_firestoreEnabled) {
+        _fs.updateTransferStatus(
+          transferId,
+          TransferStatus.inProgress,
+          departedAt: now,
+        );
+      }
     }
     notifyListeners();
   }
 
   void addTransfer(TransferModel transfer) {
     _transfers.add(transfer);
+    if (_firestoreEnabled) {
+      _fs.saveTransfer(transfer);
+    }
     notifyListeners();
   }
 
@@ -668,12 +782,146 @@ class AppState extends ChangeNotifier {
     final idx = _families.indexWhere((f) => f.id == familyId);
     if (idx >= 0) {
       _families[idx] = _families[idx].copyWith(isSeparated: separated);
+      if (_firestoreEnabled) {
+        _fs.updateFamilySeparated(familyId, separated);
+      }
     }
     notifyListeners();
   }
 
   void addNeed(NeedModel need) {
     _needs.add(need);
+    if (_firestoreEnabled) {
+      _fs.saveNeed(need);
+    }
+    notifyListeners();
+  }
+
+  void updateShelterStatus(String shelterId, ShelterStatus status) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx >= 0) {
+      shelters[idx] = shelters[idx].copyWith(status: status);
+      notifyListeners();
+    }
+  }
+
+  void updateShelterStock(String shelterId, String item, int qty) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newStock = Map<String, int>.from(shelters[idx].stock);
+    newStock[item] = qty < 0 ? 0 : qty;
+    shelters[idx] = shelters[idx].copyWith(stock: newStock);
+    notifyListeners();
+  }
+
+  void addShelterZone(String shelterId, String zone) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newZones = List<String>.from(shelters[idx].zones);
+    if (!newZones.contains(zone)) {
+      newZones.add(zone);
+      shelters[idx] = shelters[idx].copyWith(zones: newZones);
+      notifyListeners();
+    }
+  }
+
+  void removeShelterZone(String shelterId, String zone) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newZones = List<String>.from(shelters[idx].zones)..remove(zone);
+    shelters[idx] = shelters[idx].copyWith(zones: newZones);
+    notifyListeners();
+  }
+
+  void updateShelterResponsable(String shelterId,
+      {String? name, String? phone}) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    shelters[idx] = shelters[idx]
+        .copyWith(responsableName: name, responsablePhone: phone);
+    notifyListeners();
+  }
+
+  void addShelterAgent(String shelterId, String agentName) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newAgents = List<String>.from(shelters[idx].agentNames);
+    if (!newAgents.contains(agentName)) {
+      newAgents.add(agentName);
+      shelters[idx] = shelters[idx].copyWith(agentNames: newAgents);
+      notifyListeners();
+    }
+  }
+
+  void removeShelterAgent(String shelterId, String agentName) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newAgents = List<String>.from(shelters[idx].agentNames)
+      ..remove(agentName);
+    shelters[idx] = shelters[idx].copyWith(agentNames: newAgents);
+    notifyListeners();
+  }
+
+  void activateCrisis({
+    required String name,
+    required String type,
+    required String zoneName,
+  }) {
+    final now = DateTime.now();
+    activeEvent = activeEvent.copyWith(
+      name: name,
+      type: type,
+      volcanoName: zoneName,
+      status: EventStatus.active,
+      startedAt: now,
+      clearEndedAt: true,
+    );
+    for (var i = 0; i < shelters.length; i++) {
+      if (shelters[i].status == ShelterStatus.preparation) {
+        shelters[i] = shelters[i].copyWith(status: ShelterStatus.open);
+      }
+    }
+    notifyListeners();
+  }
+
+  void deactivateCrisis() {
+    activeEvent = activeEvent.copyWith(
+      status: EventStatus.closed,
+      endedAt: DateTime.now(),
+    );
+    notifyListeners();
+  }
+
+  void createFamilyCheckin({
+    required List<String> personIds,
+    required String familyId,
+    required CheckinType type,
+  }) {
+    final now = DateTime.now();
+    for (var i = 0; i < personIds.length; i++) {
+      final personId = personIds[i];
+      final checkin = CheckinModel(
+        id: 'checkin_${now.millisecondsSinceEpoch}_$i',
+        eventId: 'event_1',
+        shelterId: currentShelterId,
+        personId: personId,
+        familyId: familyId,
+        type: type,
+        createdAt: now,
+      );
+      _checkins.add(checkin);
+      final idx = _persons.indexWhere((p) => p.id == personId);
+      if (idx >= 0) {
+        _persons[idx] = _persons[idx].copyWith(
+          status: PersonStatus.present,
+          lastCheckinAt: now,
+        );
+      }
+      if (_firestoreEnabled) {
+        _fs.saveCheckin(checkin);
+        _fs.updatePersonStatus(personId, PersonStatus.present, now);
+      }
+    }
     notifyListeners();
   }
 }

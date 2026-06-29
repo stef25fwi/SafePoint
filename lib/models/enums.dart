@@ -62,6 +62,23 @@ enum FamilyFilter { all, complete, separated, childrenAlone }
 
 enum AlertTab { critical, toTreat, resolved }
 
+extension UserRoleLabel on UserRole {
+  String get label {
+    switch (this) {
+      case UserRole.agentAccueil:
+        return 'Agent d\'accueil';
+      case UserRole.responsableCentre:
+        return 'Responsable de centre';
+      case UserRole.celluleCrise:
+        return 'Cellule de crise';
+      case UserRole.prefectureLecture:
+        return 'Préfecture / COD';
+      case UserRole.admin:
+        return 'Administrateur';
+    }
+  }
+}
+
 extension PersonStatusLabel on PersonStatus {
   String get label {
     switch (this) {
