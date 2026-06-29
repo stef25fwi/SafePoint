@@ -37,10 +37,10 @@ class DefaultFirebaseOptions {
     storageBucket: 'safepoint-b36fd.firebasestorage.app',
   );
 
-  // iOS — Ajouter app iOS → copier apiKey et appId ici
+  // iOS — configuré le 2026-06-29
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_IOS_API_KEY',
-    appId: 'REPLACE_WITH_IOS_APP_ID',
+    apiKey: 'AIzaSyCk442ZwOHr6AewN7eO578l_-65wRll5lI',
+    appId: '1:779368619357:ios:c0fd93121f1f519f2fdcb4',
     messagingSenderId: '779368619357',
     projectId: 'safepoint-b36fd',
     storageBucket: 'safepoint-b36fd.firebasestorage.app',
