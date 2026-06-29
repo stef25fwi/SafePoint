@@ -20,6 +20,7 @@ class _PersonFormPageState extends State<PersonFormPage> {
   final _lastNameCtrl = TextEditingController();
   final _firstNameCtrl = TextEditingController();
   final _ageCtrl = TextEditingController();
+  final _birthDateCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _sectorCtrl = TextEditingController();
   final _emergencyNameCtrl = TextEditingController();
@@ -47,6 +48,7 @@ class _PersonFormPageState extends State<PersonFormPage> {
     _lastNameCtrl.dispose();
     _firstNameCtrl.dispose();
     _ageCtrl.dispose();
+    _birthDateCtrl.dispose();
     _phoneCtrl.dispose();
     _sectorCtrl.dispose();
     _emergencyNameCtrl.dispose();
@@ -181,6 +183,14 @@ class _PersonFormPageState extends State<PersonFormPage> {
                             required: true,
                           ),
                           const SizedBox(height: 12),
+                          _field(
+                            'Date de naissance (JJ/MM/AA)',
+                            _birthDateCtrl,
+                            Icons.date_range_outlined,
+                            hint: 'ex : 25/06/1980',
+                            keyboardType: TextInputType.text,
+                          ),
+                          const SizedBox(height: 12),
                           _Dropdown(
                             icon: Icons.location_on_outlined,
                             hint: 'Commune d\'origine *',
@@ -192,6 +202,16 @@ class _PersonFormPageState extends State<PersonFormPage> {
                           _field('Secteur / Quartier évacué', _sectorCtrl, Icons.business_outlined, hint: 'ex : Savane, Centre-ville…'),
                           const SizedBox(height: 12),
                           _field('Téléphone', _phoneCtrl, Icons.phone_outlined, hint: '06 90 12 34 56', keyboardType: TextInputType.phone),
+                          const SizedBox(height: 12),
+                          _Dropdown(
+                            icon: Icons.group_outlined,
+                            hint: 'Rattachement familial (optionnel)',
+                            value: _selectedFamilyId,
+                            items: families.map((f) => f.id).toList(),
+                            displayItems: families.map((f) => f.displayName).toList(),
+                            onChanged: (v) => setState(() => _selectedFamilyId = v),
+                            nullable: true,
+                          ),
                           const SizedBox(height: 12),
                           // Papiers
                           GestureDetector(
@@ -253,22 +273,12 @@ class _PersonFormPageState extends State<PersonFormPage> {
                       ),
                       const SizedBox(height: 14),
 
-                      // ── Rattachement familial ─────────────────────────
+                      // ── Zone et statut ────────────────────────────────
                       _FormSection(
-                        icon: Icons.family_restroom,
-                        title: 'Rattachement',
+                        icon: Icons.business_outlined,
+                        title: 'Affectation',
                         iconColor: AppColors.purple,
                         children: [
-                          _Dropdown(
-                            icon: Icons.group_outlined,
-                            hint: 'Groupe familial (optionnel)',
-                            value: _selectedFamilyId,
-                            items: families.map((f) => f.id).toList(),
-                            displayItems: families.map((f) => f.displayName).toList(),
-                            onChanged: (v) => setState(() => _selectedFamilyId = v),
-                            nullable: true,
-                          ),
-                          const SizedBox(height: 12),
                           _Dropdown(
                             icon: Icons.business_outlined,
                             hint: 'Zone du centre *',

@@ -117,20 +117,11 @@ class _VolcanoLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
+    return Image.asset(
+      'assets/images/logo_safepoint.png',
+      width: size * 1.8,
       height: size,
-      decoration: const BoxDecoration(
-        color: AppColors.navy,
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Icon(
-          Icons.volcano,
-          color: Colors.white,
-          size: size * 0.55,
-        ),
-      ),
+      fit: BoxFit.contain,
     );
   }
 }
@@ -142,16 +133,11 @@ class VolcanoLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
+    return Image.asset(
+      'assets/images/logo_safepoint.png',
+      width: size * 2.2,
       height: size,
-      decoration: const BoxDecoration(
-        color: AppColors.navy,
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Icon(Icons.volcano, color: Colors.white, size: size * 0.55),
-      ),
+      fit: BoxFit.contain,
     );
   }
 }
