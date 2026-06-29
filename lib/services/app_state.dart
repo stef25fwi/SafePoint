@@ -28,7 +28,7 @@ class AppState extends ChangeNotifier {
   );
 
   final List<ShelterModel> shelters = [
-    ShelterModel(
+    const ShelterModel(
       id: 'shelter_1',
       eventId: 'event_1',
       name: 'Gymnase de Baie-Mahault',
@@ -39,7 +39,7 @@ class AppState extends ChangeNotifier {
       status: ShelterStatus.open,
       zones: ['Dortoir A', 'Dortoir B', 'Dortoir C', 'Espace familles', 'Zone PMR', 'Zone A – Accueil', 'Zone B – Soins', 'Zone C – Hébergement'],
     ),
-    ShelterModel(
+    const ShelterModel(
       id: 'shelter_2',
       eventId: 'event_1',
       name: 'Centre de Capesterre',
@@ -50,7 +50,7 @@ class AppState extends ChangeNotifier {
       status: ShelterStatus.full,
       zones: ['Salle A', 'Salle B', 'Espace familles', 'Zone médicale'],
     ),
-    ShelterModel(
+    const ShelterModel(
       id: 'shelter_3',
       eventId: 'event_1',
       name: 'Salle de Basse-Terre',

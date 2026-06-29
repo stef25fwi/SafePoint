@@ -244,12 +244,12 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.check, size: 14, color: AppColors.green),
-                                  const SizedBox(width: 4),
-                                  const Text('QR reconnu', style: TextStyle(fontSize: 12, color: AppColors.greenText, fontWeight: FontWeight.w600)),
+                                  Icon(Icons.check, size: 14, color: AppColors.green),
+                                  SizedBox(width: 4),
+                                  Text('QR reconnu', style: TextStyle(fontSize: 12, color: AppColors.greenText, fontWeight: FontWeight.w600)),
                                 ],
                               ),
                             ),

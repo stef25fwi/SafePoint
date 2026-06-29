@@ -266,9 +266,9 @@ class _FamilyCard extends StatelessWidget {
             children: [
               const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 4),
-              Text(
+              const Text(
                 'Zone assignée : ',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
               Text(
                 family.assignedZone ?? 'Non définie',

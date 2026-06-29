@@ -105,13 +105,13 @@ class _TransfersPageState extends State<TransfersPage> {
           const SizedBox(height: 12),
 
           // List
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 4),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'Transferts récents',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
             ),
           ),

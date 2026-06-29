@@ -164,7 +164,7 @@ class DashboardPage extends StatelessWidget {
                         label: n.type.label,
                         count: needs.where((x) => x.type == n.type).length,
                         urgent: n.urgency == 'critical',
-                      )).toSet().toList(),
+                      )).toSet(),
                     ],
                   ),
                 ),
@@ -355,7 +355,7 @@ class _NeedRow extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.orangeLight,
               shape: BoxShape.circle,
             ),
@@ -431,7 +431,7 @@ class _ActivityRow extends StatelessWidget {
   String _title(String? personName, String? familyName) {
     switch (checkin.type) {
       case CheckinType.arrival:
-        return familyName != null ? 'Arrivée de ${familyName}' : 'Arrivée de ${personName ?? "inconnu"}';
+        return familyName != null ? 'Arrivée de $familyName' : 'Arrivée de ${personName ?? "inconnu"}';
       case CheckinType.mealBreakfast:
         return 'Pointage repas – Petit-déjeuner';
       case CheckinType.mealLunch:

@@ -73,7 +73,7 @@ class _PersonFormPageState extends State<PersonFormPage> {
     setState(() => _isLoading = true);
 
     final state = context.read<AppState>();
-    final uuid = const Uuid();
+    const uuid = Uuid();
     final personId = uuid.v4();
 
     final person = PersonModel(
@@ -231,7 +231,7 @@ class _PersonFormPageState extends State<PersonFormPage> {
                             hint: 'Statut initial *',
                             value: _initialStatus.name,
                             items: [PersonStatus.present.name, PersonStatus.nonPointee.name, PersonStatus.aVerifier.name],
-                            displayItems: ['Présent(e)', 'Non pointé(e)', 'Suivi requis'],
+                            displayItems: const ['Présent(e)', 'Non pointé(e)', 'Suivi requis'],
                             onChanged: (v) {
                               if (v != null) {
                                 setState(() => _initialStatus = PersonStatus.values.firstWhere((s) => s.name == v));
@@ -367,7 +367,7 @@ class _Dropdown extends StatelessWidget {
           icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textSecondary),
           items: [
             if (nullable)
-              DropdownMenuItem<String>(value: null, child: Text('Aucun', style: const TextStyle(color: AppColors.textSecondary, fontSize: 14))),
+              const DropdownMenuItem<String>(value: null, child: Text('Aucun', style: TextStyle(color: AppColors.textSecondary, fontSize: 14))),
             ...items.asMap().entries.map((e) => DropdownMenuItem<String>(
               value: e.value,
               child: Text(displayItems?[e.key] ?? e.value, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary)),

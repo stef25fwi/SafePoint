@@ -68,11 +68,11 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               const SizedBox(height: 32),
               // Logo + Title
-              Column(
+              const Column(
                 children: [
-                  const VolcanoLogo(size: 80),
-                  const SizedBox(height: 16),
-                  const Text(
+                  VolcanoLogo(size: 80),
+                  SizedBox(height: 16),
+                  Text(
                     'safepointapp.',
                     style: TextStyle(
                       fontSize: 28,
@@ -80,8 +80,8 @@ class _LoginPageState extends State<LoginPage> {
                       color: AppColors.navy,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     'Accès sécurisé – Gestion de crise',
                     style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),

@@ -52,11 +52,13 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
       createdAt: DateTime.now(),
     );
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     state.addTransfer(transfer);
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
+    navigator.pop();
+    messenger.showSnackBar(
       const SnackBar(content: Text('Transfert créé avec succès'), backgroundColor: AppColors.green),
     );
   }
@@ -73,7 +75,7 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
       body: SafeArea(
         child: Column(
           children: [
-            AppHeader(
+            const AppHeader(
               title: 'safepointapp.',
               subtitle: 'Nouveau transfert',
               showBack: true,
