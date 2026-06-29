@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../models/emergency_event_model.dart';
 import '../models/shelter_model.dart';
 import '../models/person_model.dart';
@@ -8,6 +9,7 @@ import '../models/alert_model.dart';
 import '../models/transfer_model.dart';
 import '../models/need_model.dart';
 import '../models/enums.dart';
+import 'firestore_service.dart';
 
 class AppState extends ChangeNotifier {
   // Auth
@@ -16,6 +18,18 @@ class AppState extends ChangeNotifier {
   String currentShelterId = 'shelter_1';
   UserRole currentRole = UserRole.responsableCentre;
   bool isOffline = false;
+
+  // Firestore disponible si Firebase est initialisé
+  bool get _firestoreEnabled {
+    try {
+      Firebase.app();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  FirestoreService get _fs => FirestoreService.instance;
 
   // --- Mock Data ---
   final EmergencyEventModel activeEvent = EmergencyEventModel(
@@ -569,15 +583,19 @@ class AppState extends ChangeNotifier {
 
   void addPerson(PersonModel person) {
     _persons.add(person);
-    // Add arrival checkin
-    _checkins.add(CheckinModel(
+    final arrivalCheckin = CheckinModel(
       id: 'checkin_${DateTime.now().millisecondsSinceEpoch}',
       eventId: 'event_1',
       shelterId: currentShelterId,
       personId: person.id,
       type: CheckinType.arrival,
       createdAt: DateTime.now(),
-    ));
+    );
+    _checkins.add(arrivalCheckin);
+    if (_firestoreEnabled) {
+      _fs.savePerson(person);
+      _fs.saveCheckin(arrivalCheckin);
+    }
     notifyListeners();
   }
 
@@ -596,8 +614,8 @@ class AppState extends ChangeNotifier {
 
     // Update person status
     final idx = _persons.indexWhere((p) => p.id == personId);
+    PersonStatus? newStatus;
     if (idx >= 0) {
-      PersonStatus? newStatus;
       if (type == CheckinType.exitFinal) {
         newStatus = PersonStatus.sortieDefinitive;
       } else if (type == CheckinType.exitTemporary) {
@@ -615,16 +633,26 @@ class AppState extends ChangeNotifier {
         lastCheckinAt: DateTime.now(),
       );
     }
+    if (_firestoreEnabled) {
+      _fs.saveCheckin(checkin);
+      if (newStatus != null) {
+        _fs.updatePersonStatus(personId, newStatus, DateTime.now());
+      }
+    }
     notifyListeners();
   }
 
   void resolveAlert(String alertId) {
     final idx = _alerts.indexWhere((a) => a.id == alertId);
     if (idx >= 0) {
+      final resolved = DateTime.now();
       _alerts[idx] = _alerts[idx].copyWith(
         status: AlertStatus.resolved,
-        resolvedAt: DateTime.now(),
+        resolvedAt: resolved,
       );
+      if (_firestoreEnabled) {
+        _fs.updateAlertStatus(alertId, AlertStatus.resolved, resolvedAt: resolved);
+      }
     }
     notifyListeners();
   }
@@ -633,6 +661,9 @@ class AppState extends ChangeNotifier {
     final idx = _alerts.indexWhere((a) => a.id == alertId);
     if (idx >= 0) {
       _alerts[idx] = _alerts[idx].copyWith(status: AlertStatus.inProgress);
+      if (_firestoreEnabled) {
+        _fs.updateAlertStatus(alertId, AlertStatus.inProgress);
+      }
     }
     notifyListeners();
   }
@@ -640,10 +671,18 @@ class AppState extends ChangeNotifier {
   void confirmTransferArrival(String transferId) {
     final idx = _transfers.indexWhere((t) => t.id == transferId);
     if (idx >= 0) {
+      final now = DateTime.now();
       _transfers[idx] = _transfers[idx].copyWith(
         status: TransferStatus.confirmed,
-        arrivalConfirmedAt: DateTime.now(),
+        arrivalConfirmedAt: now,
       );
+      if (_firestoreEnabled) {
+        _fs.updateTransferStatus(
+          transferId,
+          TransferStatus.confirmed,
+          arrivalConfirmedAt: now,
+        );
+      }
     }
     notifyListeners();
   }
@@ -651,16 +690,27 @@ class AppState extends ChangeNotifier {
   void markTransferDeparted(String transferId) {
     final idx = _transfers.indexWhere((t) => t.id == transferId);
     if (idx >= 0) {
+      final now = DateTime.now();
       _transfers[idx] = _transfers[idx].copyWith(
         status: TransferStatus.inProgress,
-        departedAt: DateTime.now(),
+        departedAt: now,
       );
+      if (_firestoreEnabled) {
+        _fs.updateTransferStatus(
+          transferId,
+          TransferStatus.inProgress,
+          departedAt: now,
+        );
+      }
     }
     notifyListeners();
   }
 
   void addTransfer(TransferModel transfer) {
     _transfers.add(transfer);
+    if (_firestoreEnabled) {
+      _fs.saveTransfer(transfer);
+    }
     notifyListeners();
   }
 
@@ -668,12 +718,18 @@ class AppState extends ChangeNotifier {
     final idx = _families.indexWhere((f) => f.id == familyId);
     if (idx >= 0) {
       _families[idx] = _families[idx].copyWith(isSeparated: separated);
+      if (_firestoreEnabled) {
+        _fs.updateFamilySeparated(familyId, separated);
+      }
     }
     notifyListeners();
   }
 
   void addNeed(NeedModel need) {
     _needs.add(need);
+    if (_firestoreEnabled) {
+      _fs.saveNeed(need);
+    }
     notifyListeners();
   }
 }
