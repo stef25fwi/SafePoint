@@ -12,5 +12,5 @@ void main() {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   ));
-  runApp(const RefugeVolcanApp());
+  runApp(const SafePointApp());
 }

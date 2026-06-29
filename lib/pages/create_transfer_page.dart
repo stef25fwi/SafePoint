@@ -74,7 +74,7 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
         child: Column(
           children: [
             AppHeader(
-              title: 'Refuge Volcan',
+              title: 'safepointapp.',
               subtitle: 'Nouveau transfert',
               showBack: true,
               showNotification: false,
@@ -99,7 +99,7 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
                         decoration: BoxDecoration(
                           color: AppColors.blueLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.blue.withOpacity(0.3)),
+                          border: Border.all(color: AppColors.blue.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
@@ -234,7 +234,7 @@ class _FormCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(

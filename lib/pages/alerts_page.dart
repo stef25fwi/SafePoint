@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
-import '../core/app_routes.dart';
 import '../models/alert_model.dart';
 import '../models/enums.dart';
 import '../services/app_state.dart';
@@ -55,7 +54,7 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
       body: Column(
         children: [
           AppHeader(
-            title: 'Refuge Volcan',
+            title: 'safepointapp.',
             subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
             alertCount: totalOpen,
           ),
@@ -214,7 +213,7 @@ class _AlertKpi extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4, offset: const Offset(0, 1))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 1))],
         ),
         child: Row(
           children: [

@@ -76,7 +76,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
       body: Column(
         children: [
           AppHeader(
-            title: 'Refuge Volcan',
+            title: 'safepointapp.',
             subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
             showBack: false,
             alertCount: state.openAlerts.length,
@@ -148,7 +148,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
                                             alignment: Alignment(0, (_scanPosition.value * 2) - 1),
                                             child: Container(
                                               height: 3,
-                                              color: const Color(0xFF00FF88).withOpacity(0.8),
+                                              color: const Color(0xFF00FF88).withValues(alpha: 0.8),
                                             ),
                                           ),
                                         )
@@ -191,7 +191,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
                         decoration: BoxDecoration(
                           color: AppColors.greenLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.green.withOpacity(0.3)),
+                          border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
@@ -213,7 +213,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 2))],
+                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
                         ),
                         padding: const EdgeInsets.all(14),
                         child: Row(
@@ -242,7 +242,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
                               decoration: BoxDecoration(
                                 color: AppColors.greenLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.green.withOpacity(0.3)),
+                                border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -266,7 +266,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
                         ),
                         padding: const EdgeInsets.all(14),
                         child: GridView.count(
@@ -317,7 +317,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -438,9 +438,9 @@ class _ScanAction extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

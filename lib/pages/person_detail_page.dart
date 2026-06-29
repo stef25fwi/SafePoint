@@ -27,8 +27,8 @@ class PersonDetailPage extends StatelessWidget {
     }
 
     final checkins = state.getPersonCheckins(personId);
-    final needs = state.getPersonNeeds(personId);
     final alerts = state.getPersonAlerts(personId);
+    final dynamicNeeds = state.getPersonNeeds(personId);
     final family = person.familyId != null ? state.getFamilyById(person.familyId!) : null;
 
     return Scaffold(
@@ -37,7 +37,7 @@ class PersonDetailPage extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(
             child: AppHeader(
-              title: 'Refuge Volcan',
+              title: 'safepointapp.',
               subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
               showBack: true,
               alertCount: alerts.where((a) => a.status != AlertStatus.resolved).length,
@@ -127,12 +127,12 @@ class PersonDetailPage extends StatelessWidget {
                     isChip: true,
                     chipText: person.currentZone,
                   ),
-                  if (person.vulnerabilityFlags.isNotEmpty || person.needFlags.isNotEmpty)
+                  if (person.vulnerabilityFlags.isNotEmpty || person.needFlags.isNotEmpty || dynamicNeeds.isNotEmpty)
                     _ProfileRowNeeds(
                       icon: Icons.favorite_outline,
                       label: 'Besoins',
                       vulnerabilities: person.vulnerabilityFlags,
-                      needs: person.needFlags,
+                      needs: [...person.needFlags, ...dynamicNeeds.map((n) => n.type)],
                     ),
                 ],
               ),
@@ -294,7 +294,7 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
@@ -454,9 +454,9 @@ class _ActionBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: onTap != null ? color.withOpacity(0.08) : AppColors.grayLight,
+          color: onTap != null ? color.withValues(alpha: 0.08) : AppColors.grayLight,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: onTap != null ? color.withOpacity(0.3) : AppColors.divider),
+          border: Border.all(color: onTap != null ? color.withValues(alpha: 0.3) : AppColors.divider),
         ),
         child: Column(
           children: [

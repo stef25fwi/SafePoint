@@ -52,7 +52,7 @@ class TransferCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -90,7 +90,7 @@ class TransferCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Icon(Icons.business, size: 14, color: _iconColor.withOpacity(0.7)),
+                        Icon(Icons.business, size: 14, color: _iconColor.withValues(alpha: 0.7)),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
@@ -115,7 +115,7 @@ class TransferCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Icon(Icons.business, size: 14, color: AppColors.green.withOpacity(0.8)),
+                        Icon(Icons.business, size: 14, color: AppColors.green.withValues(alpha: 0.8)),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(

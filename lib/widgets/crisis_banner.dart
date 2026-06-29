@@ -14,7 +14,7 @@ class CrisisBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.redLight,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.red.withOpacity(0.3)),
+        border: Border.all(color: AppColors.red.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
