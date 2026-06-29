@@ -5,6 +5,7 @@ import '../models/enums.dart';
 import '../services/app_state.dart';
 import '../core/app_routes.dart';
 import '../widgets/app_header.dart';
+import 'main_shell_page.dart';
 
 class ReportsPage extends StatelessWidget {
   const ReportsPage({super.key});
@@ -289,19 +290,29 @@ class ReportsPage extends StatelessWidget {
                         icon: Icons.business_outlined,
                         label: 'Bilan par centre',
                         color: AppColors.orange,
-                        onTap: () {}),
+                        onTap: () => Navigator.pushNamed(context,
+                            AppRoutes.shelterDetail,
+                            arguments: state.currentShelter.id)),
                     const Divider(height: 1),
                     _ReportRow(
                         icon: Icons.person_outlined,
                         label: 'Liste des personnes vulnérables',
                         color: AppColors.purple,
-                        onTap: () {}),
+                        onTap: () {
+                          final shell = context
+                              .findAncestorStateOfType<MainShellPageState>();
+                          shell?.setTab(1);
+                        }),
                     const Divider(height: 1),
                     _ReportRow(
                         icon: Icons.history,
                         label: 'Historique des pointages',
                         color: AppColors.blue,
-                        onTap: () {}),
+                        onTap: () {
+                          final shell = context
+                              .findAncestorStateOfType<MainShellPageState>();
+                          shell?.setTab(2);
+                        }),
                   ],
                 ),
               ),

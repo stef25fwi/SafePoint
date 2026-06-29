@@ -247,11 +247,12 @@ class DashboardPage extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      const SectionHeader(
+                      SectionHeader(
                         icon: Icons.access_time_filled,
                         title: 'Activité récente',
                         actionLabel: 'Voir tout',
                         iconColor: AppColors.navy,
+                        onAction: () => _goToReports(context),
                       ),
                       const SizedBox(height: 12),
                       ...recentCheckins.map((c) => _ActivityRow(checkin: c, state: state)),
@@ -345,6 +346,11 @@ class DashboardPage extends StatelessWidget {
 
   void _goToFamilies(BuildContext context) {
     Navigator.pushNamed(context, AppRoutes.families);
+  }
+
+  void _goToReports(BuildContext context) {
+    final shell = context.findAncestorStateOfType<MainShellPageState>();
+    shell?.setTab(4);
   }
 }
 

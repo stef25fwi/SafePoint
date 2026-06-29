@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
+import '../core/app_routes.dart';
 import '../models/enums.dart';
 import '../models/family_model.dart';
+import '../models/person_model.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
 import '../widgets/status_badge.dart';
@@ -38,6 +40,89 @@ class _FamiliesPageState extends State<FamiliesPage> {
       case FamilyFilter.all:
         return list;
     }
+  }
+
+  void _showFamilySheet(BuildContext context, FamilyModel family, AppState state) {
+    final members = state.getFamilyMembers(family.id);
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(family.displayName,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary)),
+                ),
+                IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx)),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          if (members.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('Aucun membre enregistré',
+                  style: TextStyle(color: AppColors.textSecondary)),
+            )
+          else
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.5),
+              child: ListView.separated(
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                itemCount: members.length,
+                separatorBuilder: (_, __) => const Divider(height: 1, indent: 72),
+                itemBuilder: (_, i) {
+                  final PersonModel m = members[i];
+                  return ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: AppColors.blueLight,
+                      child: Icon(Icons.person, color: AppColors.blue),
+                    ),
+                    title: Text(m.fullName,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 14)),
+                    subtitle: Text(
+                      [
+                        if (m.ageApprox != null) '${m.ageApprox} ans',
+                        if (m.currentZone != null) m.currentZone!,
+                      ].join(' · '),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        StatusBadge.fromPersonStatus(m.status),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.chevron_right,
+                            size: 18, color: AppColors.textHint),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      Navigator.pushNamed(context, AppRoutes.personDetail,
+                          arguments: m.id);
+                    },
+                  );
+                },
+              ),
+            ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
   }
 
   @override
@@ -189,7 +274,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
                     itemBuilder: (ctx, i) => _FamilyCard(
                       family: families[i],
                       state: state,
-                      onTap: () {},
+                      onTap: () => _showFamilySheet(context, families[i], state),
                       onMarkSeparated: () {
                         state.markFamilySeparated(
                             families[i].id, !families[i].isSeparated);
@@ -281,7 +366,9 @@ class _FamilyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final members = state.getFamilyMembers(family.id);
 
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -385,6 +472,7 @@ class _FamilyCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
       ),
     );
   }

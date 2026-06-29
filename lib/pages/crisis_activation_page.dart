@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
+import '../core/app_routes.dart';
 import '../models/enums.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
@@ -262,7 +263,12 @@ class _ActiveCrisisView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              ...state.shelters.map((s) => _ShelterStatusRow(shelter: s)),
+              ...state.shelters.map((s) => _ShelterStatusRow(
+                    shelter: s,
+                    onTap: () => Navigator.pushNamed(context,
+                        AppRoutes.shelterDetail,
+                        arguments: s.id),
+                  )),
             ],
           ),
         ),
@@ -319,7 +325,8 @@ class _ActiveCrisisView extends StatelessWidget {
 
 class _ShelterStatusRow extends StatelessWidget {
   final dynamic shelter;
-  const _ShelterStatusRow({required this.shelter});
+  final VoidCallback? onTap;
+  const _ShelterStatusRow({required this.shelter, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -346,7 +353,9 @@ class _ShelterStatusRow extends StatelessWidget {
         statusIcon = Icons.hourglass_top;
     }
 
-    return Padding(
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
@@ -369,6 +378,7 @@ class _ShelterStatusRow extends StatelessWidget {
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor)),
           ),
         ],
+      ),
       ),
     );
   }
