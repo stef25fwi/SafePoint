@@ -644,6 +644,8 @@ class AppState extends ChangeNotifier {
         newStatus = PersonStatus.sortieDefinitive;
       } else if (type == CheckinType.exitTemporary) {
         newStatus = PersonStatus.sortieTemporaire;
+      } else if (type == CheckinType.medical) {
+        newStatus = PersonStatus.hospitalisee;
       } else if (type == CheckinType.arrival ||
           type == CheckinType.presence ||
           type == CheckinType.mealBreakfast ||

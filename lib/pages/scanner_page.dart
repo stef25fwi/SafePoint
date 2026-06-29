@@ -618,8 +618,22 @@ class _ScannedPersonCard extends StatelessWidget {
   final PersonModel person;
   const _ScannedPersonCard({required this.person});
 
+  static final _vulnLabels = <String, (String, IconData, Color)>{
+    'personne_agee': ('Âgé(e)', Icons.elderly, AppColors.orange),
+    'pmr': ('PMR', Icons.accessible, AppColors.blue),
+    'enfant': ('Enfant', Icons.child_care, AppColors.purple),
+    'enceinte': ('Enceinte', Icons.pregnant_woman, AppColors.green),
+    'sans_papiers': ('Sans papiers', Icons.badge_outlined, AppColors.orange),
+    'isolement': ('Isolé(e)', Icons.person_off_outlined, AppColors.red),
+  };
+
   @override
   Widget build(BuildContext context) {
+    final flags = person.vulnerabilityFlags
+        .where(_vulnLabels.containsKey)
+        .take(3)
+        .toList();
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -632,54 +646,89 @@ class _ScannedPersonCard extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.all(14),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: const BoxDecoration(
-                color: AppColors.greenLight, shape: BoxShape.circle),
-            child: const Icon(Icons.person, color: AppColors.green, size: 24),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(person.fullName,
-                    style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
-                Text(
-                  '${person.currentZone ?? "Zone ?"} – ${person.originCommune ?? "Commune ?"}',
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.textSecondary),
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                    color: AppColors.greenLight, shape: BoxShape.circle),
+                child: const Icon(Icons.person, color: AppColors.green, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(person.fullName,
+                        style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary)),
+                    Text(
+                      '${person.currentZone ?? "Zone ?"} · ${person.originCommune ?? "Commune ?"}',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.greenLight,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: AppColors.green.withValues(alpha: 0.3)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check, size: 14, color: AppColors.green),
+                    SizedBox(width: 4),
+                    Text('Reconnu',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.greenText,
+                            fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.greenLight,
-              borderRadius: BorderRadius.circular(12),
-              border:
-                  Border.all(color: AppColors.green.withValues(alpha: 0.3)),
+          if (flags.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              children: flags.map((key) {
+                final info = _vulnLabels[key]!;
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: info.$3.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(info.$2, size: 12, color: info.$3),
+                      const SizedBox(width: 4),
+                      Text(info.$1,
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: info.$3)),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.check, size: 14, color: AppColors.green),
-                SizedBox(width: 4),
-                Text('Reconnu',
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.greenText,
-                        fontWeight: FontWeight.w600)),
-              ],
-            ),
-          ),
+          ],
         ],
       ),
     );
@@ -691,6 +740,20 @@ class _ActionGrid extends StatelessWidget {
   final VoidCallback onTransfer;
 
   const _ActionGrid({required this.onCheckin, required this.onTransfer});
+
+  CheckinType get _mealType {
+    final h = DateTime.now().hour;
+    if (h < 10) return CheckinType.mealBreakfast;
+    if (h < 15) return CheckinType.mealLunch;
+    return CheckinType.mealDinner;
+  }
+
+  String get _mealLabel {
+    final h = DateTime.now().hour;
+    if (h < 10) return 'Petit-déj.';
+    if (h < 15) return 'Déjeuner';
+    return 'Dîner';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -706,34 +769,64 @@ class _ActionGrid extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.all(14),
-      child: GridView.count(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 2.6,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _ScanAction(
-              icon: Icons.check_circle,
-              label: 'Valider l\'entrée',
-              color: AppColors.green,
-              onTap: () => onCheckin(CheckinType.arrival)),
-          _ScanAction(
-              icon: Icons.restaurant_outlined,
-              label: 'Valider repas',
-              color: AppColors.orange,
-              onTap: () => onCheckin(CheckinType.mealLunch)),
-          _ScanAction(
-              icon: Icons.exit_to_app,
-              label: 'Sortie temporaire',
-              color: AppColors.red,
-              onTap: () => onCheckin(CheckinType.exitTemporary)),
-          _ScanAction(
-              icon: Icons.swap_horiz,
-              label: 'Transférer',
-              color: AppColors.blue,
-              onTap: onTransfer),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 3,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 2.0,
+            children: [
+              _ScanAction(
+                  icon: Icons.how_to_reg,
+                  label: 'Présence',
+                  color: AppColors.green,
+                  onTap: () => onCheckin(CheckinType.presence)),
+              _ScanAction(
+                  icon: Icons.restaurant_outlined,
+                  label: _mealLabel,
+                  color: AppColors.orange,
+                  onTap: () => onCheckin(_mealType)),
+              _ScanAction(
+                  icon: Icons.bed_outlined,
+                  label: 'Nuit',
+                  color: AppColors.blue,
+                  onTap: () => onCheckin(CheckinType.night)),
+              _ScanAction(
+                  icon: Icons.exit_to_app,
+                  label: 'Sortie temp.',
+                  color: AppColors.grayText,
+                  onTap: () => onCheckin(CheckinType.exitTemporary)),
+              _ScanAction(
+                  icon: Icons.local_hospital_outlined,
+                  label: 'Secours',
+                  color: AppColors.purple,
+                  onTap: () => onCheckin(CheckinType.medical)),
+              _ScanAction(
+                  icon: Icons.swap_horiz,
+                  label: 'Transfert',
+                  color: AppColors.navy,
+                  onTap: onTransfer),
+            ],
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => onCheckin(CheckinType.exitFinal),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.red,
+              side: const BorderSide(color: AppColors.red),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            icon: const Icon(Icons.logout, size: 18),
+            label: const Text('Sortie définitive',
+                style:
+                    TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ),
         ],
       ),
     );
