@@ -266,7 +266,9 @@ class DashboardPage extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, AppRoutes.shelterDetail, arguments: shelter.id),
+                child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -307,6 +309,7 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
           ),
+        ),
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
       ),

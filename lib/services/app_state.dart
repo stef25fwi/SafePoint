@@ -36,6 +36,8 @@ class AppState extends ChangeNotifier {
   bool get canActivateCrisis =>
       currentRole == UserRole.prefectureLecture || currentRole == UserRole.admin;
   bool get isCrisisActive => activeEvent.status == EventStatus.active;
+  bool get canEditShelter =>
+      currentRole == UserRole.responsableCentre || currentRole == UserRole.admin;
 
   // Firestore disponible si Firebase est initialisé
   bool get _firestoreEnabled {
@@ -75,10 +77,22 @@ class AppState extends ChangeNotifier {
         'Dortoir C',
         'Espace familles',
         'Zone PMR',
-        'Zone A – Accueil',
-        'Zone B – Soins',
-        'Zone C – Hébergement'
+        'Infirmerie',
+        'Zone repas',
+        'Zone animaux',
       ],
+      responsableName: 'Marc THÉODORE',
+      responsablePhone: '0690 11 22 33',
+      agentNames: ['Agent LUREL', 'Agent NESTOR', 'Agent BAPTISTE'],
+      stock: {
+        'eau': 650,
+        'repas': 230,
+        'couvertures': 180,
+        'lits': 120,
+        'masques': 85,
+        'couches': 48,
+        'medicaments': 12,
+      },
     ),
     const ShelterModel(
       id: 'shelter_2',
@@ -89,7 +103,19 @@ class AppState extends ChangeNotifier {
       capacity: 280,
       currentCount: 324,
       status: ShelterStatus.full,
-      zones: ['Salle A', 'Salle B', 'Espace familles', 'Zone médicale'],
+      zones: ['Salle A', 'Salle B', 'Espace familles', 'Zone médicale', 'Zone repas'],
+      responsableName: 'Sophie JEAN-MARIE',
+      responsablePhone: '0690 44 55 66',
+      agentNames: ['Agent FELIX', 'Agent PIERRE'],
+      stock: {
+        'eau': 200,
+        'repas': 290,
+        'couvertures': 210,
+        'lits': 75,
+        'masques': 0,
+        'couches': 15,
+        'medicaments': 8,
+      },
     ),
     const ShelterModel(
       id: 'shelter_3',
@@ -100,7 +126,19 @@ class AppState extends ChangeNotifier {
       capacity: 400,
       currentCount: 242,
       status: ShelterStatus.open,
-      zones: ['Hall principal', 'Annexe A', 'Zone PMR', 'Espace enfants'],
+      zones: ['Hall principal', 'Annexe A', 'Zone PMR', 'Espace enfants', 'Infirmerie'],
+      responsableName: 'Paul DUMONT',
+      responsablePhone: '0690 77 88 99',
+      agentNames: ['Agent MARTIN', 'Agent DUPONT', 'Agent LACOUR', 'Agent RIVIÈRE'],
+      stock: {
+        'eau': 900,
+        'repas': 260,
+        'couvertures': 300,
+        'lits': 200,
+        'masques': 150,
+        'couches': 30,
+        'medicaments': 20,
+      },
     ),
   ];
 
@@ -756,6 +794,71 @@ class AppState extends ChangeNotifier {
     if (_firestoreEnabled) {
       _fs.saveNeed(need);
     }
+    notifyListeners();
+  }
+
+  void updateShelterStatus(String shelterId, ShelterStatus status) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx >= 0) {
+      shelters[idx] = shelters[idx].copyWith(status: status);
+      notifyListeners();
+    }
+  }
+
+  void updateShelterStock(String shelterId, String item, int qty) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newStock = Map<String, int>.from(shelters[idx].stock);
+    newStock[item] = qty < 0 ? 0 : qty;
+    shelters[idx] = shelters[idx].copyWith(stock: newStock);
+    notifyListeners();
+  }
+
+  void addShelterZone(String shelterId, String zone) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newZones = List<String>.from(shelters[idx].zones);
+    if (!newZones.contains(zone)) {
+      newZones.add(zone);
+      shelters[idx] = shelters[idx].copyWith(zones: newZones);
+      notifyListeners();
+    }
+  }
+
+  void removeShelterZone(String shelterId, String zone) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newZones = List<String>.from(shelters[idx].zones)..remove(zone);
+    shelters[idx] = shelters[idx].copyWith(zones: newZones);
+    notifyListeners();
+  }
+
+  void updateShelterResponsable(String shelterId,
+      {String? name, String? phone}) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    shelters[idx] = shelters[idx]
+        .copyWith(responsableName: name, responsablePhone: phone);
+    notifyListeners();
+  }
+
+  void addShelterAgent(String shelterId, String agentName) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newAgents = List<String>.from(shelters[idx].agentNames);
+    if (!newAgents.contains(agentName)) {
+      newAgents.add(agentName);
+      shelters[idx] = shelters[idx].copyWith(agentNames: newAgents);
+      notifyListeners();
+    }
+  }
+
+  void removeShelterAgent(String shelterId, String agentName) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final newAgents = List<String>.from(shelters[idx].agentNames)
+      ..remove(agentName);
+    shelters[idx] = shelters[idx].copyWith(agentNames: newAgents);
     notifyListeners();
   }
 

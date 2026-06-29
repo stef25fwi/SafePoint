@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
 import '../models/enums.dart';
 import '../services/app_state.dart';
+import '../core/app_routes.dart';
 import '../widgets/app_header.dart';
 
 class ReportsPage extends StatelessWidget {
@@ -120,7 +121,9 @@ class ReportsPage extends StatelessWidget {
                         AppColors.purple
                       ];
                       final colorIdx = state.shelters.indexOf(s) % 3;
-                      return Padding(
+                      return GestureDetector(
+                        onTap: () => Navigator.pushNamed(context, AppRoutes.shelterDetail, arguments: s.id),
+                        child: Padding(
                         padding: const EdgeInsets.only(bottom: 14),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,6 +167,7 @@ class ReportsPage extends StatelessWidget {
                               );
                             }),
                           ],
+                        ),
                         ),
                       );
                     }),
