@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/app_theme.dart';
 import 'core/app_routes.dart';
+import 'core/responsive.dart';
 import 'services/app_state.dart';
 import 'pages/login_page.dart';
 import 'pages/main_shell_page.dart';
@@ -26,6 +27,10 @@ class SafePointApp extends StatelessWidget {
           title: 'safepointapp.',
           theme: AppTheme.light,
           debugShowCheckedModeBanner: false,
+          // Cadre responsive global : centré et borné sur grand écran,
+          // plein écran sur téléphone.
+          builder: (context, child) =>
+              ResponsiveAppFrame(child: child ?? const SizedBox.shrink()),
           initialRoute: state.isLoggedIn ? AppRoutes.shell : AppRoutes.login,
           routes: {
             AppRoutes.login: (_) => const LoginPage(),
