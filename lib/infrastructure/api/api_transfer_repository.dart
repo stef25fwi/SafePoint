@@ -15,8 +15,9 @@ import 'api_client.dart';
 //   PATCH  /transfers/:id/arrive
 // ---------------------------------------------------------------------------
 class ApiTransferRepository implements TransferRepository {
-  const ApiTransferRepository(this._client);
+  ApiTransferRepository(this._client);
 
+  // ignore: unused_field
   final ApiClient _client;
 
   @override

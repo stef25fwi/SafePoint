@@ -14,8 +14,9 @@ import 'api_client.dart';
 //   DELETE /persons/:id  (soft delete)
 // ---------------------------------------------------------------------------
 class ApiPersonRepository implements PersonRepository {
-  const ApiPersonRepository(this._client);
+  ApiPersonRepository(this._client);
 
+  // ignore: unused_field
   final ApiClient _client;
 
   @override

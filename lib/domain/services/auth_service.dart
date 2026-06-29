@@ -2,6 +2,7 @@ import '../repositories/auth_repository.dart';
 import '../models/user_model.dart';
 import 'audit_service.dart';
 import '../models/audit_log_model.dart';
+import '../../models/enums.dart';
 
 // Service d'authentification.
 // Délègue à AuthRepository (Firebase V1 / Keycloak V2).

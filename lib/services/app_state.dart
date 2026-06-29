@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:uuid/uuid.dart';
 import '../models/emergency_event_model.dart';
 import '../models/shelter_model.dart';
 import '../models/person_model.dart';
@@ -215,8 +214,6 @@ class AppState extends ChangeNotifier {
   late List<AlertModel> _alerts;
   late List<TransferModel> _transfers;
   late List<NeedModel> _needs;
-
-  final _uuid = const Uuid();
 
   void _initMockData() {
     final now = DateTime.now();
@@ -901,7 +898,7 @@ class AppState extends ChangeNotifier {
     final newStock = Map<String, int>.from(shelters[idx].stock);
     newStock[item] = qty < 0 ? 0 : qty;
     shelters[idx] = shelters[idx].copyWith(stock: newStock, updatedBy: currentUserId);
-    _refugeService?.updateStock(shelterId, newStock, currentOrganizationId, currentUserId);
+    _refugeService?.updateStock(shelterId, newStock, currentOrganizationId, currentUserId, currentRole.keycloakName);
     notifyListeners();
   }
 
@@ -912,7 +909,7 @@ class AppState extends ChangeNotifier {
     if (!newZones.contains(zone)) {
       newZones.add(zone);
       shelters[idx] = shelters[idx].copyWith(zones: newZones, updatedBy: currentUserId);
-      _refugeService?.updateZones(shelterId, newZones, currentOrganizationId, currentUserId);
+      _refugeService?.updateZones(shelterId, newZones, currentOrganizationId, currentUserId, currentRole.keycloakName);
       notifyListeners();
     }
   }
@@ -935,7 +932,8 @@ class AppState extends ChangeNotifier {
         name: name,
         phone: phone,
         organizationId: currentOrganizationId,
-        updatedBy: currentUserId);
+        updatedBy: currentUserId,
+        updatedByRole: currentRole.keycloakName);
     notifyListeners();
   }
 
@@ -946,7 +944,7 @@ class AppState extends ChangeNotifier {
     if (!newAgents.contains(agentName)) {
       newAgents.add(agentName);
       shelters[idx] = shelters[idx].copyWith(agentNames: newAgents, updatedBy: currentUserId);
-      _refugeService?.updateAgents(shelterId, newAgents, currentOrganizationId, currentUserId);
+      _refugeService?.updateAgents(shelterId, newAgents, currentOrganizationId, currentUserId, currentRole.keycloakName);
       notifyListeners();
     }
   }

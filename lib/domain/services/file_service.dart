@@ -1,6 +1,5 @@
 import '../repositories/file_repository.dart';
 import 'audit_service.dart';
-import '../models/audit_log_model.dart';
 
 class FileService {
   FileService(this._repo, this._audit);

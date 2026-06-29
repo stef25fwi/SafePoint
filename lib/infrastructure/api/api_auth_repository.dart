@@ -11,8 +11,9 @@ import 'api_client.dart';
 //   GET  /me         → profil utilisateur
 // ---------------------------------------------------------------------------
 class ApiAuthRepository implements AuthRepository {
-  const ApiAuthRepository(this._client);
+  ApiAuthRepository(this._client);
 
+  // ignore: unused_field
   final ApiClient _client;
 
   @override

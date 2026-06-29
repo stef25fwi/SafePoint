@@ -13,8 +13,9 @@ import 'api_client.dart';
 //   PATCH  /alerts/:id/assign
 // ---------------------------------------------------------------------------
 class ApiAlertRepository implements AlertRepository {
-  const ApiAlertRepository(this._client);
+  ApiAlertRepository(this._client);
 
+  // ignore: unused_field
   final ApiClient _client;
 
   @override

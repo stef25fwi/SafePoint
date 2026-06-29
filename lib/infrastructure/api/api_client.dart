@@ -13,7 +13,7 @@
 // ---------------------------------------------------------------------------
 
 class ApiClient {
-  const ApiClient({
+  ApiClient({
     required this.baseUrl,
     required this.organizationId,
   });

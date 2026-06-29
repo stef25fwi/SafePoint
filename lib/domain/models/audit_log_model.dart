@@ -68,4 +68,7 @@ class AuditAction {
   static const createAgent = 'CREATE_AGENT';
   static const updateCrisisSettings = 'UPDATE_CRISIS_SETTINGS';
   static const uploadFile = 'UPLOAD_FILE';
+  static const updateShelter = 'UPDATE_SHELTER';
+  static const updateShelterStatus = 'UPDATE_SHELTER_STATUS';
+  static const updateShelterStock = 'UPDATE_SHELTER_STOCK';
 }
