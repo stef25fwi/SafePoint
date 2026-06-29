@@ -73,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                   const VolcanoLogo(size: 80),
                   const SizedBox(height: 16),
                   const Text(
-                    'safepoint.app',
+                    'safepointapp.',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,

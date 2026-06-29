@@ -20,7 +20,7 @@ class SafePointApp extends StatelessWidget {
       create: (_) => AppState(),
       child: Consumer<AppState>(
         builder: (ctx, state, _) => MaterialApp(
-          title: 'safepoint.app',
+          title: 'safepointapp.',
           theme: AppTheme.light,
           debugShowCheckedModeBanner: false,
           initialRoute: state.isLoggedIn ? AppRoutes.shell : AppRoutes.login,

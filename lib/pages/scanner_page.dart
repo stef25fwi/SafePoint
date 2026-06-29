@@ -76,7 +76,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
       body: Column(
         children: [
           AppHeader(
-            title: 'safepoint.app',
+            title: 'safepointapp.',
             subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
             showBack: false,
             alertCount: state.openAlerts.length,

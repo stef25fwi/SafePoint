@@ -34,7 +34,7 @@ class DashboardPage extends StatelessWidget {
               children: [
                 if (state.isOffline) const _OfflineBannerSimple(),
                 AppHeader(
-                  title: 'safepoint.app',
+                  title: 'safepointapp.',
                   subtitle: 'Centre d\'hébergement – ${shelter.name}',
                   alertCount: alertCount,
                   onNotificationTap: () => _goToAlerts(context),

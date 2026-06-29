@@ -54,7 +54,7 @@ class _AlertsPageState extends State<AlertsPage> with SingleTickerProviderStateM
       body: Column(
         children: [
           AppHeader(
-            title: 'safepoint.app',
+            title: 'safepointapp.',
             subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
             alertCount: totalOpen,
           ),

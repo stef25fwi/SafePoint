@@ -117,7 +117,7 @@ class _PersonFormPageState extends State<PersonFormPage> {
           child: Column(
             children: [
               AppHeader(
-                title: 'safepoint.app',
+                title: 'safepointapp.',
                 subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
                 showBack: true,
                 showNotification: false,

@@ -48,7 +48,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
       body: Column(
         children: [
           AppHeader(
-            title: 'safepoint.app',
+            title: 'safepointapp.',
             subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
             showBack: true,
             alertCount: state.openAlerts.length,

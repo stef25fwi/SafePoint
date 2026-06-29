@@ -1,6 +1,6 @@
 {
-    "name": "safepoint.app",
-    "short_name": "safepoint.app",
+    "name": "safepointapp.",
+    "short_name": "safepointapp.",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
