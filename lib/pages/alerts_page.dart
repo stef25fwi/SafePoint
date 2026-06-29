@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
-import '../core/app_routes.dart';
 import '../models/alert_model.dart';
 import '../models/enums.dart';
 import '../services/app_state.dart';
