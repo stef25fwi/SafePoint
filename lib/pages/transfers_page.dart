@@ -93,15 +93,17 @@ class _TransfersPageState extends State<TransfersPage> {
           ),
           const SizedBox(height: 12),
 
-          // Create button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ElevatedButton.icon(
-              onPressed: () => Navigator.pushNamed(context, AppRoutes.createTransfer),
-              icon: const Icon(Icons.add_circle_outline),
-              label: const Text('Créer un transfert'),
+          // Create button (responsableCentre+ only)
+          if (state.canValidateTransfers)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ElevatedButton.icon(
+                onPressed: () =>
+                    Navigator.pushNamed(context, AppRoutes.createTransfer),
+                icon: const Icon(Icons.add_circle_outline),
+                label: const Text('Créer un transfert'),
+              ),
             ),
-          ),
           const SizedBox(height: 12),
 
           // List
@@ -111,23 +113,33 @@ class _TransfersPageState extends State<TransfersPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Transferts récents',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary),
               ),
             ),
           ),
           Expanded(
             child: filtered.isEmpty
-                ? const Center(child: Text('Aucun transfert', style: TextStyle(color: AppColors.textSecondary)))
+                ? const Center(
+                    child: Text('Aucun transfert',
+                        style: TextStyle(color: AppColors.textSecondary)))
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                     itemCount: filtered.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (ctx, i) => TransferCard(
                       transfer: filtered[i],
-                      onConfirmArrival: filtered[i].status == TransferStatus.inProgress
-                          ? () => state.confirmTransferArrival(filtered[i].id)
+                      onConfirmArrival: filtered[i].status ==
+                                  TransferStatus.inProgress &&
+                              state.canValidateTransfers
+                          ? () =>
+                              state.confirmTransferArrival(filtered[i].id)
                           : null,
-                      onMarkDeparted: filtered[i].status == TransferStatus.pending
+                      onMarkDeparted: filtered[i].status ==
+                                  TransferStatus.pending &&
+                              state.canValidateTransfers
                           ? () => state.markTransferDeparted(filtered[i].id)
                           : null,
                     ),

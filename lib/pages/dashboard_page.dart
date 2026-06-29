@@ -93,54 +93,57 @@ class DashboardPage extends StatelessWidget {
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-          // Pointage rapide
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.qr_code_scanner, size: 20, color: AppColors.navy),
-                        SizedBox(width: 8),
-                        Text('Pointage rapide', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(child: _QuickAction(
-                          icon: Icons.qr_code_scanner,
-                          label: 'Scanner QR',
-                          onTap: () => _goToScanner(context),
-                        )),
-                        const SizedBox(width: 10),
-                        Expanded(child: _QuickAction(
-                          icon: Icons.person_add_alt_1,
-                          label: 'Ajouter\nune personne',
-                          onTap: () => Navigator.pushNamed(context, AppRoutes.personForm),
-                        )),
-                        const SizedBox(width: 10),
-                        Expanded(child: _QuickAction(
-                          icon: Icons.groups,
-                          label: 'Pointer un\ngroupe',
-                          onTap: () => _goToFamilies(context),
-                        )),
-                      ],
-                    ),
-                  ],
+          // Pointage rapide — hidden for prefectureLecture
+          if (state.canCheckIn)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.qr_code_scanner, size: 20, color: AppColors.navy),
+                          SizedBox(width: 8),
+                          Text('Pointage rapide', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Expanded(child: _QuickAction(
+                            icon: Icons.qr_code_scanner,
+                            label: 'Scanner QR',
+                            onTap: () => _goToScanner(context),
+                          )),
+                          if (state.canCreatePerson) ...[
+                            const SizedBox(width: 10),
+                            Expanded(child: _QuickAction(
+                              icon: Icons.person_add_alt_1,
+                              label: 'Ajouter\nune personne',
+                              onTap: () => Navigator.pushNamed(context, AppRoutes.personForm),
+                            )),
+                          ],
+                          const SizedBox(width: 10),
+                          Expanded(child: _QuickAction(
+                            icon: Icons.groups,
+                            label: 'Pointer un\ngroupe',
+                            onTap: () => _goToFamilies(context),
+                          )),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           // Situations à surveiller

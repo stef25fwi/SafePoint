@@ -19,6 +19,21 @@ class AppState extends ChangeNotifier {
   UserRole currentRole = UserRole.responsableCentre;
   bool isOffline = false;
 
+  // ── Permission helpers ─────────────────────────────────────────
+  bool get canCreatePerson => currentRole != UserRole.prefectureLecture;
+  bool get canCheckIn => currentRole != UserRole.prefectureLecture;
+  bool get canSeeNominativeData => currentRole != UserRole.prefectureLecture;
+  bool get canResolveAlerts =>
+      currentRole == UserRole.responsableCentre ||
+      currentRole == UserRole.celluleCrise ||
+      currentRole == UserRole.admin;
+  bool get canValidateTransfers =>
+      currentRole == UserRole.responsableCentre ||
+      currentRole == UserRole.admin;
+  bool get canExportData =>
+      currentRole == UserRole.celluleCrise || currentRole == UserRole.admin;
+  bool get isAdmin => currentRole == UserRole.admin;
+
   // Firestore disponible si Firebase est initialisé
   bool get _firestoreEnabled {
     try {
@@ -566,10 +581,16 @@ class AppState extends ChangeNotifier {
   }
 
   // Actions
-  void login(String agentCode, String shelterId, {bool offline = false}) {
+  void login(
+    String agentCode,
+    String shelterId, {
+    bool offline = false,
+    UserRole role = UserRole.agentAccueil,
+  }) {
     isLoggedIn = true;
     currentAgentCode = agentCode;
     currentShelterId = shelterId;
+    currentRole = role;
     isOffline = offline;
     notifyListeners();
   }
