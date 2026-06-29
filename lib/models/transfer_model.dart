@@ -1,4 +1,5 @@
 import 'enums.dart';
+import '../core/constants/app_constants.dart';
 
 class TransferModel {
   final String id;
@@ -18,7 +19,14 @@ class TransferModel {
   final String? notes;
   final DateTime createdAt;
 
-  const TransferModel({
+  // Champs multi-tenant (V2-ready)
+  final String organizationId;
+  final String? territoryId;
+  final DateTime updatedAt;
+  final String createdBy;
+  final String updatedBy;
+
+  TransferModel({
     required this.id,
     required this.eventId,
     required this.fromShelterId,
@@ -35,7 +43,12 @@ class TransferModel {
     this.arrivalConfirmedAt,
     this.notes,
     required this.createdAt,
-  });
+    this.organizationId = AppDefaults.organizationId,
+    this.territoryId,
+    DateTime? updatedAt,
+    this.createdBy = AppDefaults.demoUserId,
+    this.updatedBy = AppDefaults.demoUserId,
+  }) : updatedAt = updatedAt ?? createdAt;
 
   int get personCount => personIds.length;
 
@@ -46,10 +59,37 @@ class TransferModel {
     return '$personCount personne${personCount > 1 ? 's' : ''}';
   }
 
+  // PostgreSQL-compatible field mapping (V2 migration → transfers table)
+  Map<String, dynamic> toSqlMap() => {
+        'id': id,
+        'organization_id': organizationId,
+        'territory_id': territoryId,
+        'crisis_event_id': eventId,
+        'from_refuge_id': fromShelterId,
+        'from_refuge_name': fromShelterName,
+        'to_refuge_id': toShelterId,
+        'to_refuge_name': toShelterName,
+        'person_ids': personIds,
+        'family_id': familyId,
+        'family_name': familyName,
+        'status': status.name,
+        'transport_mode': transportMode,
+        'departure_planned_at': departurePlannedAt?.toIso8601String(),
+        'departed_at': departedAt?.toIso8601String(),
+        'arrival_confirmed_at': arrivalConfirmedAt?.toIso8601String(),
+        'notes': notes,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+        'created_by': createdBy,
+        'updated_by': updatedBy,
+      };
+
   TransferModel copyWith({
     TransferStatus? status,
     DateTime? departedAt,
     DateTime? arrivalConfirmedAt,
+    DateTime? updatedAt,
+    String? updatedBy,
   }) {
     return TransferModel(
       id: id,
@@ -68,6 +108,11 @@ class TransferModel {
       arrivalConfirmedAt: arrivalConfirmedAt ?? this.arrivalConfirmedAt,
       notes: notes,
       createdAt: createdAt,
+      organizationId: organizationId,
+      territoryId: territoryId,
+      updatedAt: updatedAt ?? DateTime.now(),
+      createdBy: createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
     );
   }
 }
