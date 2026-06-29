@@ -1,9 +1,19 @@
+// ---------------------------------------------------------------------------
+// V1 enums — compatible V2 Keycloak migration
+// Les rôles sont les rôles canoniques cibles.
+// ---------------------------------------------------------------------------
+
 enum UserRole {
-  agentAccueil,
-  responsableCentre,
-  celluleCrise,
-  prefectureLecture,
-  admin,
+  // Rôles canoniques V2 (Keycloak-ready)
+  superAdmin,        // Administration globale
+  prefectureAdmin,   // Vue régionale, activation crise, supervision
+  regionAdmin,       // Vue régionale et reporting
+  communeAdmin,      // Gestion des refuges de sa commune
+  refugeManager,     // Gestion d'un refuge (anciennement: responsableCentre)
+  agent,             // Pointage, consultation limitée (anciennement: agentAccueil)
+  readOnlyObserver,  // Lecture seule (anciennement: prefectureLecture)
+  crisisCell,        // Accès cellule de crise (anciennement: celluleCrise)
+  auditor,           // Consultation des logs et rapports
 }
 
 enum EventStatus { draft, active, paused, closed }
@@ -62,19 +72,55 @@ enum FamilyFilter { all, complete, separated, childrenAlone }
 
 enum AlertTab { critical, toTreat, resolved }
 
+// ---------------------------------------------------------------------------
+// Extensions
+// ---------------------------------------------------------------------------
+
 extension UserRoleLabel on UserRole {
   String get label {
     switch (this) {
-      case UserRole.agentAccueil:
-        return 'Agent d\'accueil';
-      case UserRole.responsableCentre:
-        return 'Responsable de centre';
-      case UserRole.celluleCrise:
-        return 'Cellule de crise';
-      case UserRole.prefectureLecture:
+      case UserRole.superAdmin:
+        return 'Super Administrateur';
+      case UserRole.prefectureAdmin:
         return 'Préfecture / COD';
-      case UserRole.admin:
-        return 'Administrateur';
+      case UserRole.regionAdmin:
+        return 'Région';
+      case UserRole.communeAdmin:
+        return 'Mairie / Commune';
+      case UserRole.refugeManager:
+        return 'Responsable de centre';
+      case UserRole.agent:
+        return 'Agent d\'accueil';
+      case UserRole.readOnlyObserver:
+        return 'Observateur lecture seule';
+      case UserRole.crisisCell:
+        return 'Cellule de crise';
+      case UserRole.auditor:
+        return 'Auditeur';
+    }
+  }
+
+  // Keycloak role name (V2 migration)
+  String get keycloakName {
+    switch (this) {
+      case UserRole.superAdmin:
+        return 'SUPER_ADMIN';
+      case UserRole.prefectureAdmin:
+        return 'PREFECTURE_ADMIN';
+      case UserRole.regionAdmin:
+        return 'REGION_ADMIN';
+      case UserRole.communeAdmin:
+        return 'COMMUNE_ADMIN';
+      case UserRole.refugeManager:
+        return 'REFUGE_MANAGER';
+      case UserRole.agent:
+        return 'AGENT';
+      case UserRole.readOnlyObserver:
+        return 'READ_ONLY_OBSERVER';
+      case UserRole.crisisCell:
+        return 'CRISIS_CELL';
+      case UserRole.auditor:
+        return 'AUDITOR';
     }
   }
 }

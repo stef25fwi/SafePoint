@@ -1,0 +1,166 @@
+rules_version = '2';
+
+// ---------------------------------------------------------------------------
+// SafePoint – Firestore Security Rules (V1)
+//
+// Architecture: multi-tenant par organizationId.
+// Tous les documents sont sous /organizations/{orgId}/...  (V2)
+// En V1 les collections sont à la racine mais filtrées par organizationId.
+//
+// Principes :
+//   • Authentification Firebase obligatoire sur toutes les collections.
+//   • Lecture autorisée selon le rôle stocké dans /users/{uid}.role.
+//   • Écriture limitée aux rôles ayant les permissions nécessaires.
+//   • Les logs d'audit sont en écriture seule (append-only).
+//   • Suppression physique interdite (soft-delete uniquement).
+// ---------------------------------------------------------------------------
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- helpers -----------------------------------------------------------
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function userRole() {
+      return userDoc().role;
+    }
+
+    function userOrgId() {
+      return userDoc().organizationId;
+    }
+
+    function isSameOrg(resource) {
+      return resource.data.organizationId == userOrgId();
+    }
+
+    function hasRole(roles) {
+      return userRole() in roles;
+    }
+
+    function isAdmin() {
+      return hasRole(['superAdmin', 'prefectureAdmin']);
+    }
+
+    function isManager() {
+      return hasRole(['superAdmin', 'prefectureAdmin', 'regionAdmin', 'communeAdmin', 'refugeManager']);
+    }
+
+    function isAgent() {
+      return hasRole(['superAdmin', 'prefectureAdmin', 'regionAdmin', 'communeAdmin', 'refugeManager', 'agent']);
+    }
+
+    function canRead() {
+      return hasRole(['superAdmin', 'prefectureAdmin', 'regionAdmin', 'communeAdmin',
+                      'refugeManager', 'agent', 'readOnlyObserver', 'crisisCell', 'auditor']);
+    }
+
+    // ---- /users ------------------------------------------------------------
+
+    match /users/{uid} {
+      allow read: if isAuthenticated() && (request.auth.uid == uid || isAdmin());
+      allow create: if isAuthenticated() && isAdmin();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == uid ||
+        isAdmin()
+      );
+      allow delete: if false; // soft-delete uniquement via isDeleted / archivedAt
+    }
+
+    // ---- /refuges ----------------------------------------------------------
+
+    match /refuges/{refugeId} {
+      allow read: if isAuthenticated() && canRead() && isSameOrg(resource);
+      allow create: if isAuthenticated() && isManager();
+      allow update: if isAuthenticated() && isManager() && isSameOrg(resource);
+      allow delete: if false;
+    }
+
+    // ---- /persons ----------------------------------------------------------
+
+    match /persons/{personId} {
+      allow read: if isAuthenticated() && canRead() && isSameOrg(resource);
+      allow create: if isAuthenticated() && isAgent();
+      allow update: if isAuthenticated() && isAgent() && isSameOrg(resource);
+      allow delete: if false; // soft-delete via isDeleted / archivedAt
+    }
+
+    // ---- /checkins ---------------------------------------------------------
+
+    match /checkins/{checkinId} {
+      allow read: if isAuthenticated() && canRead() && isSameOrg(resource);
+      allow create: if isAuthenticated() && isAgent();
+      allow update: if false; // checkins sont immuables (append-only)
+      allow delete: if false;
+    }
+
+    // ---- /transfers --------------------------------------------------------
+
+    match /transfers/{transferId} {
+      allow read: if isAuthenticated() && canRead() && isSameOrg(resource);
+      allow create: if isAuthenticated() && isManager();
+      allow update: if isAuthenticated() && isManager() && isSameOrg(resource);
+      allow delete: if false;
+    }
+
+    // ---- /alerts -----------------------------------------------------------
+
+    match /alerts/{alertId} {
+      allow read: if isAuthenticated() && canRead() && isSameOrg(resource);
+      allow create: if isAuthenticated() && isAgent();
+      allow update: if isAuthenticated() && isAgent() && isSameOrg(resource);
+      allow delete: if false;
+    }
+
+    // ---- /families ---------------------------------------------------------
+
+    match /families/{familyId} {
+      allow read: if isAuthenticated() && canRead() && isSameOrg(resource);
+      allow create: if isAuthenticated() && isAgent();
+      allow update: if isAuthenticated() && isAgent() && isSameOrg(resource);
+      allow delete: if false;
+    }
+
+    // ---- /needs ------------------------------------------------------------
+
+    match /needs/{needId} {
+      allow read: if isAuthenticated() && canRead() && isSameOrg(resource);
+      allow create: if isAuthenticated() && isAgent();
+      allow update: if isAuthenticated() && isManager() && isSameOrg(resource);
+      allow delete: if false;
+    }
+
+    // ---- /crisis_events ----------------------------------------------------
+
+    match /crisis_events/{eventId} {
+      allow read: if isAuthenticated() && canRead() && isSameOrg(resource);
+      allow create: if isAuthenticated() && isAdmin();
+      allow update: if isAuthenticated() && isAdmin() && isSameOrg(resource);
+      allow delete: if false;
+    }
+
+    // ---- /audit_logs -------------------------------------------------------
+    // Append-only : aucune modification ou suppression autorisée.
+
+    match /audit_logs/{logId} {
+      allow read: if isAuthenticated() && hasRole(['superAdmin', 'prefectureAdmin', 'auditor'])
+                  && isSameOrg(resource);
+      allow create: if isAuthenticated() && isAgent();
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ---- /organizations ----------------------------------------------------
+
+    match /organizations/{orgId} {
+      allow read: if isAuthenticated() && (userOrgId() == orgId || hasRole(['superAdmin']));
+      allow write: if isAuthenticated() && hasRole(['superAdmin']);
+    }
+  }
+}

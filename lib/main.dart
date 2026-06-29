@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/firebase_options.dart';
+import 'app/environment.dart';
+import 'app/service_locator.dart';
 import 'app.dart';
 
 Future<void> main() async {
@@ -15,22 +17,33 @@ Future<void> main() async {
     statusBarIconBrightness: Brightness.dark,
   ));
 
-  // Initialise Firebase si les clés sont configurées (non placeholder)
-  await _tryInitFirebase();
+  // Initialise Firebase si les clés sont configurées
+  final firebaseAvailable = await _tryInitFirebase();
+
+  // Configure l'environnement
+  Environment.configure(
+    firebaseAvailable ? AppEnvironment.production : AppEnvironment.demo,
+  );
+
+  // Initialise le service locator (injection de dépendances)
+  ServiceLocator.instance.initialize(firebaseAvailable: firebaseAvailable);
 
   runApp(const SafePointApp());
 }
 
-Future<void> _tryInitFirebase() async {
+Future<bool> _tryInitFirebase() async {
   if (DefaultFirebaseOptions.web.apiKey == 'YOUR_API_KEY') {
-    // Clés Firebase non configurées → mode démo avec données locales
     debugPrint('[SafePoint] Firebase non configuré – mode démo actif');
-    return;
+    return false;
   }
   try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     debugPrint('[SafePoint] Firebase initialisé');
+    return true;
   } catch (e) {
     debugPrint('[SafePoint] Erreur init Firebase: $e – mode démo actif');
+    return false;
   }
 }

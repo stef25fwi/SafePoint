@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   String? _error;
   String _selectedShelterId = 'shelter_1';
-  UserRole _selectedRole = UserRole.agentAccueil;
+  UserRole _selectedRole = UserRole.agent;
 
   final List<Map<String, String>> _shelters = [
     {'id': 'shelter_1', 'name': 'Gymnase de Baie-Mahault'},
@@ -71,16 +71,24 @@ class _LoginPageState extends State<LoginPage> {
 
   IconData _roleIcon(UserRole role) {
     switch (role) {
-      case UserRole.agentAccueil:
-        return Icons.badge_outlined;
-      case UserRole.responsableCentre:
-        return Icons.manage_accounts_outlined;
-      case UserRole.celluleCrise:
-        return Icons.warning_amber_outlined;
-      case UserRole.prefectureLecture:
-        return Icons.account_balance_outlined;
-      case UserRole.admin:
+      case UserRole.superAdmin:
         return Icons.admin_panel_settings_outlined;
+      case UserRole.prefectureAdmin:
+        return Icons.account_balance_outlined;
+      case UserRole.regionAdmin:
+        return Icons.map_outlined;
+      case UserRole.communeAdmin:
+        return Icons.location_city_outlined;
+      case UserRole.refugeManager:
+        return Icons.manage_accounts_outlined;
+      case UserRole.agent:
+        return Icons.badge_outlined;
+      case UserRole.readOnlyObserver:
+        return Icons.visibility_outlined;
+      case UserRole.crisisCell:
+        return Icons.warning_amber_outlined;
+      case UserRole.auditor:
+        return Icons.fact_check_outlined;
     }
   }
 

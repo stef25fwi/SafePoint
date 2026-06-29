@@ -33,16 +33,24 @@ class MainShellPageState extends State<MainShellPage> {
 
   Color _roleColor(UserRole role) {
     switch (role) {
-      case UserRole.agentAccueil:
-        return AppColors.blue;
-      case UserRole.responsableCentre:
-        return AppColors.green;
-      case UserRole.celluleCrise:
-        return AppColors.orange;
-      case UserRole.prefectureLecture:
-        return AppColors.purple;
-      case UserRole.admin:
+      case UserRole.superAdmin:
         return AppColors.red;
+      case UserRole.prefectureAdmin:
+        return AppColors.purple;
+      case UserRole.regionAdmin:
+        return AppColors.purple;
+      case UserRole.communeAdmin:
+        return AppColors.green;
+      case UserRole.refugeManager:
+        return AppColors.green;
+      case UserRole.agent:
+        return AppColors.blue;
+      case UserRole.readOnlyObserver:
+        return AppColors.grayText;
+      case UserRole.crisisCell:
+        return AppColors.orange;
+      case UserRole.auditor:
+        return AppColors.navy;
     }
   }
 
