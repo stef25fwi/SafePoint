@@ -32,15 +32,14 @@ Future<void> main() async {
 }
 
 Future<bool> _tryInitFirebase() async {
-  if (DefaultFirebaseOptions.web.apiKey == 'YOUR_API_KEY') {
+  final opts = DefaultFirebaseOptions.currentPlatform;
+  if (opts.apiKey.startsWith('REPLACE_WITH') || opts.apiKey == 'YOUR_API_KEY') {
     debugPrint('[SafePoint] Firebase non configuré – mode démo actif');
     return false;
   }
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    debugPrint('[SafePoint] Firebase initialisé');
+    await Firebase.initializeApp(options: opts);
+    debugPrint('[SafePoint] Firebase initialisé (${opts.projectId})');
     return true;
   } catch (e) {
     debugPrint('[SafePoint] Erreur init Firebase: $e – mode démo actif');
