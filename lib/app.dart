@@ -1,0 +1,40 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'core/app_theme.dart';
+import 'core/app_routes.dart';
+import 'services/app_state.dart';
+import 'pages/login_page.dart';
+import 'pages/main_shell_page.dart';
+import 'pages/person_form_page.dart';
+import 'pages/person_detail_page.dart';
+import 'pages/families_page.dart';
+import 'pages/transfers_page.dart';
+import 'pages/create_transfer_page.dart';
+
+class RefugeVolcanApp extends StatelessWidget {
+  const RefugeVolcanApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => AppState(),
+      child: Consumer<AppState>(
+        builder: (ctx, state, _) => MaterialApp(
+          title: 'Refuge Volcan',
+          theme: AppTheme.light,
+          debugShowCheckedModeBanner: false,
+          initialRoute: state.isLoggedIn ? AppRoutes.shell : AppRoutes.login,
+          routes: {
+            AppRoutes.login: (_) => const LoginPage(),
+            AppRoutes.shell: (_) => const MainShellPage(),
+            AppRoutes.personForm: (_) => const PersonFormPage(),
+            AppRoutes.personDetail: (_) => const PersonDetailPage(),
+            AppRoutes.families: (_) => const FamiliesPage(),
+            AppRoutes.transfers: (_) => const TransfersPage(),
+            AppRoutes.createTransfer: (_) => const CreateTransferPage(),
+          },
+        ),
+      ),
+    );
+  }
+}
