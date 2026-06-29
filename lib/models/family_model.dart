@@ -4,6 +4,8 @@ class FamilyModel {
   final String shelterId;
   final String displayName;
   final String? originCommune;
+  final String? originCodeInsee;
+  final String? originCodePostal;
   final List<String> memberIds;
   final int membersCount;
   final String? assignedZone;
@@ -17,6 +19,8 @@ class FamilyModel {
     required this.shelterId,
     required this.displayName,
     this.originCommune,
+    this.originCodeInsee,
+    this.originCodePostal,
     required this.memberIds,
     required this.membersCount,
     this.assignedZone,
@@ -37,6 +41,8 @@ class FamilyModel {
       shelterId: shelterId,
       displayName: displayName,
       originCommune: originCommune,
+      originCodeInsee: originCodeInsee,
+      originCodePostal: originCodePostal,
       memberIds: memberIds ?? this.memberIds,
       membersCount: membersCount ?? this.membersCount,
       assignedZone: assignedZone ?? this.assignedZone,

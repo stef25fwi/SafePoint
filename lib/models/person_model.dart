@@ -11,6 +11,8 @@ class PersonModel {
   final DateTime? birthDate;
   final int? ageApprox;
   final String? originCommune;
+  final String? originCodeInsee;
+  final String? originCodePostal;
   final String? originSector;
   final String? phone;
   final String? emergencyContactName;
@@ -35,6 +37,8 @@ class PersonModel {
     this.birthDate,
     this.ageApprox,
     this.originCommune,
+    this.originCodeInsee,
+    this.originCodePostal,
     this.originSector,
     this.phone,
     this.emergencyContactName,
@@ -89,6 +93,8 @@ class PersonModel {
       birthDate: birthDate,
       ageApprox: ageApprox,
       originCommune: originCommune,
+      originCodeInsee: originCodeInsee,
+      originCodePostal: originCodePostal,
       originSector: originSector,
       phone: phone,
       emergencyContactName: emergencyContactName,

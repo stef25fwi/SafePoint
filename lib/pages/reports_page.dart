@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
 import '../models/enums.dart';
 import '../services/app_state.dart';
+import '../services/export_service.dart';
 import '../core/app_routes.dart';
 import '../widgets/app_header.dart';
-import 'main_shell_page.dart';
 
 class ReportsPage extends StatelessWidget {
   const ReportsPage({super.key});
@@ -75,6 +75,50 @@ class ReportsPage extends StatelessWidget {
               ),
             ),
           ),
+
+          // Accès analytics consolidées (commune / préfecture / cellule)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+              child: InkWell(
+                onTap: () =>
+                    Navigator.pushNamed(context, AppRoutes.analytics),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                        colors: [AppColors.navy, AppColors.blue]),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.insights_outlined,
+                          color: Colors.white, size: 22),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Analytics consolidées',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold)),
+                            Text('Synthèses multi-centres + exports',
+                                style: TextStyle(
+                                    color: Colors.white70, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.chevron_right, color: Colors.white),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
           // Synthèse par centre
           SliverToBoxAdapter(
@@ -227,7 +271,9 @@ class ReportsPage extends StatelessWidget {
                           icon: Icons.table_view,
                           label: 'Exporter CSV',
                           color: AppColors.green,
-                          onTap: () => _showExportFeedback(context, 'CSV'),
+                          onTap: () => _runExport(context,
+                              ExportService.instance.exportComplet(state),
+                              format: _ExportFormat.csv),
                         )),
                         const SizedBox(width: 10),
                         Expanded(
@@ -235,7 +281,9 @@ class ReportsPage extends StatelessWidget {
                           icon: Icons.picture_as_pdf_outlined,
                           label: 'Exporter PDF',
                           color: AppColors.red,
-                          onTap: () => _showExportFeedback(context, 'PDF'),
+                          onTap: () => _runExport(context,
+                              ExportService.instance.exportComplet(state),
+                              format: _ExportFormat.pdf),
                         )),
                         const SizedBox(width: 10),
                         Expanded(
@@ -243,7 +291,8 @@ class ReportsPage extends StatelessWidget {
                           icon: Icons.calendar_today_outlined,
                           label: 'Synthèse jour',
                           color: AppColors.blue,
-                          onTap: () => _showExportFeedback(context, 'synthèse'),
+                          onTap: () => _showExportSheet(context,
+                              ExportService.instance.syntheseParCentre(state)),
                         )),
                       ],
                     ),
@@ -288,31 +337,38 @@ class ReportsPage extends StatelessWidget {
                     const SizedBox(height: 8),
                     _ReportRow(
                         icon: Icons.business_outlined,
-                        label: 'Bilan par centre',
+                        label: 'Synthèse par centre',
                         color: AppColors.orange,
-                        onTap: () => Navigator.pushNamed(context,
-                            AppRoutes.shelterDetail,
-                            arguments: state.currentShelter.id)),
+                        onTap: () => _showExportSheet(context,
+                            ExportService.instance.syntheseParCentre(state))),
                     const Divider(height: 1),
                     _ReportRow(
-                        icon: Icons.person_outlined,
-                        label: 'Liste des personnes vulnérables',
-                        color: AppColors.purple,
-                        onTap: () {
-                          final shell = context
-                              .findAncestorStateOfType<MainShellPageState>();
-                          shell?.setTab(1);
-                        }),
+                        icon: Icons.location_city_outlined,
+                        label: 'Synthèse par commune d\'origine',
+                        color: AppColors.green,
+                        onTap: () => _showExportSheet(context,
+                            ExportService.instance.syntheseParCommune(state))),
                     const Divider(height: 1),
                     _ReportRow(
-                        icon: Icons.history,
-                        label: 'Historique des pointages',
+                        icon: Icons.warning_amber_rounded,
+                        label: 'Liste des personnes non pointées',
+                        color: AppColors.red,
+                        onTap: () => _showExportSheet(context,
+                            ExportService.instance.personnesNonPointees(state))),
+                    const Divider(height: 1),
+                    _ReportRow(
+                        icon: Icons.inventory_2_outlined,
+                        label: 'Liste des besoins',
                         color: AppColors.blue,
-                        onTap: () {
-                          final shell = context
-                              .findAncestorStateOfType<MainShellPageState>();
-                          shell?.setTab(2);
-                        }),
+                        onTap: () => _showExportSheet(
+                            context, ExportService.instance.besoins(state))),
+                    const Divider(height: 1),
+                    _ReportRow(
+                        icon: Icons.groups_outlined,
+                        label: 'Export complet (nominatif)',
+                        color: AppColors.purple,
+                        onTap: () => _showExportSheet(context,
+                            ExportService.instance.exportComplet(state))),
                   ],
                 ),
               ),
@@ -324,16 +380,102 @@ class ReportsPage extends StatelessWidget {
     );
   }
 
-  void _showExportFeedback(BuildContext context, String type) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Export $type en cours de génération...'),
-        backgroundColor: AppColors.green,
-        duration: const Duration(seconds: 2),
+  /// Feuille de choix du format pour un rapport donné.
+  void _showExportSheet(BuildContext context, ReportTable table) {
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(table.title,
+                        style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary)),
+                  ),
+                  Text('${table.rows.length} ligne(s)',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary)),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.table_view, color: AppColors.green),
+              title: const Text('Exporter en CSV'),
+              subtitle: const Text('Tableur (Excel, LibreOffice…)'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _runExport(context, table, format: _ExportFormat.csv);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined,
+                  color: AppColors.red),
+              title: const Text('Exporter en PDF'),
+              subtitle: const Text('Document partageable'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _runExport(context, table, format: _ExportFormat.pdf);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.print_outlined, color: AppColors.navy),
+              title: const Text('Aperçu / Imprimer'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _runExport(context, table, format: _ExportFormat.print);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
+
+  Future<void> _runExport(BuildContext context, ReportTable table,
+      {required _ExportFormat format}) async {
+    final messenger = ScaffoldMessenger.of(context);
+    if (table.isEmpty) {
+      messenger.showSnackBar(const SnackBar(
+        content: Text('Aucune donnée à exporter pour ce rapport.'),
+        backgroundColor: AppColors.orange,
+      ));
+      return;
+    }
+    try {
+      final svc = ExportService.instance;
+      switch (format) {
+        case _ExportFormat.csv:
+          await svc.shareCsv(table);
+          break;
+        case _ExportFormat.pdf:
+          await svc.sharePdf(table);
+          break;
+        case _ExportFormat.print:
+          await svc.previewPdf(table);
+          break;
+      }
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(
+        content: Text('Échec de l\'export : $e'),
+        backgroundColor: AppColors.red,
+      ));
+    }
+  }
 }
+
+enum _ExportFormat { csv, pdf, print }
 
 class _ReportKpi extends StatelessWidget {
   final String title;

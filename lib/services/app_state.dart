@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../models/emergency_event_model.dart';
@@ -9,6 +10,7 @@ import '../models/alert_model.dart';
 import '../models/transfer_model.dart';
 import '../models/need_model.dart';
 import '../models/enums.dart';
+import 'fcm_service.dart';
 import 'firestore_service.dart';
 
 class AppState extends ChangeNotifier {
@@ -51,6 +53,85 @@ class AppState extends ChangeNotifier {
 
   FirestoreService get _fs => FirestoreService.instance;
 
+  // ── Firestore realtime subscriptions ───────────────────────────
+  final List<StreamSubscription<dynamic>> _shelterSubs = [];
+  final List<StreamSubscription<dynamic>> _eventSubs = [];
+  bool _realtimeBound = false;
+
+  /// Branche les flux Firestore temps réel (lecture). À appeler après login,
+  /// uniquement si Firebase est initialisé. En mode démo, ne fait rien et
+  /// l'app continue sur les données mock.
+  void bindRealtime() {
+    if (!_firestoreEnabled || _realtimeBound) return;
+    _realtimeBound = true;
+    _bindEventStreams(activeEvent.id);
+    _bindShelterStreams(currentShelterId);
+    // Notifications ciblées : centre courant + événement de crise.
+    FcmService.instance.subscribeToShelter(currentShelterId);
+    FcmService.instance.subscribeToEvent(activeEvent.id);
+  }
+
+  void _bindEventStreams(String eventId) {
+    for (final s in _eventSubs) {
+      s.cancel();
+    }
+    _eventSubs.clear();
+    _eventSubs.add(_fs.eventStream(eventId).listen((event) {
+      if (event != null) {
+        activeEvent = event;
+        notifyListeners();
+      }
+    }));
+    _eventSubs.add(_fs.sheltersStream(eventId).listen((list) {
+      if (list.isNotEmpty) {
+        shelters = list;
+        notifyListeners();
+      }
+    }));
+  }
+
+  void _bindShelterStreams(String shelterId) {
+    for (final s in _shelterSubs) {
+      s.cancel();
+    }
+    _shelterSubs.clear();
+    _shelterSubs.add(_fs.personsStream(shelterId).listen((list) {
+      _persons = list;
+      notifyListeners();
+    }));
+    _shelterSubs.add(_fs.familiesStream(shelterId).listen((list) {
+      _families = list;
+      notifyListeners();
+    }));
+    _shelterSubs.add(_fs.alertsStream(shelterId).listen((list) {
+      _alerts = list;
+      notifyListeners();
+    }));
+    _shelterSubs.add(_fs.transfersStream(shelterId).listen((list) {
+      _transfers = list;
+      notifyListeners();
+    }));
+    _shelterSubs.add(_fs.needsStream(shelterId).listen((list) {
+      _needs = list;
+      notifyListeners();
+    }));
+    _shelterSubs.add(_fs.recentCheckinsStream(shelterId).listen((list) {
+      _checkins = list;
+      notifyListeners();
+    }));
+  }
+
+  @override
+  void dispose() {
+    for (final s in _shelterSubs) {
+      s.cancel();
+    }
+    for (final s in _eventSubs) {
+      s.cancel();
+    }
+    super.dispose();
+  }
+
   // --- Mock Data ---
   EmergencyEventModel activeEvent = EmergencyEventModel(
     id: 'event_1',
@@ -61,12 +142,15 @@ class AppState extends ChangeNotifier {
     startedAt: DateTime.now().subtract(const Duration(hours: 6)),
   );
 
-  final List<ShelterModel> shelters = [
+  List<ShelterModel> shelters = [
     const ShelterModel(
       id: 'shelter_1',
       eventId: 'event_1',
       name: 'Gymnase de Baie-Mahault',
       commune: 'Baie-Mahault',
+      codePostal: '97122',
+      codeInsee: '97103',
+      population: 32703,
       address: 'Rue du Gymnase, Baie-Mahault',
       capacity: 350,
       currentCount: 217,
@@ -99,6 +183,9 @@ class AppState extends ChangeNotifier {
       eventId: 'event_1',
       name: 'Centre de Capesterre',
       commune: 'Capesterre-Belle-Eau',
+      codePostal: '97130',
+      codeInsee: '97107',
+      population: 18460,
       address: 'Avenue Général de Gaulle, Capesterre',
       capacity: 280,
       currentCount: 324,
@@ -122,6 +209,9 @@ class AppState extends ChangeNotifier {
       eventId: 'event_1',
       name: 'Salle de Basse-Terre',
       commune: 'Basse-Terre',
+      codePostal: '97100',
+      codeInsee: '97105',
+      population: 10052,
       address: 'Place du Champ d\'Arbaud, Basse-Terre',
       capacity: 400,
       currentCount: 242,
@@ -621,6 +711,30 @@ class AppState extends ChangeNotifier {
     return map;
   }
 
+  // ── Analytics cross-centres (cellule de crise / préfecture) ────────
+  /// Toutes les personnes non supprimées, tous centres confondus.
+  List<PersonModel> get everyPerson =>
+      _persons.where((p) => !p.isDeleted).toList();
+
+  /// Tous les besoins ouverts, tous centres confondus.
+  List<NeedModel> get everyOpenNeed =>
+      _needs.where((n) => n.status == 'open').toList();
+
+  /// Toutes les personnes non pointées, tous centres confondus.
+  List<PersonModel> get everyNonPointee => _persons
+      .where((p) => !p.isDeleted && p.status == PersonStatus.nonPointee)
+      .toList();
+
+  /// Répartition des personnes par commune d'origine (tous centres).
+  Map<String, int> get countsByOriginCommune {
+    final map = <String, int>{};
+    for (final p in everyPerson) {
+      final key = p.originCommune ?? 'Non renseignée';
+      map[key] = (map[key] ?? 0) + 1;
+    }
+    return map;
+  }
+
   // Actions
   void login(
     String agentCode,
@@ -633,6 +747,7 @@ class AppState extends ChangeNotifier {
     currentShelterId = shelterId;
     currentRole = role;
     isOffline = offline;
+    bindRealtime();
     notifyListeners();
   }
 
@@ -801,6 +916,9 @@ class AppState extends ChangeNotifier {
     final idx = shelters.indexWhere((s) => s.id == shelterId);
     if (idx >= 0) {
       shelters[idx] = shelters[idx].copyWith(status: status);
+      if (_firestoreEnabled) {
+        _fs.updateShelterStatus(shelterId, status);
+      }
       notifyListeners();
     }
   }
@@ -811,6 +929,9 @@ class AppState extends ChangeNotifier {
     final newStock = Map<String, int>.from(shelters[idx].stock);
     newStock[item] = qty < 0 ? 0 : qty;
     shelters[idx] = shelters[idx].copyWith(stock: newStock);
+    if (_firestoreEnabled) {
+      _fs.updateShelterFields(shelterId, {'stock': newStock});
+    }
     notifyListeners();
   }
 
@@ -821,6 +942,9 @@ class AppState extends ChangeNotifier {
     if (!newZones.contains(zone)) {
       newZones.add(zone);
       shelters[idx] = shelters[idx].copyWith(zones: newZones);
+      if (_firestoreEnabled) {
+        _fs.updateShelterFields(shelterId, {'zones': newZones});
+      }
       notifyListeners();
     }
   }
@@ -830,6 +954,9 @@ class AppState extends ChangeNotifier {
     if (idx < 0) return;
     final newZones = List<String>.from(shelters[idx].zones)..remove(zone);
     shelters[idx] = shelters[idx].copyWith(zones: newZones);
+    if (_firestoreEnabled) {
+      _fs.updateShelterFields(shelterId, {'zones': newZones});
+    }
     notifyListeners();
   }
 
@@ -839,6 +966,12 @@ class AppState extends ChangeNotifier {
     if (idx < 0) return;
     shelters[idx] = shelters[idx]
         .copyWith(responsableName: name, responsablePhone: phone);
+    if (_firestoreEnabled) {
+      _fs.updateShelterFields(shelterId, {
+        'responsableName': name,
+        'responsablePhone': phone,
+      });
+    }
     notifyListeners();
   }
 
@@ -849,6 +982,9 @@ class AppState extends ChangeNotifier {
     if (!newAgents.contains(agentName)) {
       newAgents.add(agentName);
       shelters[idx] = shelters[idx].copyWith(agentNames: newAgents);
+      if (_firestoreEnabled) {
+        _fs.updateShelterFields(shelterId, {'agentNames': newAgents});
+      }
       notifyListeners();
     }
   }
@@ -859,6 +995,9 @@ class AppState extends ChangeNotifier {
     final newAgents = List<String>.from(shelters[idx].agentNames)
       ..remove(agentName);
     shelters[idx] = shelters[idx].copyWith(agentNames: newAgents);
+    if (_firestoreEnabled) {
+      _fs.updateShelterFields(shelterId, {'agentNames': newAgents});
+    }
     notifyListeners();
   }
 
@@ -881,14 +1020,22 @@ class AppState extends ChangeNotifier {
         shelters[i] = shelters[i].copyWith(status: ShelterStatus.open);
       }
     }
+    if (_firestoreEnabled) {
+      _fs.saveEvent(activeEvent);
+    }
     notifyListeners();
   }
 
   void deactivateCrisis() {
+    final endedAt = DateTime.now();
     activeEvent = activeEvent.copyWith(
       status: EventStatus.closed,
-      endedAt: DateTime.now(),
+      endedAt: endedAt,
     );
+    if (_firestoreEnabled) {
+      _fs.updateEventStatus(activeEvent.id, EventStatus.closed,
+          endedAt: endedAt);
+    }
     notifyListeners();
   }
 

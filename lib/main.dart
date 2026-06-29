@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/firebase_options.dart';
+import 'services/fcm_service.dart';
 import 'app.dart';
 
 Future<void> main() async {
@@ -30,6 +31,8 @@ Future<void> _tryInitFirebase() async {
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     debugPrint('[SafePoint] Firebase initialisé');
+    // Notifications push (best-effort, ne bloque pas le démarrage)
+    await FcmService.instance.init();
   } catch (e) {
     debugPrint('[SafePoint] Erreur init Firebase: $e – mode démo actif');
   }

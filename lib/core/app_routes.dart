@@ -8,4 +8,5 @@ class AppRoutes {
   static const createTransfer = '/create-transfer';
   static const crisisActivation = '/crisis-activation';
   static const shelterDetail = '/shelter-detail';
+  static const analytics = '/analytics';
 }

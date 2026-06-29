@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/alert_model.dart';
 import '../models/checkin_model.dart';
+import '../models/emergency_event_model.dart';
 import '../models/enums.dart';
 import '../models/family_model.dart';
 import '../models/need_model.dart';
 import '../models/person_model.dart';
+import '../models/shelter_model.dart';
 import '../models/transfer_model.dart';
 
 // ---------------------------------------------------------------------------
@@ -17,6 +19,8 @@ class _Col {
   static const alerts = 'alerts';
   static const transfers = 'transfers';
   static const needs = 'needs';
+  static const shelters = 'shelters';
+  static const events = 'events';
 }
 
 // ---------------------------------------------------------------------------
@@ -169,6 +173,54 @@ class FirestoreService {
     await _db.collection(_Col.needs).doc(n.id).set(_needToMap(n));
   }
 
+  // ---- Shelters ----
+
+  Stream<List<ShelterModel>> sheltersStream(String eventId) {
+    return _db
+        .collection(_Col.shelters)
+        .where('eventId', isEqualTo: eventId)
+        .orderBy('name')
+        .snapshots()
+        .map((s) => s.docs.map((d) => _shelterFromDoc(d)).toList());
+  }
+
+  Future<void> saveShelter(ShelterModel s) async {
+    await _db.collection(_Col.shelters).doc(s.id).set(_shelterToMap(s));
+  }
+
+  Future<void> updateShelterStatus(String id, ShelterStatus status) async {
+    await _db
+        .collection(_Col.shelters)
+        .doc(id)
+        .update({'status': status.name});
+  }
+
+  Future<void> updateShelterFields(String id, Map<String, dynamic> fields) async {
+    await _db.collection(_Col.shelters).doc(id).update(fields);
+  }
+
+  // ---- Events ----
+
+  Stream<EmergencyEventModel?> eventStream(String eventId) {
+    return _db
+        .collection(_Col.events)
+        .doc(eventId)
+        .snapshots()
+        .map((d) => d.exists ? _eventFromDoc(d.id, d.data()!) : null);
+  }
+
+  Future<void> saveEvent(EmergencyEventModel e) async {
+    await _db.collection(_Col.events).doc(e.id).set(_eventToMap(e));
+  }
+
+  Future<void> updateEventStatus(String id, EventStatus status,
+      {DateTime? endedAt}) async {
+    await _db.collection(_Col.events).doc(id).update({
+      'status': status.name,
+      if (endedAt != null) 'endedAt': Timestamp.fromDate(endedAt),
+    });
+  }
+
   // -------------------------------------------------------------------------
   // Serialization helpers
   // -------------------------------------------------------------------------
@@ -185,6 +237,8 @@ class FirestoreService {
         'birthDate': p.birthDate != null ? Timestamp.fromDate(p.birthDate!) : null,
         'ageApprox': p.ageApprox,
         'originCommune': p.originCommune,
+        'originCodeInsee': p.originCodeInsee,
+        'originCodePostal': p.originCodePostal,
         'originSector': p.originSector,
         'phone': p.phone,
         'emergencyContactName': p.emergencyContactName,
@@ -212,6 +266,8 @@ class FirestoreService {
       birthDate: (d['birthDate'] as Timestamp?)?.toDate(),
       ageApprox: d['ageApprox'] as int?,
       originCommune: d['originCommune'] as String?,
+      originCodeInsee: d['originCodeInsee'] as String?,
+      originCodePostal: d['originCodePostal'] as String?,
       originSector: d['originSector'] as String?,
       phone: d['phone'] as String?,
       emergencyContactName: d['emergencyContactName'] as String?,
@@ -243,6 +299,8 @@ class FirestoreService {
         'shelterId': f.shelterId,
         'displayName': f.displayName,
         'originCommune': f.originCommune,
+        'originCodeInsee': f.originCodeInsee,
+        'originCodePostal': f.originCodePostal,
         'memberIds': f.memberIds,
         'membersCount': f.membersCount,
         'assignedZone': f.assignedZone,
@@ -259,6 +317,8 @@ class FirestoreService {
       shelterId: d['shelterId'] as String? ?? '',
       displayName: d['displayName'] as String? ?? '',
       originCommune: d['originCommune'] as String?,
+      originCodeInsee: d['originCodeInsee'] as String?,
+      originCodePostal: d['originCodePostal'] as String?,
       memberIds: List<String>.from(d['memberIds'] ?? []),
       membersCount: d['membersCount'] as int? ?? 0,
       assignedZone: d['assignedZone'] as String?,
@@ -420,6 +480,79 @@ class FirestoreService {
       description: d['description'] as String?,
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       resolvedAt: (d['resolvedAt'] as Timestamp?)?.toDate(),
+    );
+  }
+
+  // -- Shelter --
+  Map<String, dynamic> _shelterToMap(ShelterModel s) => {
+        'id': s.id,
+        'eventId': s.eventId,
+        'name': s.name,
+        'commune': s.commune,
+        'codePostal': s.codePostal,
+        'codeInsee': s.codeInsee,
+        'population': s.population,
+        'address': s.address,
+        'capacity': s.capacity,
+        'currentCount': s.currentCount,
+        'status': s.status.name,
+        'zones': s.zones,
+        'responsableName': s.responsableName,
+        'responsablePhone': s.responsablePhone,
+        'agentNames': s.agentNames,
+        'stock': s.stock,
+      };
+
+  ShelterModel _shelterFromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+    final d = doc.data();
+    return ShelterModel(
+      id: d['id'] as String? ?? doc.id,
+      eventId: d['eventId'] as String? ?? '',
+      name: d['name'] as String? ?? '',
+      commune: d['commune'] as String? ?? '',
+      codePostal: d['codePostal'] as String?,
+      codeInsee: d['codeInsee'] as String?,
+      population: d['population'] as int?,
+      address: d['address'] as String? ?? '',
+      capacity: d['capacity'] as int? ?? 0,
+      currentCount: d['currentCount'] as int? ?? 0,
+      status: ShelterStatus.values.firstWhere(
+        (e) => e.name == d['status'],
+        orElse: () => ShelterStatus.open,
+      ),
+      zones: List<String>.from(d['zones'] ?? []),
+      responsableName: d['responsableName'] as String?,
+      responsablePhone: d['responsablePhone'] as String?,
+      agentNames: List<String>.from(d['agentNames'] ?? []),
+      stock: (d['stock'] as Map<String, dynamic>?)
+              ?.map((k, v) => MapEntry(k, (v as num).toInt())) ??
+          const {},
+    );
+  }
+
+  // -- Event --
+  Map<String, dynamic> _eventToMap(EmergencyEventModel e) => {
+        'id': e.id,
+        'name': e.name,
+        'type': e.type,
+        'status': e.status.name,
+        'volcanoName': e.volcanoName,
+        'startedAt': Timestamp.fromDate(e.startedAt),
+        'endedAt': e.endedAt != null ? Timestamp.fromDate(e.endedAt!) : null,
+      };
+
+  EmergencyEventModel _eventFromDoc(String id, Map<String, dynamic> d) {
+    return EmergencyEventModel(
+      id: d['id'] as String? ?? id,
+      name: d['name'] as String? ?? '',
+      type: d['type'] as String? ?? '',
+      status: EventStatus.values.firstWhere(
+        (e) => e.name == d['status'],
+        orElse: () => EventStatus.active,
+      ),
+      volcanoName: d['volcanoName'] as String? ?? '',
+      startedAt: (d['startedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      endedAt: (d['endedAt'] as Timestamp?)?.toDate(),
     );
   }
 }

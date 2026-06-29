@@ -12,6 +12,7 @@ import 'pages/transfers_page.dart';
 import 'pages/create_transfer_page.dart';
 import 'pages/crisis_activation_page.dart';
 import 'pages/shelter_detail_page.dart';
+import 'pages/analytics_page.dart';
 
 class SafePointApp extends StatelessWidget {
   const SafePointApp({super.key});
@@ -36,6 +37,7 @@ class SafePointApp extends StatelessWidget {
             AppRoutes.createTransfer: (_) => const CreateTransferPage(),
             AppRoutes.crisisActivation: (_) => const CrisisActivationPage(),
             AppRoutes.shelterDetail: (_) => const ShelterDetailPage(),
+            AppRoutes.analytics: (_) => const AnalyticsPage(),
           },
         ),
       ),

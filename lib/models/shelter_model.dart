@@ -5,6 +5,9 @@ class ShelterModel {
   final String eventId;
   final String name;
   final String commune;
+  final String? codePostal;
+  final String? codeInsee;
+  final int? population;
   final String address;
   final int capacity;
   final int currentCount;
@@ -20,6 +23,9 @@ class ShelterModel {
     required this.eventId,
     required this.name,
     required this.commune,
+    this.codePostal,
+    this.codeInsee,
+    this.population,
     required this.address,
     required this.capacity,
     required this.currentCount,
@@ -35,6 +41,10 @@ class ShelterModel {
   double get capacityPercent => currentCount / capacity;
 
   ShelterModel copyWith({
+    String? commune,
+    String? codePostal,
+    String? codeInsee,
+    int? population,
     int? currentCount,
     ShelterStatus? status,
     List<String>? zones,
@@ -48,7 +58,10 @@ class ShelterModel {
       id: id,
       eventId: eventId,
       name: name,
-      commune: commune,
+      commune: commune ?? this.commune,
+      codePostal: codePostal ?? this.codePostal,
+      codeInsee: codeInsee ?? this.codeInsee,
+      population: population ?? this.population,
       address: address,
       capacity: capacity,
       currentCount: currentCount ?? this.currentCount,
