@@ -350,7 +350,7 @@
       "languageVersion": "3.3"
     },
     {
-      "name": "refuge_volcan",
+      "name": "safepoint_app",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.2"

@@ -1,10 +1,10 @@
 {
   "roots": [
-    "refuge_volcan"
+    "safepoint_app"
   ],
   "packages": [
     {
-      "name": "refuge_volcan",
+      "name": "safepoint_app",
       "version": "1.0.0+1",
       "dependencies": [
         "flutter",

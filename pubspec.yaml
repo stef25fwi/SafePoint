@@ -1,5 +1,5 @@
-name: refuge_volcan
-description: Application de gestion des hébergements d'urgence en cas d'éruption volcanique.
+name: safepoint_app
+description: Application de gestion des hébergements d'urgence – safepoint.app
 publish_to: 'none'
 version: 1.0.0+1
 

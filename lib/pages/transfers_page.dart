@@ -32,7 +32,7 @@ class _TransfersPageState extends State<TransfersPage> {
       body: Column(
         children: [
           AppHeader(
-            title: 'Refuge Volcan',
+            title: 'safepoint.app',
             subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
             showBack: true,
             alertCount: state.openAlerts.length,

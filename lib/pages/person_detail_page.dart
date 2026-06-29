@@ -37,7 +37,7 @@ class PersonDetailPage extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(
             child: AppHeader(
-              title: 'Refuge Volcan',
+              title: 'safepoint.app',
               subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
               showBack: true,
               alertCount: alerts.where((a) => a.status != AlertStatus.resolved).length,

@@ -27,7 +27,7 @@ class ReportsPage extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(
             child: AppHeader(
-              title: 'Refuge Volcan',
+              title: 'safepoint.app',
               subtitle: 'Centre d\'hébergement – ${state.currentShelter.name}',
               alertCount: alertCount,
             ),

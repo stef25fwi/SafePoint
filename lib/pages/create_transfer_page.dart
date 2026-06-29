@@ -74,7 +74,7 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
         child: Column(
           children: [
             AppHeader(
-              title: 'Refuge Volcan',
+              title: 'safepoint.app',
               subtitle: 'Nouveau transfert',
               showBack: true,
               showNotification: false,

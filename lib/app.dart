@@ -11,8 +11,8 @@ import 'pages/families_page.dart';
 import 'pages/transfers_page.dart';
 import 'pages/create_transfer_page.dart';
 
-class RefugeVolcanApp extends StatelessWidget {
-  const RefugeVolcanApp({super.key});
+class SafePointApp extends StatelessWidget {
+  const SafePointApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class RefugeVolcanApp extends StatelessWidget {
       create: (_) => AppState(),
       child: Consumer<AppState>(
         builder: (ctx, state, _) => MaterialApp(
-          title: 'Refuge Volcan',
+          title: 'safepoint.app',
           theme: AppTheme.light,
           debugShowCheckedModeBanner: false,
           initialRoute: state.isLoggedIn ? AppRoutes.shell : AppRoutes.login,

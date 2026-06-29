@@ -1,6 +1,6 @@
 {
-    "name": "refuge_volcan",
-    "short_name": "refuge_volcan",
+    "name": "safepoint.app",
+    "short_name": "safepoint.app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
