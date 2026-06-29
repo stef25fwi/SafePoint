@@ -10,6 +10,7 @@ import '../models/alert_model.dart';
 import '../models/transfer_model.dart';
 import '../models/need_model.dart';
 import '../models/enums.dart';
+import 'audit_service.dart';
 import 'fcm_service.dart';
 import 'firestore_service.dart';
 
@@ -52,6 +53,33 @@ class AppState extends ChangeNotifier {
   }
 
   FirestoreService get _fs => FirestoreService.instance;
+
+  // ── Journal d'audit (RGS / NIS2) ────────────────────────────────
+  void _audit(AuditAction action,
+      {String? targetType, String? targetId, Map<String, dynamic>? meta}) {
+    if (!_firestoreEnabled) return;
+    AuditService.instance.log(
+      action,
+      actorCode: currentAgentCode,
+      role: currentRole.name,
+      shelterId: currentShelterId,
+      targetType: targetType,
+      targetId: targetId,
+      meta: meta,
+    );
+  }
+
+  /// Consigne une consultation de données nominatives (RGPD – traçabilité).
+  void auditNominativeAccess(String targetType, String targetId) {
+    _audit(AuditAction.accessNominative,
+        targetType: targetType, targetId: targetId);
+  }
+
+  /// Consigne un export (rapport + format).
+  void auditExport(String report, String format) {
+    _audit(AuditAction.export,
+        targetType: 'report', meta: {'report': report, 'format': format});
+  }
 
   // ── Firestore realtime subscriptions ───────────────────────────
   final List<StreamSubscription<dynamic>> _shelterSubs = [];
@@ -748,10 +776,12 @@ class AppState extends ChangeNotifier {
     currentRole = role;
     isOffline = offline;
     bindRealtime();
+    _audit(AuditAction.login);
     notifyListeners();
   }
 
   void logout() {
+    _audit(AuditAction.logout);
     isLoggedIn = false;
     currentAgentCode = '';
     isOffline = false;
@@ -773,6 +803,7 @@ class AppState extends ChangeNotifier {
       _fs.savePerson(person);
       _fs.saveCheckin(arrivalCheckin);
     }
+    _audit(AuditAction.createPerson, targetType: 'person', targetId: person.id);
     notifyListeners();
   }
 
@@ -832,6 +863,7 @@ class AppState extends ChangeNotifier {
       if (_firestoreEnabled) {
         _fs.updateAlertStatus(alertId, AlertStatus.resolved, resolvedAt: resolved);
       }
+      _audit(AuditAction.resolveAlert, targetType: 'alert', targetId: alertId);
     }
     notifyListeners();
   }
@@ -1023,6 +1055,8 @@ class AppState extends ChangeNotifier {
     if (_firestoreEnabled) {
       _fs.saveEvent(activeEvent);
     }
+    _audit(AuditAction.activateCrisis,
+        targetType: 'event', targetId: activeEvent.id);
     notifyListeners();
   }
 
@@ -1036,6 +1070,8 @@ class AppState extends ChangeNotifier {
       _fs.updateEventStatus(activeEvent.id, EventStatus.closed,
           endedAt: endedAt);
     }
+    _audit(AuditAction.deactivateCrisis,
+        targetType: 'event', targetId: activeEvent.id);
     notifyListeners();
   }
 

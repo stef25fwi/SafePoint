@@ -454,6 +454,7 @@ class ReportsPage extends StatelessWidget {
       return;
     }
     try {
+      context.read<AppState>().auditExport(table.title, format.name);
       final svc = ExportService.instance;
       switch (format) {
         case _ExportFormat.csv:

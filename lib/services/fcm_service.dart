@@ -49,7 +49,8 @@ class FcmService {
     }
 
     _token = await _messaging.getToken();
-    debugPrint('[FCM] Token: $_token');
+    // Ne jamais journaliser la valeur du token (donnée sensible).
+    debugPrint('[FCM] Token enregistré: ${_token != null}');
 
     _messaging.onTokenRefresh.listen((t) {
       _token = t;

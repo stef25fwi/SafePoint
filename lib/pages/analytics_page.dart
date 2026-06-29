@@ -217,6 +217,7 @@ class AnalyticsPage extends StatelessWidget {
               title: const Text('Exporter en CSV'),
               onTap: () {
                 Navigator.pop(ctx);
+                context.read<AppState>().auditExport(table.title, 'csv');
                 _run(context, () => ExportService.instance.shareCsv(table));
               },
             ),
@@ -226,6 +227,7 @@ class AnalyticsPage extends StatelessWidget {
               title: const Text('Exporter en PDF'),
               onTap: () {
                 Navigator.pop(ctx);
+                context.read<AppState>().auditExport(table.title, 'pdf');
                 _run(context, () => ExportService.instance.sharePdf(table));
               },
             ),
@@ -234,6 +236,7 @@ class AnalyticsPage extends StatelessWidget {
               title: const Text('Aperçu / Imprimer'),
               onTap: () {
                 Navigator.pop(ctx);
+                context.read<AppState>().auditExport(table.title, 'print');
                 _run(context, () => ExportService.instance.previewPdf(table));
               },
             ),

@@ -1,0 +1,129 @@
+rules_version = '2';
+
+// ===========================================================================
+// SafePoint — Règles de sécurité Firestore (contrôle d'accès côté serveur)
+//
+// Principe : least privilege + cloisonnement par centre + minimisation CNIL.
+// La préfecture (prefectureLecture) n'accède JAMAIS aux données nominatives,
+// uniquement aux agrégats (centres / événement). Le journal d'audit est
+// append-only. Aucun accès n'est autorisé sans authentification.
+//
+// Profil agent : /agents/{uid} { role, shelterId, ... }
+// Rôles : agentAccueil | responsableCentre | celluleCrise | prefectureLecture | admin
+// ===========================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Helpers ----------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function agent() {
+      return get(/databases/$(database)/documents/agents/$(request.auth.uid)).data;
+    }
+    function hasRole(roles) {
+      return isSignedIn() && (agent().role in roles);
+    }
+    function isAdmin() {
+      return hasRole(['admin']);
+    }
+    // Profils autorisés à voir des données nominatives (jamais la préfecture).
+    function canSeeNominative() {
+      return hasRole(['agentAccueil', 'responsableCentre', 'celluleCrise', 'admin']);
+    }
+    function myShelter() {
+      return agent().shelterId;
+    }
+    // Cellule de crise et admin voient tous les centres ; les autres seulement
+    // le leur.
+    function operates(res) {
+      return isAdmin()
+        || hasRole(['celluleCrise'])
+        || res.data.shelterId == myShelter();
+    }
+
+    // ---- Profils agents + tokens FCM --------------------------------------
+    match /agents/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      // L'agent ne peut modifier que ses propres tokens FCM ; l'admin gère tout.
+      allow create, update: if isAdmin()
+        || (request.auth.uid == uid
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['fcmTokens', 'fcmUpdatedAt']));
+      allow delete: if isAdmin();
+    }
+
+    // ---- Données nominatives (interdites à la préfecture) ------------------
+    match /persons/{id} {
+      allow read:   if canSeeNominative() && operates(resource);
+      allow create: if canSeeNominative() && operates(request.resource);
+      allow update: if canSeeNominative() && operates(resource);
+      allow delete: if isAdmin();
+    }
+
+    match /families/{id} {
+      allow read:   if canSeeNominative() && operates(resource);
+      allow create: if canSeeNominative() && operates(request.resource);
+      allow update: if canSeeNominative() && operates(resource);
+      allow delete: if isAdmin();
+    }
+
+    // Pointages : création possible par les agents, jamais de modification
+    // ni de suppression (intégrité de la traçabilité).
+    match /checkins/{id} {
+      allow read:   if canSeeNominative() && operates(resource);
+      allow create: if hasRole(['agentAccueil', 'responsableCentre', 'celluleCrise', 'admin'])
+                       && operates(request.resource);
+      allow update, delete: if false;
+    }
+
+    match /needs/{id} {
+      allow read:   if canSeeNominative() && operates(resource);
+      allow create: if canSeeNominative() && operates(request.resource);
+      allow update: if canSeeNominative() && operates(resource);
+      allow delete: if isAdmin();
+    }
+
+    match /alerts/{id} {
+      allow read:   if canSeeNominative() && operates(resource);
+      allow create: if canSeeNominative() && operates(request.resource);
+      allow update: if hasRole(['responsableCentre', 'celluleCrise', 'admin'])
+                       && operates(resource);
+      allow delete: if isAdmin();
+    }
+
+    match /transfers/{id} {
+      allow read:   if canSeeNominative();
+      allow create: if hasRole(['responsableCentre', 'celluleCrise', 'admin']);
+      allow update: if hasRole(['responsableCentre', 'celluleCrise', 'admin']);
+      allow delete: if isAdmin();
+    }
+
+    // ---- Agrégats (lecture préfecture autorisée) --------------------------
+    match /shelters/{id} {
+      allow read:          if isSignedIn();
+      allow create, update: if hasRole(['responsableCentre', 'admin']);
+      allow delete:        if isAdmin();
+    }
+
+    match /events/{id} {
+      allow read:  if isSignedIn();
+      // Activation / désactivation de crise : préfecture ou admin.
+      allow write: if hasRole(['prefectureLecture', 'admin']);
+    }
+
+    // ---- Journal d'audit : append-only ------------------------------------
+    match /audit_logs/{id} {
+      allow create: if isSignedIn()
+                       && request.resource.data.actorUid == request.auth.uid;
+      allow read:   if hasRole(['celluleCrise', 'admin']);
+      allow update, delete: if false;
+    }
+
+    // ---- Refus par défaut -------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
