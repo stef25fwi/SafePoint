@@ -33,6 +33,10 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Platform directories (auto-generated)
+.metadata
+linux/
+
 # Symbolication related
 app.*.symbols
 
