@@ -113,6 +113,12 @@ class AppState extends ChangeNotifier {
   bool get canViewAuditLogs =>
       currentRole == UserRole.auditor ||
       currentRole == UserRole.superAdmin;
+  bool get canCreateAgentAccount =>
+      currentRole == UserRole.superAdmin ||
+      currentRole == UserRole.prefectureAdmin ||
+      currentRole == UserRole.regionAdmin ||
+      currentRole == UserRole.communeAdmin ||
+      currentRole == UserRole.refugeManager;
 
   // ---------------------------------------------------------------------------
   // Données en mémoire (mock + cache local)
@@ -670,7 +676,6 @@ class AppState extends ChangeNotifier {
     currentShelterId = shelterId;
     currentRole = role;
     isOffline = offline;
-    // Journalise la connexion (mode démo → pas de Firebase)
     _auditService?.log(
       organizationId: currentOrganizationId,
       userId: currentUserId,
@@ -678,6 +683,46 @@ class AppState extends ChangeNotifier {
       action: 'LOGIN',
       targetType: 'user',
       targetId: currentUserId,
+    );
+    notifyListeners();
+  }
+
+  Future<void> loginAgent({
+    required String agentCode,
+    required String password,
+  }) async {
+    // Mode démo : accepter tout code agent
+    isLoggedIn = true;
+    currentAgentCode = agentCode;
+    currentRole = UserRole.agent;
+    isOffline = false;
+    // TODO: En production, appeler Cloud Function loginAgent
+    _auditService?.log(
+      organizationId: currentOrganizationId,
+      userId: currentUserId,
+      role: currentRole.keycloakName,
+      action: 'LOGIN',
+      targetType: 'user',
+      targetId: currentUserId,
+    );
+    notifyListeners();
+  }
+
+  Future<void> loginOffline({
+    required String agentCode,
+  }) async {
+    isLoggedIn = true;
+    currentAgentCode = agentCode;
+    currentRole = UserRole.agent;
+    isOffline = true;
+    _auditService?.log(
+      organizationId: currentOrganizationId,
+      userId: currentUserId,
+      role: currentRole.keycloakName,
+      action: 'LOGIN',
+      targetType: 'user',
+      targetId: currentUserId,
+      metadata: {'offline': true},
     );
     notifyListeners();
   }

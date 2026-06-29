@@ -21,14 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   bool _isLoading = false;
   String? _error;
-  String _selectedShelterId = 'shelter_1';
-  UserRole _selectedRole = UserRole.agent;
-
-  final List<Map<String, String>> _shelters = [
-    {'id': 'shelter_1', 'name': 'Gymnase de Baie-Mahault'},
-    {'id': 'shelter_2', 'name': 'Centre de Capesterre'},
-    {'id': 'shelter_3', 'name': 'Salle de Basse-Terre'},
-  ];
 
   @override
   void dispose() {
@@ -46,51 +38,33 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
       _error = null;
     });
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (!mounted) return;
-    context.read<AppState>().login(
-          _agentCodeController.text,
-          _selectedShelterId,
-          role: _selectedRole,
-        );
-    Navigator.of(context).pushReplacementNamed(AppRoutes.shell);
+
+    try {
+      await context.read<AppState>().loginAgent(
+        agentCode: _agentCodeController.text,
+        password: _passwordController.text,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed(AppRoutes.shell);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _error = 'Identifiants incorrects. Veuillez réessayer.';
+      });
+    }
   }
 
   Future<void> _enableOfflineMode() async {
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
-    context.read<AppState>().login(
-          'offline',
-          _selectedShelterId,
-          offline: true,
-          role: _selectedRole,
+    context.read<AppState>().loginOffline(
+          agentCode: _agentCodeController.text,
         );
     Navigator.of(context).pushReplacementNamed(AppRoutes.shell);
   }
 
-  IconData _roleIcon(UserRole role) {
-    switch (role) {
-      case UserRole.superAdmin:
-        return Icons.admin_panel_settings_outlined;
-      case UserRole.prefectureAdmin:
-        return Icons.account_balance_outlined;
-      case UserRole.regionAdmin:
-        return Icons.map_outlined;
-      case UserRole.communeAdmin:
-        return Icons.location_city_outlined;
-      case UserRole.refugeManager:
-        return Icons.manage_accounts_outlined;
-      case UserRole.agent:
-        return Icons.badge_outlined;
-      case UserRole.readOnlyObserver:
-        return Icons.visibility_outlined;
-      case UserRole.crisisCell:
-        return Icons.warning_amber_outlined;
-      case UserRole.auditor:
-        return Icons.fact_check_outlined;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -193,92 +167,6 @@ class _LoginPageState extends State<LoginPage> {
                         onFieldSubmitted: (_) => _signIn(),
                       ),
                       const SizedBox(height: 16),
-
-                      // Shelter selector
-                      const Text('Centre affecté',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: AppColors.textPrimary)),
-                      const SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.divider),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedShelterId,
-                            isExpanded: true,
-                            icon: const Icon(Icons.keyboard_arrow_down,
-                                color: AppColors.textSecondary),
-                            items: _shelters.map((s) {
-                              return DropdownMenuItem<String>(
-                                value: s['id'],
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.business_outlined,
-                                        size: 18, color: AppColors.blue),
-                                    const SizedBox(width: 10),
-                                    Text(s['name']!,
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors.textPrimary)),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (v) =>
-                                setState(() => _selectedShelterId = v!),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-
-                      // Role selector
-                      const Text('Profil d\'accès',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: AppColors.textPrimary)),
-                      const SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.divider),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<UserRole>(
-                            value: _selectedRole,
-                            isExpanded: true,
-                            icon: const Icon(Icons.keyboard_arrow_down,
-                                color: AppColors.textSecondary),
-                            items: UserRole.values.map((r) {
-                              return DropdownMenuItem<UserRole>(
-                                value: r,
-                                child: Row(
-                                  children: [
-                                    Icon(_roleIcon(r),
-                                        size: 18, color: AppColors.navy),
-                                    const SizedBox(width: 10),
-                                    Text(r.label,
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors.textPrimary)),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (v) =>
-                                setState(() => _selectedRole = v!),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
 
                       // Remember + forgot
                       Row(
