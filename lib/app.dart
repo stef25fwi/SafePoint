@@ -10,6 +10,7 @@ import 'pages/person_detail_page.dart';
 import 'pages/families_page.dart';
 import 'pages/transfers_page.dart';
 import 'pages/create_transfer_page.dart';
+import 'pages/crisis_activation_page.dart';
 
 class SafePointApp extends StatelessWidget {
   const SafePointApp({super.key});
@@ -32,6 +33,7 @@ class SafePointApp extends StatelessWidget {
             AppRoutes.families: (_) => const FamiliesPage(),
             AppRoutes.transfers: (_) => const TransfersPage(),
             AppRoutes.createTransfer: (_) => const CreateTransferPage(),
+            AppRoutes.crisisActivation: (_) => const CrisisActivationPage(),
           },
         ),
       ),

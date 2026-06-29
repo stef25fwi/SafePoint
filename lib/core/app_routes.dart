@@ -6,4 +6,5 @@ class AppRoutes {
   static const families = '/families';
   static const transfers = '/transfers';
   static const createTransfer = '/create-transfer';
+  static const crisisActivation = '/crisis-activation';
 }

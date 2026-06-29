@@ -33,6 +33,9 @@ class AppState extends ChangeNotifier {
   bool get canExportData =>
       currentRole == UserRole.celluleCrise || currentRole == UserRole.admin;
   bool get isAdmin => currentRole == UserRole.admin;
+  bool get canActivateCrisis =>
+      currentRole == UserRole.prefectureLecture || currentRole == UserRole.admin;
+  bool get isCrisisActive => activeEvent.status == EventStatus.active;
 
   // Firestore disponible si Firebase est initialisé
   bool get _firestoreEnabled {
@@ -47,7 +50,7 @@ class AppState extends ChangeNotifier {
   FirestoreService get _fs => FirestoreService.instance;
 
   // --- Mock Data ---
-  final EmergencyEventModel activeEvent = EmergencyEventModel(
+  EmergencyEventModel activeEvent = EmergencyEventModel(
     id: 'event_1',
     name: 'Éruption volcanique – Soufrière',
     type: 'eruption',
@@ -751,6 +754,36 @@ class AppState extends ChangeNotifier {
     if (_firestoreEnabled) {
       _fs.saveNeed(need);
     }
+    notifyListeners();
+  }
+
+  void activateCrisis({
+    required String name,
+    required String type,
+    required String zoneName,
+  }) {
+    final now = DateTime.now();
+    activeEvent = activeEvent.copyWith(
+      name: name,
+      type: type,
+      volcanoName: zoneName,
+      status: EventStatus.active,
+      startedAt: now,
+      clearEndedAt: true,
+    );
+    for (var i = 0; i < shelters.length; i++) {
+      if (shelters[i].status == ShelterStatus.preparation) {
+        shelters[i] = shelters[i].copyWith(status: ShelterStatus.open);
+      }
+    }
+    notifyListeners();
+  }
+
+  void deactivateCrisis() {
+    activeEvent = activeEvent.copyWith(
+      status: EventStatus.closed,
+      endedAt: DateTime.now(),
+    );
     notifyListeners();
   }
 

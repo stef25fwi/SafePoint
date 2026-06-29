@@ -93,6 +93,21 @@ class DashboardPage extends StatelessWidget {
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
+          // Crisis management — préfecture / admin only
+          if (state.canActivateCrisis)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _CrisisManagementCard(
+                  isActive: state.isCrisisActive,
+                  eventName: state.activeEvent.name,
+                  onTap: () => Navigator.pushNamed(context, AppRoutes.crisisActivation),
+                ),
+              ),
+            ),
+          if (state.canActivateCrisis)
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
           // Pointage rapide — hidden for prefectureLecture
           if (state.canCheckIn)
             SliverToBoxAdapter(
@@ -564,5 +579,74 @@ class _ActivityRow extends StatelessWidget {
       case CheckinType.transferDeparture: return Icons.directions_bus;
       default: return Icons.check_circle_outline;
     }
+  }
+}
+
+class _CrisisManagementCard extends StatelessWidget {
+  final bool isActive;
+  final String eventName;
+  final VoidCallback onTap;
+
+  const _CrisisManagementCard({
+    required this.isActive,
+    required this.eventName,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isActive ? AppColors.red : AppColors.navy;
+    final bg = isActive ? AppColors.redLight : AppColors.bgPage;
+    final borderColor = isActive ? AppColors.red.withValues(alpha: 0.35) : AppColors.divider;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor, width: isActive ? 1.5 : 1),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isActive ? Icons.warning_rounded : Icons.emergency_outlined,
+                color: color,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isActive ? 'Crise active' : 'Aucun événement actif',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isActive ? eventName : 'Activer un événement de crise',
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: color, size: 20),
+          ],
+        ),
+      ),
+    );
   }
 }
