@@ -17,14 +17,15 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // Web — Ajouter app Web dans Firebase Console → copier apiKey et appId ici
+  // Web — configuré le 2026-06-29
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_WEB_API_KEY',
-    appId: 'REPLACE_WITH_WEB_APP_ID',
+    apiKey: 'AIzaSyC-BLwoHwFOlKh6MDczydQknUlf6c_EFa0',
+    appId: '1:779368619357:web:5d62fbaa7f49f74f2fdcb4',
     messagingSenderId: '779368619357',
     projectId: 'safepoint-b36fd',
     authDomain: 'safepoint-b36fd.firebaseapp.com',
     storageBucket: 'safepoint-b36fd.firebasestorage.app',
+    measurementId: 'G-JNF8JDBE8F',
   );
 
   // Android — Ajouter app Android → copier apiKey et appId ici
