@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:safepoint_app/domain/models/audit_log_model.dart';
 import 'package:safepoint_app/domain/repositories/messaging_repository.dart';
 import 'package:safepoint_app/domain/services/audit_service.dart';
 import 'package:safepoint_app/domain/services/messaging_service.dart';
@@ -9,7 +10,13 @@ class MockMessagingRepository extends Mock implements MessagingRepository {}
 
 class MockAuditRepository extends Mock implements AuditRepository {}
 
+class FakeAuditLogModel extends Fake implements AuditLogModel {}
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(FakeAuditLogModel());
+  });
+
   group('MessagingService', () {
     late MessagingService messagingService;
     late MockMessagingRepository mockMessagingRepository;
@@ -53,6 +60,7 @@ void main() {
 
         when(() => mockMessagingRepository.requestNotificationPermission())
             .thenAnswer((_) async => null);
+        when(() => mockAuditRepository.log(any())).thenAnswer((_) async {});
 
         final result = await messagingService.requestNotificationPermission(
           organizationId: organizationId,

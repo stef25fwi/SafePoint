@@ -183,10 +183,14 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Text('Se souvenir de moi',
-                              style: TextStyle(
-                                  fontSize: 13, color: AppColors.textPrimary)),
-                          const Spacer(),
+                          const Expanded(
+                            child: Text('Se souvenir de moi',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                    fontSize: 13, color: AppColors.textPrimary)),
+                          ),
+                          const SizedBox(width: 8),
                           GestureDetector(
                             child: const Text(
                               'Mot de passe oublié ?',

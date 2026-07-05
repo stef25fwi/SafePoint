@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:safepoint_app/domain/models/audit_log_model.dart';
 import 'package:safepoint_app/domain/models/user_model.dart';
 import 'package:safepoint_app/domain/repositories/auth_repository.dart';
 import 'package:safepoint_app/domain/services/auth_service.dart';
@@ -11,7 +12,13 @@ class MockAuthRepository extends Mock implements AuthRepository {}
 
 class MockAuditRepository extends Mock implements AuditRepository {}
 
+class FakeAuditLogModel extends Fake implements AuditLogModel {}
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(FakeAuditLogModel());
+  });
+
   group('AuthDomainService', () {
     late AuthDomainService authService;
     late MockAuthRepository mockAuthRepository;
