@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:safepoint_app/domain/models/audit_log_model.dart';
 import 'package:safepoint_app/domain/repositories/file_repository.dart';
 import 'package:safepoint_app/domain/services/audit_service.dart';
 import 'package:safepoint_app/domain/services/file_service.dart';
@@ -9,7 +10,14 @@ class MockFileRepository extends Mock implements FileRepository {}
 
 class MockAuditRepository extends Mock implements AuditRepository {}
 
+class FakeAuditLogModel extends Fake implements AuditLogModel {}
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(FakeAuditLogModel());
+    registerFallbackValue(const Duration());
+  });
+
   group('FileService', () {
     late FileService fileService;
     late MockFileRepository mockFileRepository;
