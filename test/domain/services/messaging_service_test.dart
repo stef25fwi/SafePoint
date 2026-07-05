@@ -164,7 +164,6 @@ void main() {
 
     group('onMessageReceived', () {
       test('streams incoming messages', () async {
-        const organizationId = 'org_test';
         final testData = {
           'title': 'New Alert',
           'body': 'Someone needs help',

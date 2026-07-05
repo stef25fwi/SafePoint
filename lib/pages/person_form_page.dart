@@ -7,6 +7,7 @@ import '../models/enums.dart';
 import '../models/person_model.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
+import '../widgets/commune_autocomplete_field.dart';
 
 class PersonFormPage extends StatefulWidget {
   const PersonFormPage({super.key});
@@ -28,6 +29,8 @@ class _PersonFormPageState extends State<PersonFormPage> {
   final _notesCtrl = TextEditingController();
 
   String? _selectedCommune;
+  String? _selectedCodeInsee;
+  String? _selectedCodePostal;
   String? _selectedFamilyId;
   String? _selectedZone;
   PersonStatus _initialStatus = PersonStatus.present;
@@ -98,6 +101,8 @@ class _PersonFormPageState extends State<PersonFormPage> {
       lastName: _lastNameCtrl.text.trim().toUpperCase(),
       ageApprox: int.tryParse(_ageCtrl.text),
       originCommune: _selectedCommune,
+      originCodeInsee: _selectedCodeInsee,
+      originCodePostal: _selectedCodePostal,
       originSector: _sectorCtrl.text.trim().isEmpty ? null : _sectorCtrl.text.trim(),
       phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
       emergencyContactName: _emergencyNameCtrl.text.trim().isEmpty ? null : _emergencyNameCtrl.text.trim(),
@@ -191,12 +196,16 @@ class _PersonFormPageState extends State<PersonFormPage> {
                             keyboardType: TextInputType.text,
                           ),
                           const SizedBox(height: 12),
-                          _Dropdown(
-                            icon: Icons.location_on_outlined,
-                            hint: 'Commune d\'origine *',
-                            value: _selectedCommune,
-                            items: _communes,
-                            onChanged: (v) => setState(() => _selectedCommune = v),
+                          CommuneAutocompleteField(
+                            initialValue: _selectedCommune,
+                            codeDepartement: '971',
+                            fallbackCommunes: _communes,
+                            onSelected: (c) => setState(() {
+                              _selectedCommune = c.nom;
+                              _selectedCodeInsee =
+                                  c.codeInsee.isEmpty ? null : c.codeInsee;
+                              _selectedCodePostal = c.codePostal;
+                            }),
                           ),
                           const SizedBox(height: 12),
                           _field('Secteur / Quartier évacué', _sectorCtrl, Icons.business_outlined, hint: 'ex : Savane, Centre-ville…'),

@@ -10,8 +10,26 @@ import '../services/app_state.dart';
 import '../widgets/app_header.dart';
 import '../widgets/status_badge.dart';
 
-class PersonDetailPage extends StatelessWidget {
+class PersonDetailPage extends StatefulWidget {
   const PersonDetailPage({super.key});
+
+  @override
+  State<PersonDetailPage> createState() => _PersonDetailPageState();
+}
+
+class _PersonDetailPageState extends State<PersonDetailPage> {
+  bool _audited = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_audited) {
+      _audited = true;
+      final personId = ModalRoute.of(context)!.settings.arguments as String;
+      // Traçabilité RGPD : consultation d'une fiche nominative.
+      context.read<AppState>().auditNominativeAccess('person', personId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
