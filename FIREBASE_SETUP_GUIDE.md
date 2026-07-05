@@ -373,6 +373,38 @@ const apiKey = String.fromEnvironment('FIREBASE_PROJECT_ID');
 
 ---
 
+## 1️⃣1️⃣ GitHub Actions Deploy Without OAuth Redirect
+
+If `firebase init hosting:github` fails because localhost redirect does not reach your machine, use the repository workflow in [.github/workflows/firebase-hosting.yml](.github/workflows/firebase-hosting.yml) with a Firebase service account secret instead.
+
+### Create a Service Account Key
+
+1. Open **Firebase Console** → **Project settings** → **Service accounts**
+2. Click **Generate new private key**
+3. Download the JSON key securely
+
+### Add the GitHub Repository Secret
+
+In the GitHub repository:
+
+1. Open **Settings** → **Secrets and variables** → **Actions**
+2. Create a new repository secret named `FIREBASE_SERVICE_ACCOUNT_SAFEPOINT_B36FD`
+3. Paste the full JSON content of the downloaded service account key
+
+### What the Workflow Does
+
+- Builds Flutter web on pushes to `main`
+- Creates Hosting preview deployments on pull requests to `main`
+- Deploys to the live Hosting site on pushes to `main`
+
+### Required GitHub Secret
+
+```text
+FIREBASE_SERVICE_ACCOUNT_SAFEPOINT_B36FD
+```
+
+---
+
 ## ✅ Checklist
 
 - [ ] Firebase project created
@@ -385,6 +417,7 @@ const apiKey = String.fromEnvironment('FIREBASE_PROJECT_ID');
 - [ ] `firebase_options.dart` updated with real credentials
 - [ ] `flutterfire configure` run
 - [ ] Firestore security rules deployed
+- [ ] `FIREBASE_SERVICE_ACCOUNT_SAFEPOINT_B36FD` added to GitHub Actions secrets
 - [ ] Demo user created
 - [ ] App tested (login, file upload, Firestore writes)
 - [ ] Monitoring and alerts configured
