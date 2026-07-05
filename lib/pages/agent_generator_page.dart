@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -89,7 +90,7 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
     return random.map((i) => chars[i]).join();
   }
 
-  final _random = DateTime.now().millisecondsSinceEpoch.hashCode;
+  final _random = Random();
 
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
@@ -128,7 +129,7 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
       body: SafeArea(
         child: Column(
           children: [
-            AppHeader(
+            const AppHeader(
               title: 'safepointapp.',
               subtitle: 'Générateur de compte agent',
               showBack: true,
@@ -254,7 +255,7 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
                                     onCopy: _copyToClipboard,
                                   ),
                                   const SizedBox(height: 12),
-                                  Text(
+                                  const Text(
                                     '⚠️ Le mot de passe s\'affiche une seule fois. Notez-le ou copiez-le maintenant.',
                                     style: TextStyle(fontSize: 12, color: AppColors.orange),
                                   ),

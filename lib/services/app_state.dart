@@ -661,6 +661,55 @@ class AppState extends ChangeNotifier {
     return map;
   }
 
+  // ── Analytics cross-centres (cellule de crise / préfecture) ────────
+  /// Toutes les personnes non supprimées, tous centres confondus.
+  List<PersonModel> get everyPerson =>
+      _persons.where((p) => !p.isDeleted).toList();
+
+  /// Tous les besoins ouverts, tous centres confondus.
+  List<NeedModel> get everyOpenNeed =>
+      _needs.where((n) => n.status == 'open').toList();
+
+  /// Toutes les personnes non pointées, tous centres confondus.
+  List<PersonModel> get everyNonPointee => _persons
+      .where((p) => !p.isDeleted && p.status == PersonStatus.nonPointee)
+      .toList();
+
+  /// Répartition des personnes par commune d'origine (tous centres).
+  Map<String, int> get countsByOriginCommune {
+    final map = <String, int>{};
+    for (final p in everyPerson) {
+      final key = p.originCommune ?? 'Non renseignée';
+      map[key] = (map[key] ?? 0) + 1;
+    }
+    return map;
+  }
+
+  // ── Journal d'audit (RGS / NIS2) — délègue au service métier ───────
+  void _auditExportOrAccess(String action, String targetType,
+      {String? targetId, Map<String, dynamic>? metadata}) {
+    _auditService?.log(
+      organizationId: currentOrganizationId,
+      userId: currentUserId,
+      role: currentRole.name,
+      action: action,
+      targetType: targetType,
+      targetId: targetId,
+      metadata: metadata,
+    );
+  }
+
+  /// Consigne un export (rapport + format).
+  void auditExport(String report, String format) => _auditExportOrAccess(
+        'export',
+        'report',
+        metadata: {'report': report, 'format': format},
+      );
+
+  /// Consigne une consultation de données nominatives (RGPD – traçabilité).
+  void auditNominativeAccess(String targetType, String targetId) =>
+      _auditExportOrAccess('access_nominative', targetType, targetId: targetId);
+
   // ---------------------------------------------------------------------------
   // Actions — délèguent aux services métier si Firebase disponible
   // ---------------------------------------------------------------------------
@@ -964,7 +1013,7 @@ class AppState extends ChangeNotifier {
     if (idx < 0) return;
     final newZones = List<String>.from(shelters[idx].zones)..remove(zone);
     shelters[idx] = shelters[idx].copyWith(zones: newZones, updatedBy: currentUserId);
-    _refugeService?.updateZones(shelterId, newZones, currentOrganizationId, currentUserId);
+    _refugeService?.updateZones(shelterId, newZones, currentOrganizationId, currentUserId, currentRole.keycloakName);
     notifyListeners();
   }
 
@@ -999,7 +1048,7 @@ class AppState extends ChangeNotifier {
     if (idx < 0) return;
     final newAgents = List<String>.from(shelters[idx].agentNames)..remove(agentName);
     shelters[idx] = shelters[idx].copyWith(agentNames: newAgents, updatedBy: currentUserId);
-    _refugeService?.updateAgents(shelterId, newAgents, currentOrganizationId, currentUserId);
+    _refugeService?.updateAgents(shelterId, newAgents, currentOrganizationId, currentUserId, currentRole.keycloakName);
     notifyListeners();
   }
 

@@ -6,6 +6,9 @@ class ShelterModel {
   final String eventId;
   final String name;
   final String commune;
+  final String? codePostal;
+  final String? codeInsee;
+  final int? population;
   final String address;
   final int capacity;
   final int currentCount;
@@ -29,6 +32,9 @@ class ShelterModel {
     required this.eventId,
     required this.name,
     required this.commune,
+    this.codePostal,
+    this.codeInsee,
+    this.population,
     required this.address,
     required this.capacity,
     required this.currentCount,
@@ -88,6 +94,9 @@ class ShelterModel {
       eventId: eventId,
       name: name,
       commune: commune,
+      codePostal: codePostal,
+      codeInsee: codeInsee,
+      population: population,
       address: address,
       capacity: capacity,
       currentCount: currentCount ?? this.currentCount,

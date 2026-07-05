@@ -23,7 +23,7 @@ class FirebaseFileRepository implements FileRepository {
 
     try {
       await ref.putData(
-        fileBytes,
+        Uint8List.fromList(fileBytes),
         SettableMetadata(
           contentType: mimeType,
           customMetadata: {

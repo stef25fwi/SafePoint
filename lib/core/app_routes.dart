@@ -9,4 +9,5 @@ class AppRoutes {
   static const crisisActivation = '/crisis-activation';
   static const shelterDetail = '/shelter-detail';
   static const agentGenerator = '/agent-generator';
+  static const analytics = '/analytics';
 }

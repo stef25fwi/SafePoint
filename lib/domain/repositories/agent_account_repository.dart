@@ -1,5 +1,4 @@
 import '../models/agent_account_model.dart';
-import '../../models/enums.dart';
 
 abstract class AgentAccountRepository {
   Future<AgentAccountModel?> getByAgentCode(String agentCode);
