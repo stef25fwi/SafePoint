@@ -184,13 +184,13 @@ class DashboardPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       if (nonPointeeCount > 0)
-                        _AlertIndicator(icon: Icons.person_off_outlined, label: 'Non pointé(e)s', count: nonPointeeCount, color: AppColors.grayText, bgColor: AppColors.grayLight),
+                        _AlertIndicator(icon: Icons.person_off_outlined, label: 'Non pointé(e)s', count: nonPointeeCount, color: AppColors.grayText, bgColor: AppColors.grayLight, onTap: () => _goToPersons(context)),
                       if (sansTelCount > 0)
-                        _AlertIndicator(icon: Icons.phone_disabled_outlined, label: 'Sans téléphone', count: sansTelCount, color: AppColors.blueText, bgColor: AppColors.blueLight),
+                        _AlertIndicator(icon: Icons.phone_disabled_outlined, label: 'Sans téléphone', count: sansTelCount, color: AppColors.blueText, bgColor: AppColors.blueLight, onTap: () => _goToPersons(context)),
                       if (sansPapiersCount > 0)
-                        _AlertIndicator(icon: Icons.badge_outlined, label: 'Sans papiers d\'identité', count: sansPapiersCount, color: AppColors.orangeText, bgColor: AppColors.orangeLight),
+                        _AlertIndicator(icon: Icons.badge_outlined, label: 'Sans papiers d\'identité', count: sansPapiersCount, color: AppColors.orangeText, bgColor: AppColors.orangeLight, onTap: () => _goToPersons(context)),
                       if (ageesSeulCount > 0)
-                        _AlertIndicator(icon: Icons.elderly_outlined, label: 'Personnes âgées seules', count: ageesSeulCount, color: AppColors.purpleText, bgColor: AppColors.purpleLight),
+                        _AlertIndicator(icon: Icons.elderly_outlined, label: 'Personnes âgées seules', count: ageesSeulCount, color: AppColors.purpleText, bgColor: AppColors.purpleLight, onTap: () => _goToPersons(context)),
                     ],
                   ),
                 ),
@@ -360,6 +360,7 @@ class _AlertIndicator extends StatelessWidget {
   final int count;
   final Color color;
   final Color bgColor;
+  final VoidCallback? onTap;
 
   const _AlertIndicator({
     required this.icon,
@@ -367,26 +368,31 @@ class _AlertIndicator extends StatelessWidget {
     required this.count,
     required this.color,
     required this.bgColor,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-            child: Icon(icon, color: color, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary))),
-          Text('$count', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color)),
-          const SizedBox(width: 4),
-          const Icon(Icons.chevron_right, size: 18, color: AppColors.textHint),
-        ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary))),
+            Text('$count', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color)),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right, size: 18, color: AppColors.textHint),
+          ],
+        ),
       ),
     );
   }

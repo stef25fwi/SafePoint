@@ -192,6 +192,16 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(width: 8),
                           GestureDetector(
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Contactez votre responsable pour réinitialiser votre mot de passe.',
+                                  ),
+                                  duration: Duration(seconds: 4),
+                                ),
+                              );
+                            },
                             child: const Text(
                               'Mot de passe oublié ?',
                               style: TextStyle(
