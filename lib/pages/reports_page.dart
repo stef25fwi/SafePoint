@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
@@ -25,6 +26,10 @@ class ReportsPage extends StatelessWidget {
 
     final shelterCounts = state.countsByShelterId;
     final maxCount = shelterCounts.values.fold(0, (a, b) => a > b ? a : b);
+    // Échelle de l'axe calculée depuis les données réelles (pas de valeurs
+    // figées) : 3 paliers ronds (ex. 0/50/100/150) couvrant maxCount.
+    final axisStep = _niceStep(maxCount);
+    final axisMax = axisStep * 3;
 
     return Scaffold(
       backgroundColor: AppColors.bgPage,
@@ -159,7 +164,7 @@ class ReportsPage extends StatelessWidget {
                     const SizedBox(height: 14),
                     ...state.shelters.map((s) {
                       final count = shelterCounts[s.id] ?? 0;
-                      final pct = maxCount > 0 ? count / maxCount : 0.0;
+                      final pct = axisMax > 0 ? count / axisMax : 0.0;
                       final colors = [
                         AppColors.blue,
                         AppColors.green,
@@ -218,8 +223,8 @@ class ReportsPage extends StatelessWidget {
                     }),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: ['0', '250', '500', '750']
-                          .map((l) => Text(l,
+                      children: [0, axisStep, axisStep * 2, axisStep * 3]
+                          .map((v) => Text('$v',
                               style: const TextStyle(
                                   fontSize: 10,
                                   color: AppColors.textSecondary)))
@@ -473,6 +478,28 @@ class ReportsPage extends StatelessWidget {
         backgroundColor: AppColors.red,
       ));
     }
+  }
+
+  /// Calcule un palier "rond" (1/2/5 × puissance de 10) tel que 3 paliers
+  /// couvrent [maxValue]. Sert à générer une échelle d'axe qui correspond
+  /// réellement aux données affichées, plutôt qu'une échelle figée.
+  int _niceStep(int maxValue) {
+    if (maxValue <= 0) return 1;
+    final raw = maxValue / 3;
+    final magnitude =
+        math.pow(10, (math.log(raw) / math.ln10).floor()).toInt();
+    final residual = raw / magnitude;
+    final int niceResidual;
+    if (residual <= 1) {
+      niceResidual = 1;
+    } else if (residual <= 2) {
+      niceResidual = 2;
+    } else if (residual <= 5) {
+      niceResidual = 5;
+    } else {
+      niceResidual = 10;
+    }
+    return niceResidual * magnitude;
   }
 }
 

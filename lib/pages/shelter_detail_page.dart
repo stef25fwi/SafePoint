@@ -117,7 +117,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildInfoTab(shelter),
+                  _buildInfoTab(shelter, state),
                   _buildZonesTab(shelter, canEdit, state, shelterId),
                   _buildTeamTab(shelter, canEdit, state, shelterId),
                   _buildStocksTab(shelter, canEdit, state, shelterId),
@@ -132,8 +132,10 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
 
   // ── Tab 1 : Infos ──────────────────────────────────────────────
 
-  Widget _buildInfoTab(ShelterModel shelter) {
-    final pct = shelter.capacityPercent.clamp(0.0, 1.0);
+  Widget _buildInfoTab(ShelterModel shelter, AppState state) {
+    final occupancy = state.occupancyOf(shelter.id);
+    final placesRestantes = state.placesRestantesOf(shelter.id);
+    final pct = state.capacityPercentOf(shelter.id).clamp(0.0, 1.0);
     final color =
         pct > 0.9 ? AppColors.red : pct > 0.7 ? AppColors.orange : AppColors.green;
 
@@ -170,7 +172,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                         color: AppColors.textPrimary)),
                 const Spacer(),
                 Text(
-                  '${shelter.currentCount} / ${shelter.capacity}',
+                  '$occupancy / ${shelter.capacity}',
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -198,7 +200,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                       fontSize: 12, color: AppColors.textSecondary),
                 ),
                 Text(
-                  '${shelter.placesRestantes} place(s) libre(s)',
+                  '$placesRestantes place(s) libre(s)',
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
