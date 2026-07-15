@@ -38,6 +38,11 @@ class StockEntryModel {
 
   final String? notes;
 
+  /// Référence vers un StockTransferModel si cette entrée est un mouvement
+  /// lié à un transfert entre centres (sortie négative ou réception positive),
+  /// plutôt qu'une réception de lot classique.
+  final String? transferId;
+
   // Champs multi-tenant / traçabilité (cohérent avec les autres modèles V2)
   final String organizationId;
   final String addedBy;
@@ -56,6 +61,7 @@ class StockEntryModel {
     this.photoUrl,
     this.photoBytes,
     this.notes,
+    this.transferId,
     this.organizationId = AppDefaults.organizationId,
     this.addedBy = AppDefaults.demoUserId,
     DateTime? createdAt,
@@ -81,6 +87,7 @@ class StockEntryModel {
       photoUrl: photoUrl ?? this.photoUrl,
       photoBytes: photoBytes ?? this.photoBytes,
       notes: notes,
+      transferId: transferId,
       organizationId: organizationId,
       addedBy: addedBy,
       createdAt: createdAt,
@@ -101,6 +108,7 @@ class StockEntryModel {
         'expiry_date': expiryDate?.toIso8601String(),
         'photo_url': photoUrl,
         'notes': notes,
+        'transfer_id': transferId,
         'added_by': addedBy,
         'created_at': createdAt.toIso8601String(),
       };
@@ -120,6 +128,7 @@ class StockEntryModel {
             : null,
         photoUrl: m['photo_url'] as String?,
         notes: m['notes'] as String?,
+        transferId: m['transfer_id'] as String?,
         organizationId:
             m['organization_id'] as String? ?? AppDefaults.organizationId,
         addedBy: m['added_by'] as String? ?? AppDefaults.demoUserId,

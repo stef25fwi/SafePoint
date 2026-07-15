@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 import '../models/emergency_event_model.dart';
 import '../models/shelter_model.dart';
 import '../models/person_model.dart';
@@ -8,6 +9,7 @@ import '../models/alert_model.dart';
 import '../models/transfer_model.dart';
 import '../models/need_model.dart';
 import '../models/stock_entry_model.dart';
+import '../models/stock_transfer_model.dart';
 import '../models/enums.dart';
 import '../core/constants/app_constants.dart';
 import '../app/service_locator.dart';
@@ -159,9 +161,9 @@ class AppState extends ChangeNotifier {
       responsablePhone: '0690 11 22 33',
       agentNames: ['Agent LUREL', 'Agent NESTOR', 'Agent BAPTISTE'],
       stock: {
-        'eau': 650,
+        'eau': 480,
         'repas': 230,
-        'couvertures': 180,
+        'couvertures': 110,
         'lits': 120,
         'masques': 85,
         'couches': 48,
@@ -223,6 +225,7 @@ class AppState extends ChangeNotifier {
   late List<TransferModel> _transfers;
   late List<NeedModel> _needs;
   late List<StockEntryModel> _stockEntries;
+  late List<StockTransferModel> _stockTransfers;
 
   void _initMockData() {
     final now = DateTime.now();
@@ -619,6 +622,38 @@ class AppState extends ChangeNotifier {
         expiryDate: now.add(const Duration(days: 2)),
         addedBy: 'Agent BAPTISTE',
         createdAt: now.subtract(const Duration(hours: 5)),
+      ),
+      // Sortie liée au transfert stocktransfer_1 (voir _stockTransfers).
+      StockEntryModel(
+        id: 'stock_4',
+        refugeId: 'shelter_1',
+        category: 'couvertures',
+        label: 'Transfert vers Centre de Capesterre',
+        quantity: -40,
+        unit: 'unités',
+        dateEntree: now.subtract(const Duration(hours: 2)),
+        provenance: 'Transfert vers Centre de Capesterre',
+        transferId: 'stocktransfer_1',
+        addedBy: 'Agent NESTOR',
+        createdAt: now.subtract(const Duration(hours: 2)),
+      ),
+    ];
+
+    _stockTransfers = [
+      StockTransferModel(
+        id: 'stocktransfer_1',
+        fromShelterId: 'shelter_1',
+        fromShelterName: 'Gymnase de Baie-Mahault',
+        toShelterId: 'shelter_2',
+        toShelterName: 'Centre de Capesterre',
+        category: 'couvertures',
+        label: 'Couvertures de survie (lot)',
+        quantity: 40,
+        unit: 'unités',
+        status: TransferStatus.pending,
+        requestedBy: 'Agent NESTOR',
+        createdAt: now.subtract(const Duration(hours: 2)),
+        outEntryId: 'stock_4',
       ),
     ];
   }
@@ -1122,6 +1157,209 @@ class AppState extends ChangeNotifier {
         shelters[idx].copyWith(stock: newStock, updatedBy: currentUserId);
     _refugeService?.updateStock(shelterId, newStock, currentOrganizationId,
         currentUserId, currentRole.keycloakName);
+  }
+
+  // ── Transferts de stock entre centres ────────────────────────────────
+
+  /// Transferts touchant [shelterId], au départ ou à l'arrivée, du plus
+  /// récent au plus ancien.
+  List<StockTransferModel> stockTransfersOf(String shelterId) =>
+      _stockTransfers
+          .where((t) =>
+              t.fromShelterId == shelterId || t.toShelterId == shelterId)
+          .toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+  List<StockTransferModel> get currentStockTransfers =>
+      stockTransfersOf(currentShelterId);
+
+  /// Initie un transfert : retire la quantité de l'agrégat du centre source
+  /// via une entrée de mouvement négative (traçabilité conservée). Le stock
+  /// n'apparaît chez le centre destination qu'à la confirmation d'arrivée.
+  void addStockTransfer({
+    required String fromShelterId,
+    required String fromShelterName,
+    required String toShelterId,
+    required String toShelterName,
+    required String category,
+    required String label,
+    required int quantity,
+    String unit = '',
+    String? notes,
+  }) {
+    final transferId = const Uuid().v4();
+    final agent =
+        currentAgentCode.isEmpty ? currentUserId : currentAgentCode;
+    final now = DateTime.now();
+
+    final outEntry = StockEntryModel(
+      id: const Uuid().v4(),
+      refugeId: fromShelterId,
+      category: category,
+      label: 'Transfert vers $toShelterName',
+      quantity: -quantity,
+      unit: unit,
+      dateEntree: now,
+      provenance: 'Transfert vers $toShelterName',
+      transferId: transferId,
+      organizationId: currentOrganizationId,
+      addedBy: agent,
+    );
+    addStockEntry(outEntry);
+
+    _stockTransfers.add(StockTransferModel(
+      id: transferId,
+      fromShelterId: fromShelterId,
+      fromShelterName: fromShelterName,
+      toShelterId: toShelterId,
+      toShelterName: toShelterName,
+      category: category,
+      label: label,
+      quantity: quantity,
+      unit: unit,
+      status: TransferStatus.pending,
+      notes: notes,
+      createdAt: now,
+      outEntryId: outEntry.id,
+      organizationId: currentOrganizationId,
+      requestedBy: agent,
+    ));
+
+    _auditService?.log(
+      organizationId: currentOrganizationId,
+      userId: currentUserId,
+      role: currentRole.keycloakName,
+      action: AuditAction.createStockTransfer,
+      targetType: 'stock_transfer',
+      targetId: transferId,
+      metadata: {
+        'fromShelterId': fromShelterId,
+        'toShelterId': toShelterId,
+        'category': category,
+        'label': label,
+        'quantity': quantity,
+      },
+    );
+    notifyListeners();
+  }
+
+  void markStockTransferDeparted(String transferId) {
+    final idx = _stockTransfers.indexWhere((t) => t.id == transferId);
+    if (idx < 0 || _stockTransfers[idx].status != TransferStatus.pending) {
+      return;
+    }
+    final transfer = _stockTransfers[idx];
+    _stockTransfers[idx] = transfer.copyWith(
+      status: TransferStatus.inProgress,
+      departedAt: DateTime.now(),
+      updatedBy: currentUserId,
+    );
+    _auditService?.log(
+      organizationId: currentOrganizationId,
+      userId: currentUserId,
+      role: currentRole.keycloakName,
+      action: AuditAction.departStockTransfer,
+      targetType: 'stock_transfer',
+      targetId: transferId,
+      metadata: {'quantity': transfer.quantity, 'category': transfer.category},
+    );
+    notifyListeners();
+  }
+
+  /// Confirme la réception : ajoute une entrée positive au centre
+  /// destination, avec provenance renvoyant vers le centre source.
+  void confirmStockTransferArrival(String transferId) {
+    final idx = _stockTransfers.indexWhere((t) => t.id == transferId);
+    if (idx < 0) return;
+    final transfer = _stockTransfers[idx];
+    if (transfer.status == TransferStatus.confirmed ||
+        transfer.status == TransferStatus.cancelled) {
+      return;
+    }
+    final agent =
+        currentAgentCode.isEmpty ? currentUserId : currentAgentCode;
+
+    final inEntry = StockEntryModel(
+      id: const Uuid().v4(),
+      refugeId: transfer.toShelterId,
+      category: transfer.category,
+      label: transfer.label,
+      quantity: transfer.quantity,
+      unit: transfer.unit,
+      dateEntree: DateTime.now(),
+      provenance: 'Transfert depuis ${transfer.fromShelterName}',
+      transferId: transfer.id,
+      organizationId: currentOrganizationId,
+      addedBy: agent,
+    );
+    addStockEntry(inEntry);
+
+    _stockTransfers[idx] = transfer.copyWith(
+      status: TransferStatus.confirmed,
+      confirmedAt: DateTime.now(),
+      inEntryId: inEntry.id,
+      updatedBy: currentUserId,
+    );
+
+    _auditService?.log(
+      organizationId: currentOrganizationId,
+      userId: currentUserId,
+      role: currentRole.keycloakName,
+      action: AuditAction.confirmStockTransfer,
+      targetType: 'stock_transfer',
+      targetId: transferId,
+      metadata: {
+        'quantity': transfer.quantity,
+        'category': transfer.category,
+        'toShelterId': transfer.toShelterId,
+      },
+    );
+    notifyListeners();
+  }
+
+  /// Annule un transfert non encore confirmé : restitue la quantité au
+  /// centre source via une entrée compensatoire (jamais de suppression).
+  void cancelStockTransfer(String transferId) {
+    final idx = _stockTransfers.indexWhere((t) => t.id == transferId);
+    if (idx < 0) return;
+    final transfer = _stockTransfers[idx];
+    if (transfer.status != TransferStatus.pending &&
+        transfer.status != TransferStatus.inProgress) {
+      return;
+    }
+    final agent =
+        currentAgentCode.isEmpty ? currentUserId : currentAgentCode;
+
+    final restoreEntry = StockEntryModel(
+      id: const Uuid().v4(),
+      refugeId: transfer.fromShelterId,
+      category: transfer.category,
+      label: 'Annulation transfert vers ${transfer.toShelterName}',
+      quantity: transfer.quantity,
+      unit: transfer.unit,
+      dateEntree: DateTime.now(),
+      provenance: 'Transfert annulé',
+      transferId: transfer.id,
+      organizationId: currentOrganizationId,
+      addedBy: agent,
+    );
+    addStockEntry(restoreEntry);
+
+    _stockTransfers[idx] = transfer.copyWith(
+      status: TransferStatus.cancelled,
+      updatedBy: currentUserId,
+    );
+
+    _auditService?.log(
+      organizationId: currentOrganizationId,
+      userId: currentUserId,
+      role: currentRole.keycloakName,
+      action: AuditAction.cancelStockTransfer,
+      targetType: 'stock_transfer',
+      targetId: transferId,
+      metadata: {'quantity': transfer.quantity, 'category': transfer.category},
+    );
+    notifyListeners();
   }
 
   void addShelterZone(String shelterId, String zone) {
