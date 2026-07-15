@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
 import '../models/enums.dart';
 import '../models/shelter_model.dart';
+import '../models/stock_entry_model.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
+import '../widgets/stock_entry_form.dart';
 
 // ── Stock item descriptor ─────────────────────────────────────────────────────
 
@@ -871,6 +873,10 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
             ),
           ),
 
+          // ── Traçabilité : entrées de stock ────────────────────────
+          const SizedBox(height: 22),
+          _buildStockEntriesSection(state, canEdit, shelterId),
+
           if (!canEdit) ...[
             const SizedBox(height: 12),
             const Text(
@@ -883,6 +889,133 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
         ],
       ),
     );
+  }
+
+  // ── Entrées de stock (traçabilité : datage, provenance, photo) ──
+
+  Widget _buildStockEntriesSection(
+      AppState state, bool canEdit, String shelterId) {
+    final entries = state.stockEntriesOf(shelterId);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.inventory_2_outlined,
+                size: 18, color: AppColors.textPrimary),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'Entrées de stock',
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary),
+              ),
+            ),
+            if (entries.isNotEmpty)
+              Text(
+                '${entries.length}',
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Traçabilité des lots reçus : date d\'entrée, provenance, étiquette.',
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 12),
+
+        if (canEdit) ...[
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => showStockEntryForm(context, shelterId),
+              icon: const Icon(Icons.add_a_photo_outlined, size: 18),
+              label: const Text('Ajouter une entrée'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.navy,
+                side: const BorderSide(color: AppColors.navy),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+
+        if (entries.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColors.bgPage,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              'Aucune entrée enregistrée pour le moment.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
+          )
+        else
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2))
+              ],
+            ),
+            child: Column(
+              children: entries.asMap().entries.map((e) {
+                return Column(
+                  children: [
+                    if (e.key > 0) const Divider(height: 1, indent: 16),
+                    _StockEntryTile(
+                      entry: e.value,
+                      canEdit: canEdit,
+                      onDelete: () => _confirmDeleteEntry(state, e.value),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _confirmDeleteEntry(
+      AppState state, StockEntryModel entry) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Supprimer l\'entrée ?'),
+        content: Text(
+            '« ${entry.label} » (${entry.quantity}) sera retiré du stock tracé.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Annuler')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.red),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) state.removeStockEntry(entry.id);
   }
 }
 
@@ -1124,6 +1257,137 @@ class _StockBtn extends StatelessWidget {
               : AppColors.textHint,
         ),
       ),
+    );
+  }
+}
+
+// ── Une entrée de stock tracée (date, provenance, photo, agent) ──
+
+class _StockEntryTile extends StatelessWidget {
+  final StockEntryModel entry;
+  final bool canEdit;
+  final VoidCallback onDelete;
+
+  const _StockEntryTile({
+    required this.entry,
+    required this.canEdit,
+    required this.onDelete,
+  });
+
+  static const _months = [
+    'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
+    'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.',
+  ];
+
+  String _fmt(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}';
+
+  @override
+  Widget build(BuildContext context) {
+    final expired = entry.expiryDate != null &&
+        entry.expiryDate!.isBefore(DateTime.now());
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Vignette photo d'étiquette (ou pictogramme)
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: AppColors.bgPage,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.divider),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: entry.photoBytes != null
+                ? Image.memory(entry.photoBytes!, fit: BoxFit.cover)
+                : (entry.photoUrl != null
+                    ? Image.network(entry.photoUrl!, fit: BoxFit.cover)
+                    : const Icon(Icons.inventory_2_outlined,
+                        size: 22, color: AppColors.textHint)),
+          ),
+          const SizedBox(width: 12),
+
+          // Détails
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        entry.label,
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary),
+                      ),
+                    ),
+                    Text(
+                      '+${entry.quantity}${entry.unit.isNotEmpty ? ' ${entry.unit}' : ''}',
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.green),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    _chip(Icons.event, _fmt(entry.dateEntree)),
+                    if (entry.provenance != null &&
+                        entry.provenance!.isNotEmpty)
+                      _chip(Icons.local_shipping_outlined, entry.provenance!),
+                    if (entry.expiryDate != null)
+                      _chip(
+                        Icons.hourglass_bottom,
+                        'Périme ${_fmt(entry.expiryDate!)}',
+                        color: expired ? AppColors.red : AppColors.orange,
+                      ),
+                    if (entry.hasPhoto)
+                      _chip(Icons.photo_camera_outlined, 'Étiquette'),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Saisi par ${entry.addedBy}',
+                  style: const TextStyle(
+                      fontSize: 11, color: AppColors.textHint),
+                ),
+              ],
+            ),
+          ),
+
+          if (canEdit)
+            IconButton(
+              onPressed: onDelete,
+              icon: const Icon(Icons.delete_outline, size: 20),
+              color: AppColors.textHint,
+              tooltip: 'Supprimer',
+              visualDensity: VisualDensity.compact,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _chip(IconData icon, String text, {Color color = AppColors.textSecondary}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: color),
+        const SizedBox(width: 3),
+        Text(text,
+            style: TextStyle(fontSize: 11, color: color)),
+      ],
     );
   }
 }

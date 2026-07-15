@@ -7,6 +7,7 @@ import '../models/checkin_model.dart';
 import '../models/alert_model.dart';
 import '../models/transfer_model.dart';
 import '../models/need_model.dart';
+import '../models/stock_entry_model.dart';
 import '../models/enums.dart';
 import '../core/constants/app_constants.dart';
 import '../app/service_locator.dart';
@@ -16,6 +17,7 @@ import '../domain/services/transfer_service.dart';
 import '../domain/services/refuge_service.dart';
 import '../domain/services/crisis_event_service.dart';
 import '../domain/services/audit_service.dart';
+import '../domain/models/audit_log_model.dart' show AuditAction;
 
 // ---------------------------------------------------------------------------
 // AppState — couche de coordination entre les pages Flutter et les services
@@ -220,6 +222,7 @@ class AppState extends ChangeNotifier {
   late List<AlertModel> _alerts;
   late List<TransferModel> _transfers;
   late List<NeedModel> _needs;
+  late List<StockEntryModel> _stockEntries;
 
   void _initMockData() {
     final now = DateTime.now();
@@ -576,6 +579,46 @@ class AppState extends ChangeNotifier {
         status: 'open',
         description: 'Stock de couvertures insuffisant',
         createdAt: now.subtract(const Duration(hours: 2)),
+      ),
+    ];
+
+    _stockEntries = [
+      StockEntryModel(
+        id: 'stock_1',
+        refugeId: 'shelter_1',
+        category: 'eau',
+        label: 'Palette eau Cristaline 1,5 L',
+        quantity: 480,
+        unit: 'bouteilles',
+        dateEntree: now.subtract(const Duration(days: 1, hours: 3)),
+        provenance: 'Préfecture – protection civile',
+        addedBy: 'Agent LUREL',
+        createdAt: now.subtract(const Duration(days: 1, hours: 3)),
+      ),
+      StockEntryModel(
+        id: 'stock_2',
+        refugeId: 'shelter_1',
+        category: 'couvertures',
+        label: 'Couvertures de survie (lot)',
+        quantity: 150,
+        unit: 'unités',
+        dateEntree: now.subtract(const Duration(hours: 20)),
+        provenance: 'Croix-Rouge française',
+        addedBy: 'Agent NESTOR',
+        createdAt: now.subtract(const Duration(hours: 20)),
+      ),
+      StockEntryModel(
+        id: 'stock_3',
+        refugeId: 'shelter_1',
+        category: 'repas',
+        label: 'Rations chaudes (barquettes)',
+        quantity: 230,
+        unit: 'portions',
+        dateEntree: now.subtract(const Duration(hours: 5)),
+        provenance: 'Cuisine centrale municipale',
+        expiryDate: now.add(const Duration(days: 2)),
+        addedBy: 'Agent BAPTISTE',
+        createdAt: now.subtract(const Duration(hours: 5)),
       ),
     ];
   }
@@ -1023,6 +1066,62 @@ class AppState extends ChangeNotifier {
     shelters[idx] = shelters[idx].copyWith(stock: newStock, updatedBy: currentUserId);
     _refugeService?.updateStock(shelterId, newStock, currentOrganizationId, currentUserId, currentRole.keycloakName);
     notifyListeners();
+  }
+
+  // ── Entrées de stock (traçabilité : datage, provenance, photo) ──────
+  /// Entrées d'un centre, les plus récentes d'abord.
+  List<StockEntryModel> stockEntriesOf(String shelterId) => _stockEntries
+      .where((e) => e.refugeId == shelterId)
+      .toList()
+    ..sort((a, b) => b.dateEntree.compareTo(a.dateEntree));
+
+  /// Quantité totale entrée pour une catégorie (somme des lots reçus).
+  int stockQuantityOf(String shelterId, String category) => _stockEntries
+      .where((e) => e.refugeId == shelterId && e.category == category)
+      .fold(0, (sum, e) => sum + e.quantity);
+
+  /// Ajoute une entrée de stock et met à jour l'agrégat de la catégorie.
+  void addStockEntry(StockEntryModel entry) {
+    _stockEntries.add(entry);
+    // L'agrégat (seuils/alertes) suit les entrées de la même catégorie.
+    _syncAggregateFromEntries(entry.refugeId, entry.category);
+    _auditService?.log(
+      organizationId: currentOrganizationId,
+      userId: currentUserId,
+      role: currentRole.keycloakName,
+      action: AuditAction.updateShelterStock,
+      targetType: 'stock_entry',
+      targetId: entry.id,
+      metadata: {
+        'refugeId': entry.refugeId,
+        'category': entry.category,
+        'label': entry.label,
+        'quantity': entry.quantity,
+        'provenance': entry.provenance,
+      },
+    );
+    notifyListeners();
+  }
+
+  /// Supprime une entrée (erreur de saisie) et réajuste l'agrégat.
+  void removeStockEntry(String entryId) {
+    final idx = _stockEntries.indexWhere((e) => e.id == entryId);
+    if (idx < 0) return;
+    final removed = _stockEntries.removeAt(idx);
+    _syncAggregateFromEntries(removed.refugeId, removed.category);
+    notifyListeners();
+  }
+
+  void _syncAggregateFromEntries(String shelterId, String category) {
+    final idx = shelters.indexWhere((s) => s.id == shelterId);
+    if (idx < 0) return;
+    final total = stockQuantityOf(shelterId, category);
+    final newStock = Map<String, int>.from(shelters[idx].stock);
+    newStock[category] = total;
+    shelters[idx] =
+        shelters[idx].copyWith(stock: newStock, updatedBy: currentUserId);
+    _refugeService?.updateStock(shelterId, newStock, currentOrganizationId,
+        currentUserId, currentRole.keycloakName);
   }
 
   void addShelterZone(String shelterId, String zone) {

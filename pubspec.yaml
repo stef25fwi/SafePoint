@@ -29,6 +29,8 @@ dependencies:
   http: ^1.2.2
   # Traducteur fiche personne : reconnaissance vocale
   speech_to_text: ^7.0.0
+  # Gestion de stock : photo d'étiquetage
+  image_picker: ^1.1.2
   # Exports cellule de crise (CSV / PDF)
   pdf: ^3.11.1
   printing: ^5.13.3
