@@ -4,9 +4,11 @@ import '../core/app_colors.dart';
 import '../models/enums.dart';
 import '../models/shelter_model.dart';
 import '../models/stock_entry_model.dart';
+import '../models/stock_transfer_model.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
 import '../widgets/stock_entry_form.dart';
+import '../widgets/stock_transfer_form.dart';
 
 // ── Stock item descriptor ─────────────────────────────────────────────────────
 
@@ -873,6 +875,10 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
             ),
           ),
 
+          // ── Transferts de stock entre centres ─────────────────────
+          const SizedBox(height: 22),
+          _buildStockTransfersSection(state, canEdit, shelterId),
+
           // ── Traçabilité : entrées de stock ────────────────────────
           const SizedBox(height: 22),
           _buildStockEntriesSection(state, canEdit, shelterId),
@@ -889,6 +895,119 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
         ],
       ),
     );
+  }
+
+  // ── Transferts de stock entre centres ────────────────────────────
+
+  Widget _buildStockTransfersSection(
+      AppState state, bool canEdit, String shelterId) {
+    final transfers = state.stockTransfersOf(shelterId);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.swap_horiz,
+                size: 18, color: AppColors.textPrimary),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'Transferts entre centres',
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary),
+              ),
+            ),
+            if (transfers.isNotEmpty)
+              Text(
+                '${transfers.length}',
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Suivi du nombre de produits déplacés vers ou depuis ce centre.',
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 12),
+
+        if (transfers.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColors.bgPage,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              'Aucun transfert en cours.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
+          )
+        else
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2))
+              ],
+            ),
+            child: Column(
+              children: transfers.asMap().entries.map((e) {
+                return Column(
+                  children: [
+                    if (e.key > 0) const Divider(height: 1, indent: 16),
+                    _StockTransferTile(
+                      transfer: e.value,
+                      viewerShelterId: shelterId,
+                      canEdit: canEdit,
+                      onDepart: () =>
+                          state.markStockTransferDeparted(e.value.id),
+                      onConfirm: () =>
+                          state.confirmStockTransferArrival(e.value.id),
+                      onCancel: () => _confirmCancelTransfer(state, e.value),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _confirmCancelTransfer(
+      AppState state, StockTransferModel transfer) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Annuler le transfert ?'),
+        content: Text(
+            '${transfer.quantity} ${transfer.unit} de ${transfer.label} seront restitués au stock de ${transfer.fromShelterName}.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Retour')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.red),
+            child: const Text('Annuler le transfert'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) state.cancelStockTransfer(transfer.id);
   }
 
   // ── Entrées de stock (traçabilité : datage, provenance, photo) ──
@@ -932,20 +1051,38 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
         const SizedBox(height: 12),
 
         if (canEdit) ...[
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => showStockEntryForm(context, shelterId),
-              icon: const Icon(Icons.add_a_photo_outlined, size: 18),
-              label: const Text('Ajouter une entrée'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.navy,
-                side: const BorderSide(color: AppColors.navy),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => showStockEntryForm(context, shelterId),
+                  icon: const Icon(Icons.add_a_photo_outlined, size: 18),
+                  label: const Text('Ajouter une entrée'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.navy,
+                    side: const BorderSide(color: AppColors.navy),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => showStockTransferForm(context, shelterId),
+                  icon: const Icon(Icons.swap_horiz, size: 18),
+                  label: const Text('Transférer'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.blue,
+                    side: const BorderSide(color: AppColors.blue),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
         ],
@@ -1328,11 +1465,13 @@ class _StockEntryTile extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '+${entry.quantity}${entry.unit.isNotEmpty ? ' ${entry.unit}' : ''}',
-                      style: const TextStyle(
+                      '${entry.quantity >= 0 ? '+' : ''}${entry.quantity}${entry.unit.isNotEmpty ? ' ${entry.unit}' : ''}',
+                      style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.green),
+                          color: entry.quantity >= 0
+                              ? AppColors.green
+                              : AppColors.red),
                     ),
                   ],
                 ),
@@ -1388,6 +1527,136 @@ class _StockEntryTile extends StatelessWidget {
         Text(text,
             style: TextStyle(fontSize: 11, color: color)),
       ],
+    );
+  }
+}
+
+// ── Un transfert de stock entre deux centres, avec statut et actions ──
+
+class _StockTransferTile extends StatelessWidget {
+  final StockTransferModel transfer;
+  final String viewerShelterId;
+  final bool canEdit;
+  final VoidCallback onDepart;
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+
+  const _StockTransferTile({
+    required this.transfer,
+    required this.viewerShelterId,
+    required this.canEdit,
+    required this.onDepart,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  (Color, Color, String) get _statusStyle {
+    switch (transfer.status) {
+      case TransferStatus.pending:
+        return (AppColors.orangeLight, AppColors.orangeText, 'En préparation');
+      case TransferStatus.inProgress:
+        return (AppColors.blueLight, AppColors.blueText, 'En transit');
+      case TransferStatus.confirmed:
+        return (AppColors.greenLight, AppColors.greenText, 'Réceptionné');
+      case TransferStatus.cancelled:
+        return (AppColors.grayLight, AppColors.grayText, 'Annulé');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isOutgoing = transfer.fromShelterId == viewerShelterId;
+    final isIncoming = transfer.toShelterId == viewerShelterId;
+    final (bgColor, textColor, statusLabel) = _statusStyle;
+    final active = transfer.status == TransferStatus.pending ||
+        transfer.status == TransferStatus.inProgress;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(transfer.label,
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary)),
+                    const SizedBox(height: 2),
+                    Text(
+                      isOutgoing
+                          ? 'Vers ${transfer.toShelterName}'
+                          : 'Depuis ${transfer.fromShelterName}',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '${transfer.quantity}${transfer.unit.isNotEmpty ? ' ${transfer.unit}' : ''}',
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.blue),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(statusLabel,
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: textColor)),
+              ),
+              const Spacer(),
+              if (canEdit && active) ...[
+                if (isOutgoing && transfer.status == TransferStatus.pending)
+                  TextButton(
+                    onPressed: onDepart,
+                    style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact),
+                    child: const Text('Marquer parti',
+                        style: TextStyle(fontSize: 12)),
+                  ),
+                if (isIncoming)
+                  TextButton(
+                    onPressed: onConfirm,
+                    style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: AppColors.green),
+                    child: const Text('Confirmer réception',
+                        style: TextStyle(fontSize: 12)),
+                  ),
+                if (isOutgoing)
+                  TextButton(
+                    onPressed: onCancel,
+                    style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: AppColors.red),
+                    child:
+                        const Text('Annuler', style: TextStyle(fontSize: 12)),
+                  ),
+              ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

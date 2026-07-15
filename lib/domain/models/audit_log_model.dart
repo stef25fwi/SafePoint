@@ -71,4 +71,8 @@ class AuditAction {
   static const updateShelter = 'UPDATE_SHELTER';
   static const updateShelterStatus = 'UPDATE_SHELTER_STATUS';
   static const updateShelterStock = 'UPDATE_SHELTER_STOCK';
+  static const createStockTransfer = 'CREATE_STOCK_TRANSFER';
+  static const departStockTransfer = 'DEPART_STOCK_TRANSFER';
+  static const confirmStockTransfer = 'CONFIRM_STOCK_TRANSFER';
+  static const cancelStockTransfer = 'CANCEL_STOCK_TRANSFER';
 }
