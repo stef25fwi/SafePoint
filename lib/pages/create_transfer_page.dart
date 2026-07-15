@@ -143,7 +143,7 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(s.name, style: TextStyle(fontWeight: FontWeight.w600, color: selected ? AppColors.blue : AppColors.textPrimary, fontSize: 14)),
-                                        Text('${s.placesRestantes} places restantes', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                        Text('${state.placesRestantesOf(s.id)} places restantes', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                                       ],
                                     ),
                                   ),

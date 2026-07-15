@@ -24,3 +24,4 @@
 |---|---|---|---|
 | Google (Firebase/GCP) | Hébergement, auth, base, push | UE possible (région) | Non qualifié SecNumCloud — cf. `08` |
 | geo.api.gouv.fr (DINUM) | Référentiel communes (INSEE) | France | Service public, données publiques |
+| Service de traduction (traducteur fiche personne) | Traduction bidirectionnelle des échanges agent/personne évacuée | À déterminer (cf. `09-traducteur.md`) | **Non configuré par défaut** — instance auto-hébergée (LibreTranslate) recommandée avant tout usage réel ; non conservé au-delà de la session |

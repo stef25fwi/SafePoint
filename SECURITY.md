@@ -38,6 +38,9 @@ Ce document est le point d'entrée. Le détail est dans [`docs/securite/`](docs/
    → [`docs/securite/08-hebergement-secnumcloud.md`](docs/securite/08-hebergement-secnumcloud.md)
 6. **Clauses de sécurité au marché** (sous-traitance NIS2 art. 21)
    → [`docs/securite/07-clauses-sous-traitance.md`](docs/securite/07-clauses-sous-traitance.md)
+6bis. **Configurer un fournisseur de traduction** avant usage réel du
+   traducteur intégré (fiche personne) — non configuré par défaut
+   → [`docs/securite/09-traducteur.md`](docs/securite/09-traducteur.md)
 7. **Tests d'intrusion / audit** avant mise en service
 8. **MFA** pour les profils sensibles (cellule de crise, préfecture, admin)
 

@@ -221,7 +221,7 @@ class ExportService {
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('SafePoint — ${t.title}',
+                pw.Text('SafePoint - ${t.title}',
                     style: pw.TextStyle(
                         fontSize: 18, fontWeight: pw.FontWeight.bold)),
                 if (subtitle != null)
