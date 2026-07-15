@@ -8,6 +8,7 @@ import '../models/person_model.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
 import '../widgets/commune_autocomplete_field.dart';
+import '../widgets/translator_panel.dart';
 
 class PersonFormPage extends StatefulWidget {
   const PersonFormPage({super.key});
@@ -154,6 +155,20 @@ class _PersonFormPageState extends State<PersonFormPage> {
                       color: AppColors.blue,
                       minHeight: 4,
                       borderRadius: BorderRadius.circular(2),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () => showTranslatorPanel(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.purple,
+                        side: const BorderSide(color: AppColors.purple),
+                        minimumSize: const Size.fromHeight(44),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.translate, size: 18),
+                      label: const Text(
+                          'Traducteur — parler avec la personne'),
                     ),
                   ],
                 ),
