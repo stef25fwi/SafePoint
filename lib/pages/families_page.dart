@@ -394,7 +394,7 @@ class _FamilyCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  '${family.displayName} – ${family.membersCount} personne${family.membersCount > 1 ? 's' : ''}',
+                  '${family.displayName} – ${members.length} personne${members.length > 1 ? 's' : ''}',
                   style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -425,7 +425,7 @@ class _FamilyCard extends StatelessWidget {
                       child: const Icon(Icons.person,
                           size: 18, color: AppColors.grayText),
                     )),
-                if (family.membersCount > 4)
+                if (members.length > 4)
                   Container(
                     width: 36,
                     height: 36,
@@ -435,7 +435,7 @@ class _FamilyCard extends StatelessWidget {
                       border: Border.all(color: Colors.white, width: 2),
                     ),
                     child: Center(
-                        child: Text('+${family.membersCount - 4}',
+                        child: Text('+${members.length - 4}',
                             style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -466,7 +466,7 @@ class _FamilyCard extends StatelessWidget {
                   size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 4),
               Text(
-                  '${family.membersCount} personne${family.membersCount > 1 ? 's' : ''}',
+                  '${members.length} personne${members.length > 1 ? 's' : ''}',
                   style: const TextStyle(
                       fontSize: 12, color: AppColors.textSecondary)),
             ],

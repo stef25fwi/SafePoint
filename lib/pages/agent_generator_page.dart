@@ -1,6 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../core/app_colors.dart';
@@ -102,13 +105,49 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
     );
   }
 
-  void _printCode() {
-    // TODO: Implémenter l'impression avec la package 'printing'
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Impression en cours...'),
-        backgroundColor: AppColors.green,
+  Future<void> _printCode() async {
+    final code = _generatedCode;
+    final password = _generatedPassword;
+    if (code == null || password == null) return;
+
+    final roleLabel = _selectedRole != null
+        ? (_roleLabels[_selectedRole!] ?? _selectedRole!.name)
+        : '';
+    final name = _displayNameCtrl.text.trim();
+
+    final doc = pw.Document();
+    doc.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a6,
+        margin: const pw.EdgeInsets.all(24),
+        build: (context) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text('SafePoint — Identifiants agent',
+                style:
+                    pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 14),
+            pw.Text('Nom : $name'),
+            pw.Text('Rôle : $roleLabel'),
+            pw.SizedBox(height: 14),
+            pw.Text('Code agent : $code',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            pw.Text('Mot de passe : $password',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 18),
+            pw.Text(
+              'Document confidentiel — à remettre en main propre. '
+              'Le mot de passe doit être changé à la première connexion.',
+              style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
+            ),
+          ],
+        ),
       ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (_) => doc.save(),
+      name: 'safepoint_agent_$code',
     );
   }
 

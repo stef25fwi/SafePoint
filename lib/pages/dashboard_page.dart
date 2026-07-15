@@ -67,7 +67,7 @@ class DashboardPage extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(child: KpiCard(
                     title: 'Places restantes',
-                    value: '${shelter.placesRestantes}',
+                    value: '${state.placesRestantesOf(shelter.id)}',
                     icon: Icons.bed_outlined,
                     color: AppColors.green,
                   )),
@@ -285,7 +285,7 @@ class DashboardPage extends StatelessWidget {
                         const SizedBox(width: 8),
                         const Expanded(child: Text('Capacité du centre', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
                         Text(
-                          '${shelter.currentCount} / ${shelter.capacity}',
+                          '${state.occupancyOf(shelter.id)} / ${shelter.capacity}',
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.blue),
                         ),
                       ],
@@ -294,15 +294,15 @@ class DashboardPage extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
-                        value: shelter.capacityPercent,
+                        value: state.capacityPercentOf(shelter.id),
                         backgroundColor: AppColors.divider,
-                        color: shelter.capacityPercent > 0.9 ? AppColors.red : AppColors.blue,
+                        color: state.capacityPercentOf(shelter.id) > 0.9 ? AppColors.red : AppColors.blue,
                         minHeight: 8,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '${(shelter.capacityPercent * 100).toStringAsFixed(0)} % de capacité utilisée',
+                      '${(state.capacityPercentOf(shelter.id) * 100).toStringAsFixed(0)} % de capacité utilisée',
                       style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     ),
                   ],

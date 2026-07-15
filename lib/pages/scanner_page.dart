@@ -981,7 +981,7 @@ class _FamilyPointageCard extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               color: AppColors.textPrimary)),
                       Text(
-                        '${family.membersCount} membre(s) · ${family.assignedZone ?? "Zone ?"}',
+                        '${members.length} membre(s) · ${family.assignedZone ?? "Zone ?"}',
                         style: const TextStyle(
                             fontSize: 12, color: AppColors.textSecondary),
                       ),

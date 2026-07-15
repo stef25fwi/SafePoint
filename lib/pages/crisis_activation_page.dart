@@ -265,6 +265,7 @@ class _ActiveCrisisView extends StatelessWidget {
               const SizedBox(height: 14),
               ...state.shelters.map((s) => _ShelterStatusRow(
                     shelter: s,
+                    occupancy: state.occupancyOf(s.id),
                     onTap: () => Navigator.pushNamed(context,
                         AppRoutes.shelterDetail,
                         arguments: s.id),
@@ -280,7 +281,7 @@ class _ActiveCrisisView extends StatelessWidget {
             Expanded(child: _StatTile(
               icon: Icons.group,
               label: 'Personnes\naccueillies',
-              value: '${state.shelters.fold(0, (sum, s) => sum + s.currentCount)}',
+              value: '${state.everyPerson.length}',
               color: AppColors.blue,
             )),
             const SizedBox(width: 12),
@@ -325,8 +326,9 @@ class _ActiveCrisisView extends StatelessWidget {
 
 class _ShelterStatusRow extends StatelessWidget {
   final dynamic shelter;
+  final int occupancy;
   final VoidCallback? onTap;
-  const _ShelterStatusRow({required this.shelter, this.onTap});
+  const _ShelterStatusRow({required this.shelter, required this.occupancy, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -365,7 +367,7 @@ class _ShelterStatusRow extends StatelessWidget {
             child: Text(shelter.name as String,
                 style: const TextStyle(fontSize: 13, color: AppColors.textPrimary)),
           ),
-          Text('${shelter.currentCount as int} pers.',
+          Text('$occupancy pers.',
               style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
           const SizedBox(width: 8),
           Container(

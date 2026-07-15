@@ -661,6 +661,35 @@ class AppState extends ChangeNotifier {
     return map;
   }
 
+  // ── Occupation en direct (source unique de vérité) ──────────────────
+  // ShelterModel.currentCount est un compteur dénormalisé côté Firestore,
+  // jamais recalculé automatiquement lors des ajouts/transferts/sorties.
+  // Ces accesseurs recalculent l'occupation à partir des personnes réelles
+  // (même logique que countsByShelterId) et doivent être utilisés partout
+  // où une capacité/occupation est affichée, plutôt que shelter.currentCount.
+
+  /// Nombre réel de personnes recensées pour ce centre (non supprimées).
+  int occupancyOf(String shelterId) => countsByShelterId[shelterId] ?? 0;
+
+  /// Places restantes réelles = capacité - occupation réelle.
+  int placesRestantesOf(String shelterId) {
+    final shelter = shelters.firstWhere(
+      (s) => s.id == shelterId,
+      orElse: () => currentShelter,
+    );
+    return shelter.capacity - occupancyOf(shelterId);
+  }
+
+  /// Taux d'occupation réel (0.0 à 1.0+).
+  double capacityPercentOf(String shelterId) {
+    final shelter = shelters.firstWhere(
+      (s) => s.id == shelterId,
+      orElse: () => currentShelter,
+    );
+    if (shelter.capacity <= 0) return 0.0;
+    return occupancyOf(shelterId) / shelter.capacity;
+  }
+
   // ── Analytics cross-centres (cellule de crise / préfecture) ────────
   /// Toutes les personnes non supprimées, tous centres confondus.
   List<PersonModel> get everyPerson =>
