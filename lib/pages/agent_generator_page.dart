@@ -123,7 +123,7 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
         build: (context) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text('SafePoint — Identifiants agent',
+            pw.Text('SafePoint - Identifiants agent',
                 style:
                     pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 14),
@@ -136,7 +136,7 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 18),
             pw.Text(
-              'Document confidentiel — à remettre en main propre. '
+              'Document confidentiel - à remettre en main propre. '
               'Le mot de passe doit être changé à la première connexion.',
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
             ),
