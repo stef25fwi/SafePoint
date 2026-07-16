@@ -45,13 +45,19 @@ class TranslationService {
   static final TranslationService instance = TranslationService._();
 
   /// URL de l'instance de traduction (compatible LibreTranslate).
-  /// ⚠️ À REMPLACER par une instance auto-hébergée ou sous contrat avant
-  /// tout usage avec des données réelles. Laisser vide désactive la fonction
-  /// (échec explicite plutôt qu'envoi silencieux vers un tiers par défaut).
-  static const String baseUrl = '';
+  ///
+  /// Injectée au build via `--dart-define=TRANSLATE_BASE_URL=https://…`
+  /// (jamais commitée dans le dépôt — cf.
+  /// `docs/deploiement/libretranslate-self-hosted.md`). Vide par défaut :
+  /// désactive la fonction (échec explicite plutôt qu'envoi silencieux vers
+  /// un tiers par défaut).
+  static const String baseUrl = String.fromEnvironment('TRANSLATE_BASE_URL');
 
-  /// Clé API éventuelle de l'instance de traduction (si elle en exige une).
-  static const String? apiKey = null;
+  /// Clé API éventuelle de l'instance de traduction (si elle en exige une),
+  /// injectée via `--dart-define=TRANSLATE_API_KEY=…`.
+  static const String? apiKey = bool.hasEnvironment('TRANSLATE_API_KEY')
+      ? String.fromEnvironment('TRANSLATE_API_KEY')
+      : null;
 
   bool get isConfigured => baseUrl.isNotEmpty;
 
