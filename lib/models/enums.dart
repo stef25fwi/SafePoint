@@ -44,6 +44,8 @@ enum CheckinType {
   transferDeparture,
   transferArrival,
   medical,
+  douche,
+  activite,
 }
 
 enum NeedType {
@@ -175,6 +177,10 @@ extension CheckinTypeLabel on CheckinType {
         return 'Arrivée transfert';
       case CheckinType.medical:
         return 'Passage infirmerie';
+      case CheckinType.douche:
+        return 'Douche';
+      case CheckinType.activite:
+        return 'Activité';
     }
   }
 }

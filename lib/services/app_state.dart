@@ -939,12 +939,35 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void createCheckin({
+  /// Fenêtre en-deçà de laquelle un second pointage du même type pour la
+  /// même personne est signalé comme doublon probable (saisie erronée ou
+  /// double scan), plutôt que rejeté : le pointage est toujours enregistré.
+  static const _duplicateCheckinWindow = Duration(hours: 2);
+
+  /// Enregistre un pointage. Renvoie le pointage créé ainsi que le nombre
+  /// de minutes écoulées depuis le précédent pointage du même type pour
+  /// cette personne, si celui-ci est survenu il y a moins de 2h (doublon
+  /// probable) — `null` sinon.
+  ({CheckinModel checkin, int? duplicateMinutes}) createCheckin({
     required String personId,
     required CheckinType type,
     String? notes,
   }) {
     final now = DateTime.now();
+
+    int? duplicateMinutes;
+    final priorSameType = _checkins
+        .where((c) => c.personId == personId && c.type == type)
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    if (priorSameType.isNotEmpty) {
+      final minutesSince =
+          now.difference(priorSameType.first.createdAt).inMinutes;
+      if (minutesSince < _duplicateCheckinWindow.inMinutes) {
+        duplicateMinutes = minutesSince;
+      }
+    }
+
     final checkin = CheckinModel(
       id: 'checkin_${now.millisecondsSinceEpoch}',
       eventId: activeEvent.id,
@@ -971,7 +994,9 @@ class AppState extends ChangeNotifier {
           type == CheckinType.mealBreakfast ||
           type == CheckinType.mealLunch ||
           type == CheckinType.mealDinner ||
-          type == CheckinType.night) {
+          type == CheckinType.night ||
+          type == CheckinType.douche ||
+          type == CheckinType.activite) {
         newStatus = PersonStatus.present;
       }
       _persons[idx] = _persons[idx].copyWith(
@@ -993,6 +1018,32 @@ class AppState extends ChangeNotifier {
     }
 
     notifyListeners();
+    return (checkin: checkin, duplicateMinutes: duplicateMinutes);
+  }
+
+  /// Pointages du jour au centre [shelterId] (centre courant par défaut),
+  /// regroupés par service. Recalculé depuis la liste réelle des pointages
+  /// (jamais un compteur dénormalisé stocké) pour éviter toute dérive.
+  Map<String, int> todayCheckinCounts([String? shelterId]) {
+    final sid = shelterId ?? currentShelterId;
+    final now = DateTime.now();
+    final todays = _checkins.where((c) =>
+        c.shelterId == sid &&
+        c.createdAt.year == now.year &&
+        c.createdAt.month == now.month &&
+        c.createdAt.day == now.day);
+
+    return {
+      'repas': todays
+          .where((c) =>
+              c.type == CheckinType.mealBreakfast ||
+              c.type == CheckinType.mealLunch ||
+              c.type == CheckinType.mealDinner)
+          .length,
+      'soins': todays.where((c) => c.type == CheckinType.medical).length,
+      'douche': todays.where((c) => c.type == CheckinType.douche).length,
+      'activite': todays.where((c) => c.type == CheckinType.activite).length,
+    };
   }
 
   void resolveAlert(String alertId) {

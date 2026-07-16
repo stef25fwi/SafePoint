@@ -26,12 +26,14 @@ class _ScannerPageState extends State<ScannerPage>
   late AnimationController _scanAnim;
   late Animation<double> _scanPosition;
   String? _qrSuccess;
+  bool _qrWarning = false;
 
   // ── Tab 2 : Recherche manuelle ───────────────────────────────
   final _searchCtrl = TextEditingController();
   String _searchQuery = '';
   PersonModel? _selectedPerson;
   String? _searchSuccess;
+  bool _searchWarning = false;
 
   // ── Tab 3 : Pointage familial ────────────────────────────────
   String? _familyPointageId;
@@ -80,11 +82,18 @@ class _ScannerPageState extends State<ScannerPage>
   void _doQrCheckin(CheckinType type) {
     if (_scannedPerson == null) return;
     final name = _scannedPerson!.fullName;
-    context
+    final result = context
         .read<AppState>()
         .createCheckin(personId: _scannedPerson!.id, type: type);
     setState(() {
-      _qrSuccess = '${type.label} enregistré pour $name';
+      if (result.duplicateMinutes != null) {
+        _qrWarning = true;
+        _qrSuccess =
+            '${type.label} déjà pointé il y a ${result.duplicateMinutes} min pour $name — nouveau pointage enregistré';
+      } else {
+        _qrWarning = false;
+        _qrSuccess = '${type.label} enregistré pour $name';
+      }
       _scannedPerson = null;
     });
   }
@@ -106,11 +115,18 @@ class _ScannerPageState extends State<ScannerPage>
   void _doSearchCheckin(CheckinType type) {
     if (_selectedPerson == null) return;
     final name = _selectedPerson!.fullName;
-    context
+    final result = context
         .read<AppState>()
         .createCheckin(personId: _selectedPerson!.id, type: type);
     setState(() {
-      _searchSuccess = '${type.label} enregistré pour $name';
+      if (result.duplicateMinutes != null) {
+        _searchWarning = true;
+        _searchSuccess =
+            '${type.label} déjà pointé il y a ${result.duplicateMinutes} min pour $name — nouveau pointage enregistré';
+      } else {
+        _searchWarning = false;
+        _searchSuccess = '${type.label} enregistré pour $name';
+      }
       _selectedPerson = null;
     });
   }
@@ -322,7 +338,8 @@ class _ScannerPageState extends State<ScannerPage>
           if (_qrSuccess != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _SuccessBanner(message: _qrSuccess!),
+              child:
+                  _SuccessBanner(message: _qrSuccess!, isWarning: _qrWarning),
             ),
 
           if (_scannedPerson != null) ...[
@@ -401,7 +418,8 @@ class _ScannerPageState extends State<ScannerPage>
         if (_searchSuccess != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _SuccessBanner(message: _searchSuccess!),
+            child: _SuccessBanner(
+                message: _searchSuccess!, isWarning: _searchWarning),
           ),
         if (_selectedPerson != null) ...[
           Padding(
@@ -592,26 +610,32 @@ class _ScannerPageState extends State<ScannerPage>
 
 class _SuccessBanner extends StatelessWidget {
   final String message;
-  const _SuccessBanner({required this.message});
+  final bool isWarning;
+  const _SuccessBanner({required this.message, this.isWarning = false});
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = isWarning ? AppColors.orangeLight : AppColors.greenLight;
+    final borderColor = isWarning ? AppColors.orange : AppColors.green;
+    final textColor = isWarning ? AppColors.orangeText : AppColors.greenText;
+    final icon = isWarning ? Icons.warning_amber_rounded : Icons.check_circle;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.greenLight,
+        color: bgColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.green.withValues(alpha: 0.3)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.check_circle, color: AppColors.green, size: 20),
+          Icon(icon, color: borderColor, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Text(message,
-                style: const TextStyle(
-                    color: AppColors.greenText,
+                style: TextStyle(
+                    color: textColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 13)),
           ),
@@ -813,6 +837,16 @@ class _ActionGrid extends StatelessWidget {
                   label: 'Secours',
                   color: AppColors.purple,
                   onTap: () => onCheckin(CheckinType.medical)),
+              _ScanAction(
+                  icon: Icons.shower_outlined,
+                  label: 'Douche',
+                  color: AppColors.blueAccent,
+                  onTap: () => onCheckin(CheckinType.douche)),
+              _ScanAction(
+                  icon: Icons.directions_run,
+                  label: 'Activité',
+                  color: AppColors.amber,
+                  onTap: () => onCheckin(CheckinType.activite)),
               _ScanAction(
                   icon: Icons.swap_horiz,
                   label: 'Transfert',
