@@ -27,8 +27,9 @@ dependencies:
   qr_code_scanner: ^1.0.1
   # Référentiel communes INSEE (geo.api.gouv.fr)
   http: ^1.2.2
-  # Traducteur fiche personne : reconnaissance vocale
+  # Traducteur fiche personne : reconnaissance vocale + synthèse vocale
   speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.0
   # Gestion de stock : photo d'étiquetage
   image_picker: ^1.1.2
   # Exports cellule de crise (CSV / PDF)

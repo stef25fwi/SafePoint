@@ -11,12 +11,22 @@ class TranslationLanguage {
   final String flag;
   final String? speechLocale;
 
+  /// Locale de synthèse vocale (flutter_tts / Web Speech Synthesis). Par
+  /// défaut identique à [speechLocale] ; pour le créole haïtien on parle en
+  /// français faute de voix dédiée fiable.
+  final String? ttsLocale;
+
   const TranslationLanguage({
     required this.code,
     required this.label,
     required this.flag,
     this.speechLocale,
+    this.ttsLocale,
   });
+
+  /// Locale à utiliser pour lire ce texte à voix haute (ttsLocale sinon
+  /// speechLocale sinon le code brut).
+  String get voiceLocale => ttsLocale ?? speechLocale ?? code;
 
   @override
   bool operator ==(Object other) =>
@@ -31,7 +41,12 @@ class TranslationLanguage {
 /// rester lisible dans le sélecteur ; extensible selon les besoins réels.
 const kTranslationLanguages = <TranslationLanguage>[
   TranslationLanguage(
-      code: 'ht', label: 'Créole haïtien', flag: '🇭🇹', speechLocale: 'fr-HT'),
+      code: 'ht',
+      label: 'Créole haïtien',
+      flag: '🇭🇹',
+      speechLocale: 'fr-HT',
+      // Pas de voix TTS créole fiable : on lit en français.
+      ttsLocale: 'fr-FR'),
   TranslationLanguage(
       code: 'en', label: 'Anglais', flag: '🇬🇧', speechLocale: 'en-US'),
   TranslationLanguage(
