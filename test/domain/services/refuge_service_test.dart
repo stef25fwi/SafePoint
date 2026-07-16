@@ -60,8 +60,7 @@ void main() {
       await service.updateStatus(
           'refuge_1', ShelterStatus.full, 'org_1', 'user_1', 'REFUGE_MANAGER');
 
-      verify(() =>
-              repo.updateStatus('refuge_1', ShelterStatus.full, 'user_1'))
+      verify(() => repo.updateStatus('refuge_1', ShelterStatus.full, 'user_1'))
           .called(1);
       verify(() => auditRepo.log(any())).called(1);
     });
@@ -104,8 +103,9 @@ void main() {
 
     test('updateResponsable délègue au repo et journalise', () async {
       when(() => repo.updateResponsable('refuge_1',
-              name: 'Marc', phone: '0690', updatedBy: 'user_1'))
-          .thenAnswer((_) async {});
+          name: 'Marc',
+          phone: '0690',
+          updatedBy: 'user_1')).thenAnswer((_) async {});
 
       await service.updateResponsable(
         'refuge_1',

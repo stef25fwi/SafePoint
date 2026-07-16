@@ -85,7 +85,8 @@ class FirebaseFamilyRepository implements FamilyRepository {
     final now = DateTime.now();
     return FamilyModel(
       id: doc.id,
-      organizationId: d['organizationId'] as String? ?? AppDefaults.organizationId,
+      organizationId:
+          d['organizationId'] as String? ?? AppDefaults.organizationId,
       territoryId: d['territoryId'] as String?,
       eventId: d['eventId'] as String? ?? '',
       shelterId: d['shelterId'] as String? ?? '',

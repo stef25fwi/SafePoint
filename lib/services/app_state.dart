@@ -47,35 +47,31 @@ class AppState extends ChangeNotifier {
   // ---------------------------------------------------------------------------
   // Services (injectés depuis ServiceLocator — null si mode démo)
   // ---------------------------------------------------------------------------
-  PersonService? get _personService =>
-      ServiceLocator.instance.firebaseAvailable
-          ? ServiceLocator.instance.personService
-          : null;
+  PersonService? get _personService => ServiceLocator.instance.firebaseAvailable
+      ? ServiceLocator.instance.personService
+      : null;
 
-  AlertService? get _alertService =>
-      ServiceLocator.instance.firebaseAvailable
-          ? ServiceLocator.instance.alertService
-          : null;
+  AlertService? get _alertService => ServiceLocator.instance.firebaseAvailable
+      ? ServiceLocator.instance.alertService
+      : null;
 
   TransferService? get _transferService =>
       ServiceLocator.instance.firebaseAvailable
           ? ServiceLocator.instance.transferService
           : null;
 
-  RefugeService? get _refugeService =>
-      ServiceLocator.instance.firebaseAvailable
-          ? ServiceLocator.instance.refugeService
-          : null;
+  RefugeService? get _refugeService => ServiceLocator.instance.firebaseAvailable
+      ? ServiceLocator.instance.refugeService
+      : null;
 
   CrisisEventService? get _crisisService =>
       ServiceLocator.instance.firebaseAvailable
           ? ServiceLocator.instance.crisisEventService
           : null;
 
-  AuditService? get _auditService =>
-      ServiceLocator.instance.firebaseAvailable
-          ? ServiceLocator.instance.auditService
-          : null;
+  AuditService? get _auditService => ServiceLocator.instance.firebaseAvailable
+      ? ServiceLocator.instance.auditService
+      : null;
 
   // ---------------------------------------------------------------------------
   // Permission helpers (basés sur les 9 rôles canoniques V2)
@@ -86,8 +82,7 @@ class AppState extends ChangeNotifier {
   bool get canCheckIn =>
       currentRole != UserRole.readOnlyObserver &&
       currentRole != UserRole.auditor;
-  bool get canSeeNominativeData =>
-      currentRole != UserRole.readOnlyObserver;
+  bool get canSeeNominativeData => currentRole != UserRole.readOnlyObserver;
   bool get canResolveAlerts =>
       currentRole == UserRole.refugeManager ||
       currentRole == UserRole.crisisCell ||
@@ -115,8 +110,7 @@ class AppState extends ChangeNotifier {
       currentRole == UserRole.superAdmin ||
       currentRole == UserRole.communeAdmin;
   bool get canViewAuditLogs =>
-      currentRole == UserRole.auditor ||
-      currentRole == UserRole.superAdmin;
+      currentRole == UserRole.auditor || currentRole == UserRole.superAdmin;
   bool get canCreateAgentAccount =>
       currentRole == UserRole.superAdmin ||
       currentRole == UserRole.prefectureAdmin ||
@@ -179,7 +173,13 @@ class AppState extends ChangeNotifier {
       capacity: 280,
       currentCount: 324,
       status: ShelterStatus.full,
-      zones: ['Salle A', 'Salle B', 'Espace familles', 'Zone médicale', 'Zone repas'],
+      zones: [
+        'Salle A',
+        'Salle B',
+        'Espace familles',
+        'Zone médicale',
+        'Zone repas'
+      ],
       responsableName: 'Sophie JEAN-MARIE',
       responsablePhone: '0690 44 55 66',
       agentNames: ['Agent FELIX', 'Agent PIERRE'],
@@ -202,10 +202,21 @@ class AppState extends ChangeNotifier {
       capacity: 400,
       currentCount: 242,
       status: ShelterStatus.open,
-      zones: ['Hall principal', 'Annexe A', 'Zone PMR', 'Espace enfants', 'Infirmerie'],
+      zones: [
+        'Hall principal',
+        'Annexe A',
+        'Zone PMR',
+        'Espace enfants',
+        'Infirmerie'
+      ],
       responsableName: 'Paul DUMONT',
       responsablePhone: '0690 77 88 99',
-      agentNames: ['Agent MARTIN', 'Agent DUPONT', 'Agent LACOUR', 'Agent RIVIÈRE'],
+      agentNames: [
+        'Agent MARTIN',
+        'Agent DUPONT',
+        'Agent LACOUR',
+        'Agent RIVIÈRE'
+      ],
       stock: {
         'eau': 900,
         'repas': 260,
@@ -322,7 +333,11 @@ class AppState extends ChangeNotifier {
         originCommune: 'Gourbeyre',
         currentZone: 'Dortoir C',
         status: PersonStatus.nonPointee,
-        vulnerabilityFlags: const ['personne_agee', 'sans_papiers', 'isolement'],
+        vulnerabilityFlags: const [
+          'personne_agee',
+          'sans_papiers',
+          'isolement'
+        ],
         createdAt: now.subtract(const Duration(hours: 6)),
       ),
       PersonModel(
@@ -472,7 +487,8 @@ class AppState extends ChangeNotifier {
         type: 'medical_need',
         severity: AlertSeverity.critical,
         title: 'Besoin médical prioritaire – Élise FÉLIX',
-        description: 'Femme enceinte signalant des douleurs et besoin de suivi.',
+        description:
+            'Femme enceinte signalant des douleurs et besoin de suivi.',
         status: AlertStatus.open,
         location: 'Zone B – Soins',
         createdAt: now.subtract(const Duration(hours: 1, minutes: 45)),
@@ -1002,7 +1018,8 @@ class AppState extends ChangeNotifier {
     final idx = _alerts.indexWhere((a) => a.id == alertId);
     if (idx >= 0) {
       final alert = _alerts[idx];
-      _alerts[idx] = alert.copyWith(status: AlertStatus.inProgress, updatedBy: currentUserId);
+      _alerts[idx] = alert.copyWith(
+          status: AlertStatus.inProgress, updatedBy: currentUserId);
       _alertService?.markInProgress(
         alert,
         updatedBy: currentUserId,
@@ -1068,8 +1085,8 @@ class AppState extends ChangeNotifier {
         updatedBy: currentUserId,
       );
       ServiceLocator.instance.firebaseAvailable
-          ? ServiceLocator.instance.familyRepository.updateSeparated(
-              familyId, separated, currentUserId)
+          ? ServiceLocator.instance.familyRepository
+              .updateSeparated(familyId, separated, currentUserId)
           : null;
     }
     notifyListeners();
@@ -1086,9 +1103,10 @@ class AppState extends ChangeNotifier {
   void updateShelterStatus(String shelterId, ShelterStatus status) {
     final idx = shelters.indexWhere((s) => s.id == shelterId);
     if (idx >= 0) {
-      shelters[idx] = shelters[idx].copyWith(status: status, updatedBy: currentUserId);
-      _refugeService?.updateStatus(
-        shelterId, status, currentOrganizationId, currentUserId, currentRole.keycloakName);
+      shelters[idx] =
+          shelters[idx].copyWith(status: status, updatedBy: currentUserId);
+      _refugeService?.updateStatus(shelterId, status, currentOrganizationId,
+          currentUserId, currentRole.keycloakName);
       notifyListeners();
     }
   }
@@ -1098,17 +1116,18 @@ class AppState extends ChangeNotifier {
     if (idx < 0) return;
     final newStock = Map<String, int>.from(shelters[idx].stock);
     newStock[item] = qty < 0 ? 0 : qty;
-    shelters[idx] = shelters[idx].copyWith(stock: newStock, updatedBy: currentUserId);
-    _refugeService?.updateStock(shelterId, newStock, currentOrganizationId, currentUserId, currentRole.keycloakName);
+    shelters[idx] =
+        shelters[idx].copyWith(stock: newStock, updatedBy: currentUserId);
+    _refugeService?.updateStock(shelterId, newStock, currentOrganizationId,
+        currentUserId, currentRole.keycloakName);
     notifyListeners();
   }
 
   // ── Entrées de stock (traçabilité : datage, provenance, photo) ──────
   /// Entrées d'un centre, les plus récentes d'abord.
-  List<StockEntryModel> stockEntriesOf(String shelterId) => _stockEntries
-      .where((e) => e.refugeId == shelterId)
-      .toList()
-    ..sort((a, b) => b.dateEntree.compareTo(a.dateEntree));
+  List<StockEntryModel> stockEntriesOf(String shelterId) =>
+      _stockEntries.where((e) => e.refugeId == shelterId).toList()
+        ..sort((a, b) => b.dateEntree.compareTo(a.dateEntree));
 
   /// Quantité totale entrée pour une catégorie (somme des lots reçus).
   int stockQuantityOf(String shelterId, String category) => _stockEntries
@@ -1163,12 +1182,10 @@ class AppState extends ChangeNotifier {
 
   /// Transferts touchant [shelterId], au départ ou à l'arrivée, du plus
   /// récent au plus ancien.
-  List<StockTransferModel> stockTransfersOf(String shelterId) =>
-      _stockTransfers
-          .where((t) =>
-              t.fromShelterId == shelterId || t.toShelterId == shelterId)
-          .toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  List<StockTransferModel> stockTransfersOf(String shelterId) => _stockTransfers
+      .where((t) => t.fromShelterId == shelterId || t.toShelterId == shelterId)
+      .toList()
+    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
   List<StockTransferModel> get currentStockTransfers =>
       stockTransfersOf(currentShelterId);
@@ -1188,8 +1205,7 @@ class AppState extends ChangeNotifier {
     String? notes,
   }) {
     final transferId = const Uuid().v4();
-    final agent =
-        currentAgentCode.isEmpty ? currentUserId : currentAgentCode;
+    final agent = currentAgentCode.isEmpty ? currentUserId : currentAgentCode;
     final now = DateTime.now();
 
     final outEntry = StockEntryModel(
@@ -1276,8 +1292,7 @@ class AppState extends ChangeNotifier {
         transfer.status == TransferStatus.cancelled) {
       return;
     }
-    final agent =
-        currentAgentCode.isEmpty ? currentUserId : currentAgentCode;
+    final agent = currentAgentCode.isEmpty ? currentUserId : currentAgentCode;
 
     final inEntry = StockEntryModel(
       id: const Uuid().v4(),
@@ -1327,8 +1342,7 @@ class AppState extends ChangeNotifier {
         transfer.status != TransferStatus.inProgress) {
       return;
     }
-    final agent =
-        currentAgentCode.isEmpty ? currentUserId : currentAgentCode;
+    final agent = currentAgentCode.isEmpty ? currentUserId : currentAgentCode;
 
     final restoreEntry = StockEntryModel(
       id: const Uuid().v4(),
@@ -1368,8 +1382,10 @@ class AppState extends ChangeNotifier {
     final newZones = List<String>.from(shelters[idx].zones);
     if (!newZones.contains(zone)) {
       newZones.add(zone);
-      shelters[idx] = shelters[idx].copyWith(zones: newZones, updatedBy: currentUserId);
-      _refugeService?.updateZones(shelterId, newZones, currentOrganizationId, currentUserId, currentRole.keycloakName);
+      shelters[idx] =
+          shelters[idx].copyWith(zones: newZones, updatedBy: currentUserId);
+      _refugeService?.updateZones(shelterId, newZones, currentOrganizationId,
+          currentUserId, currentRole.keycloakName);
       notifyListeners();
     }
   }
@@ -1378,16 +1394,21 @@ class AppState extends ChangeNotifier {
     final idx = shelters.indexWhere((s) => s.id == shelterId);
     if (idx < 0) return;
     final newZones = List<String>.from(shelters[idx].zones)..remove(zone);
-    shelters[idx] = shelters[idx].copyWith(zones: newZones, updatedBy: currentUserId);
-    _refugeService?.updateZones(shelterId, newZones, currentOrganizationId, currentUserId, currentRole.keycloakName);
+    shelters[idx] =
+        shelters[idx].copyWith(zones: newZones, updatedBy: currentUserId);
+    _refugeService?.updateZones(shelterId, newZones, currentOrganizationId,
+        currentUserId, currentRole.keycloakName);
     notifyListeners();
   }
 
-  void updateShelterResponsable(String shelterId, {String? name, String? phone}) {
+  void updateShelterResponsable(String shelterId,
+      {String? name, String? phone}) {
     final idx = shelters.indexWhere((s) => s.id == shelterId);
     if (idx < 0) return;
     shelters[idx] = shelters[idx].copyWith(
-        responsableName: name, responsablePhone: phone, updatedBy: currentUserId);
+        responsableName: name,
+        responsablePhone: phone,
+        updatedBy: currentUserId);
     _refugeService?.updateResponsable(shelterId,
         name: name,
         phone: phone,
@@ -1403,8 +1424,10 @@ class AppState extends ChangeNotifier {
     final newAgents = List<String>.from(shelters[idx].agentNames);
     if (!newAgents.contains(agentName)) {
       newAgents.add(agentName);
-      shelters[idx] = shelters[idx].copyWith(agentNames: newAgents, updatedBy: currentUserId);
-      _refugeService?.updateAgents(shelterId, newAgents, currentOrganizationId, currentUserId, currentRole.keycloakName);
+      shelters[idx] = shelters[idx]
+          .copyWith(agentNames: newAgents, updatedBy: currentUserId);
+      _refugeService?.updateAgents(shelterId, newAgents, currentOrganizationId,
+          currentUserId, currentRole.keycloakName);
       notifyListeners();
     }
   }
@@ -1412,9 +1435,12 @@ class AppState extends ChangeNotifier {
   void removeShelterAgent(String shelterId, String agentName) {
     final idx = shelters.indexWhere((s) => s.id == shelterId);
     if (idx < 0) return;
-    final newAgents = List<String>.from(shelters[idx].agentNames)..remove(agentName);
-    shelters[idx] = shelters[idx].copyWith(agentNames: newAgents, updatedBy: currentUserId);
-    _refugeService?.updateAgents(shelterId, newAgents, currentOrganizationId, currentUserId, currentRole.keycloakName);
+    final newAgents = List<String>.from(shelters[idx].agentNames)
+      ..remove(agentName);
+    shelters[idx] =
+        shelters[idx].copyWith(agentNames: newAgents, updatedBy: currentUserId);
+    _refugeService?.updateAgents(shelterId, newAgents, currentOrganizationId,
+        currentUserId, currentRole.keycloakName);
     notifyListeners();
   }
 

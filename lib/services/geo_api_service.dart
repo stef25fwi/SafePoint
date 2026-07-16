@@ -52,12 +52,13 @@ class GeoApiService {
     return list.isNotEmpty ? list.first : null;
   }
 
-  Future<List<CommuneModel>> _get(String path, Map<String, String> params) async {
+  Future<List<CommuneModel>> _get(
+      String path, Map<String, String> params) async {
     try {
       final uri = Uri.parse('$_base$path').replace(queryParameters: params);
-      final res = await _client
-          .get(uri, headers: {'Accept': 'application/json'})
-          .timeout(const Duration(seconds: 8));
+      final res = await _client.get(uri, headers: {
+        'Accept': 'application/json'
+      }).timeout(const Duration(seconds: 8));
       if (res.statusCode != 200) return const [];
       final decoded = jsonDecode(res.body);
       if (decoded is List) {

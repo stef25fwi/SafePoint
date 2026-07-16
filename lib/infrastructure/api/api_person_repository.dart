@@ -24,15 +24,16 @@ class ApiPersonRepository implements PersonRepository {
     required String organizationId,
     required String refugeId,
   }) =>
-      throw UnimplementedError('[V2] SSE ou polling GET /persons?refugeId=$refugeId');
+      throw UnimplementedError(
+          '[V2] SSE ou polling GET /persons?refugeId=$refugeId');
 
   @override
   Future<PersonModel?> getById(String id) =>
       throw UnimplementedError('[V2] GET /persons/$id');
 
   @override
-  Future<void> save(PersonModel person) =>
-      throw UnimplementedError('[V2] POST /persons ou PATCH /persons/${person.id}');
+  Future<void> save(PersonModel person) => throw UnimplementedError(
+      '[V2] POST /persons ou PATCH /persons/${person.id}');
 
   @override
   Future<void> updateStatus(
@@ -64,7 +65,8 @@ class ApiPersonRepository implements PersonRepository {
     int limit = 50,
     int offset = 0,
   }) =>
-      throw UnimplementedError('[V2] GET /persons?q=$query&limit=$limit&offset=$offset');
+      throw UnimplementedError(
+          '[V2] GET /persons?q=$query&limit=$limit&offset=$offset');
 
   @override
   Future<List<PersonModel>> getAllForExport({

@@ -19,25 +19,35 @@ class _StockItem {
   final String unit;
   final int minThreshold;
 
-  const _StockItem(this.key, this.label, this.icon, this.unit,
-      this.minThreshold);
+  const _StockItem(
+      this.key, this.label, this.icon, this.unit, this.minThreshold);
 }
 
 const _stockItems = [
   _StockItem('eau', 'Eau', Icons.water_drop, 'litres', 200),
   _StockItem('repas', 'Repas', Icons.restaurant, 'portions', 50),
-  _StockItem('couvertures', 'Couvertures', Icons.airline_seat_flat_angled, '', 30),
+  _StockItem(
+      'couvertures', 'Couvertures', Icons.airline_seat_flat_angled, '', 30),
   _StockItem('lits', 'Lits', Icons.bed, '', 20),
   _StockItem('masques', 'Masques', Icons.masks, '', 50),
   _StockItem('couches', 'Couches', Icons.child_care, '', 20),
-  _StockItem('medicaments', 'Médicaments d\'urgence', Icons.medical_services, 'kits', 5),
+  _StockItem('medicaments', 'Médicaments d\'urgence', Icons.medical_services,
+      'kits', 5),
 ];
 
 const _presetZones = [
-  'Dortoir A', 'Dortoir B', 'Dortoir C',
-  'Espace familles', 'Zone PMR', 'Infirmerie',
-  'Zone animaux', 'Zone repas', 'Cuisine',
-  'Sanitaires', 'Accueil', 'Administration',
+  'Dortoir A',
+  'Dortoir B',
+  'Dortoir C',
+  'Espace familles',
+  'Zone PMR',
+  'Infirmerie',
+  'Zone animaux',
+  'Zone repas',
+  'Cuisine',
+  'Sanitaires',
+  'Accueil',
+  'Administration',
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -64,8 +74,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final shelterId =
-        ModalRoute.of(context)!.settings.arguments as String;
+    final shelterId = ModalRoute.of(context)!.settings.arguments as String;
     final state = context.watch<AppState>();
     final shelter = state.shelters.firstWhere((s) => s.id == shelterId);
     final canEdit = state.canEditShelter;
@@ -87,8 +96,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
             _ShelterHeaderCard(
               shelter: shelter,
               canEdit: canEdit,
-              onStatusChange: (s) =>
-                  state.updateShelterStatus(shelterId, s),
+              onStatusChange: (s) => state.updateShelterStatus(shelterId, s),
             ),
 
             // Tab bar
@@ -99,15 +107,11 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                 unselectedLabelColor: AppColors.textSecondary,
                 indicatorColor: AppColors.navy,
                 indicatorWeight: 2.5,
-                labelStyle: TextStyle(
-                    fontSize: 11, fontWeight: FontWeight.w600),
+                labelStyle:
+                    TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                 tabs: [
-                  Tab(
-                      icon: Icon(Icons.info_outline, size: 18),
-                      text: 'Infos'),
-                  Tab(
-                      icon: Icon(Icons.grid_view, size: 18),
-                      text: 'Zones'),
+                  Tab(icon: Icon(Icons.info_outline, size: 18), text: 'Infos'),
+                  Tab(icon: Icon(Icons.grid_view, size: 18), text: 'Zones'),
                   Tab(
                       icon: Icon(Icons.people_outline, size: 18),
                       text: 'Équipe'),
@@ -140,8 +144,11 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
     final occupancy = state.occupancyOf(shelter.id);
     final placesRestantes = state.placesRestantesOf(shelter.id);
     final pct = state.capacityPercentOf(shelter.id).clamp(0.0, 1.0);
-    final color =
-        pct > 0.9 ? AppColors.red : pct > 0.7 ? AppColors.orange : AppColors.green;
+    final color = pct > 0.9
+        ? AppColors.red
+        : pct > 0.7
+            ? AppColors.orange
+            : AppColors.green;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -178,9 +185,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                 Text(
                   '$occupancy / ${shelter.capacity}',
                   style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: color),
+                      fontSize: 14, fontWeight: FontWeight.bold, color: color),
                 ),
               ],
             ),
@@ -206,9 +211,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                 Text(
                   '$placesRestantes place(s) libre(s)',
                   style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: color),
+                      fontSize: 12, fontWeight: FontWeight.w600, color: color),
                 ),
               ],
             ),
@@ -297,8 +300,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                     final zone = entry.value;
                     return Column(
                       children: [
-                        if (entry.key > 0)
-                          const Divider(height: 1, indent: 16),
+                        if (entry.key > 0) const Divider(height: 1, indent: 16),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
@@ -320,11 +322,10 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                               ),
                               if (canEdit)
                                 GestureDetector(
-                                  onTap: () => state.removeShelterZone(
-                                      shelterId, zone),
+                                  onTap: () =>
+                                      state.removeShelterZone(shelterId, zone),
                                   child: const Icon(Icons.close,
-                                      size: 18,
-                                      color: AppColors.textSecondary),
+                                      size: 18, color: AppColors.textSecondary),
                                 ),
                             ],
                           ),
@@ -354,8 +355,8 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheet) => Padding(
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -513,8 +514,8 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                     const Spacer(),
                     if (canEdit)
                       TextButton(
-                        onPressed: () =>
-                            _showEditResponsableDialog(context, shelter, state, shelterId),
+                        onPressed: () => _showEditResponsableDialog(
+                            context, shelter, state, shelterId),
                         child: const Text('Modifier'),
                       ),
                   ],
@@ -578,8 +579,8 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                         TextButton.icon(
                           icon: const Icon(Icons.person_add_outlined, size: 18),
                           label: const Text('Ajouter'),
-                          onPressed: () => _showAddAgentDialog(
-                              context, state, shelterId),
+                          onPressed: () =>
+                              _showAddAgentDialog(context, state, shelterId),
                         ),
                     ],
                   ),
@@ -595,8 +596,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                     final agentName = e.value;
                     return Column(
                       children: [
-                        if (e.key > 0)
-                          const Divider(height: 1, indent: 16),
+                        if (e.key > 0) const Divider(height: 1, indent: 16),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
@@ -623,8 +623,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
                                   onTap: () => state.removeShelterAgent(
                                       shelterId, agentName),
                                   child: const Icon(Icons.close,
-                                      size: 18,
-                                      color: AppColors.textSecondary),
+                                      size: 18, color: AppColors.textSecondary),
                                 ),
                             ],
                           ),
@@ -643,8 +642,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
 
   Future<void> _showEditResponsableDialog(BuildContext context,
       ShelterModel shelter, AppState state, String shelterId) async {
-    final nameCtrl =
-        TextEditingController(text: shelter.responsableName ?? '');
+    final nameCtrl = TextEditingController(text: shelter.responsableName ?? '');
     final phoneCtrl =
         TextEditingController(text: shelter.responsablePhone ?? '');
 
@@ -679,8 +677,11 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
             onPressed: () {
               state.updateShelterResponsable(
                 shelterId,
-                name: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
-                phone: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
+                name:
+                    nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
+                phone: phoneCtrl.text.trim().isEmpty
+                    ? null
+                    : phoneCtrl.text.trim(),
               );
               Navigator.pop(ctx);
             },
@@ -750,8 +751,8 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
               decoration: BoxDecoration(
                 color: AppColors.orangeLight,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: AppColors.orange.withValues(alpha: 0.3)),
+                border:
+                    Border.all(color: AppColors.orange.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -797,8 +798,7 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
 
                 return Column(
                   children: [
-                    if (e.key > 0)
-                      const Divider(height: 1, indent: 16),
+                    if (e.key > 0) const Divider(height: 1, indent: 16),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 12),
@@ -936,7 +936,6 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
           style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
         ),
         const SizedBox(height: 12),
-
         if (transfers.isEmpty)
           Container(
             width: double.infinity,
@@ -1049,7 +1048,6 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
           style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
         ),
         const SizedBox(height: 12),
-
         if (canEdit) ...[
           Row(
             children: [
@@ -1086,7 +1084,6 @@ class _ShelterDetailPageState extends State<ShelterDetailPage> {
           ),
           const SizedBox(height: 12),
         ],
-
         if (entries.isEmpty)
           Container(
             width: double.infinity,
@@ -1211,9 +1208,7 @@ class _ShelterHeaderCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: canEdit
-                ? () => _showStatusDialog(context)
-                : null,
+            onTap: canEdit ? () => _showStatusDialog(context) : null,
             child: _ShelterStatusChip(shelter.status),
           ),
         ],
@@ -1225,8 +1220,7 @@ class _ShelterHeaderCard extends StatelessWidget {
     await showDialog<ShelterStatus>(
       context: context,
       builder: (ctx) => SimpleDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Changer le statut'),
         children: ShelterStatus.values.map((s) {
           return SimpleDialogOption(
@@ -1281,9 +1275,7 @@ class _ShelterStatusChip extends StatelessWidget {
       ),
       child: Text(label,
           style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color)),
+              fontSize: 12, fontWeight: FontWeight.w600, color: color)),
     );
   }
 }
@@ -1361,8 +1353,7 @@ class _PersonRow extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: color),
         const SizedBox(width: 10),
-        Text(value,
-            style: TextStyle(fontSize: 14, color: color)),
+        Text(value, style: TextStyle(fontSize: 14, color: color)),
       ],
     );
   }
@@ -1389,9 +1380,7 @@ class _StockBtn extends StatelessWidget {
         child: Icon(
           icon,
           size: 18,
-          color: onTap != null
-              ? AppColors.textPrimary
-              : AppColors.textHint,
+          color: onTap != null ? AppColors.textPrimary : AppColors.textHint,
         ),
       ),
     );
@@ -1412,16 +1401,26 @@ class _StockEntryTile extends StatelessWidget {
   });
 
   static const _months = [
-    'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
-    'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.',
+    'janv.',
+    'févr.',
+    'mars',
+    'avr.',
+    'mai',
+    'juin',
+    'juil.',
+    'août',
+    'sept.',
+    'oct.',
+    'nov.',
+    'déc.',
   ];
 
   String _fmt(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}';
 
   @override
   Widget build(BuildContext context) {
-    final expired = entry.expiryDate != null &&
-        entry.expiryDate!.isBefore(DateTime.now());
+    final expired =
+        entry.expiryDate != null && entry.expiryDate!.isBefore(DateTime.now());
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -1498,8 +1497,8 @@ class _StockEntryTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Saisi par ${entry.addedBy}',
-                  style: const TextStyle(
-                      fontSize: 11, color: AppColors.textHint),
+                  style:
+                      const TextStyle(fontSize: 11, color: AppColors.textHint),
                 ),
               ],
             ),
@@ -1518,14 +1517,14 @@ class _StockEntryTile extends StatelessWidget {
     );
   }
 
-  Widget _chip(IconData icon, String text, {Color color = AppColors.textSecondary}) {
+  Widget _chip(IconData icon, String text,
+      {Color color = AppColors.textSecondary}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 13, color: color),
         const SizedBox(width: 3),
-        Text(text,
-            style: TextStyle(fontSize: 11, color: color)),
+        Text(text, style: TextStyle(fontSize: 11, color: color)),
       ],
     );
   }
@@ -1612,8 +1611,7 @@ class _StockTransferTile extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: bgColor,
                   borderRadius: BorderRadius.circular(20),

@@ -56,22 +56,20 @@ void main() {
 
     test('markDeparted passe le transfert en cours avec horodatage', () async {
       when(() => repo.updateStatus(transfer.id, TransferStatus.inProgress,
-              departedAt: any(named: 'departedAt'), updatedBy: 'user_1'))
-          .thenAnswer((_) async {});
+          departedAt: any(named: 'departedAt'),
+          updatedBy: 'user_1')).thenAnswer((_) async {});
 
       await service.markDeparted(transfer,
           updatedBy: 'user_1', updatedByRole: 'REFUGE_MANAGER');
 
       verify(() => repo.updateStatus(transfer.id, TransferStatus.inProgress,
-          departedAt: any(named: 'departedAt'),
-          updatedBy: 'user_1')).called(1);
+          departedAt: any(named: 'departedAt'), updatedBy: 'user_1')).called(1);
     });
 
     test('confirmArrival confirme l\'arrivée et journalise', () async {
       when(() => repo.updateStatus(transfer.id, TransferStatus.confirmed,
-              arrivalConfirmedAt: any(named: 'arrivalConfirmedAt'),
-              updatedBy: 'user_1'))
-          .thenAnswer((_) async {});
+          arrivalConfirmedAt: any(named: 'arrivalConfirmedAt'),
+          updatedBy: 'user_1')).thenAnswer((_) async {});
 
       await service.confirmArrival(transfer,
           updatedBy: 'user_1', updatedByRole: 'REFUGE_MANAGER');

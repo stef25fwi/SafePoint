@@ -2,7 +2,8 @@
 // API keys et App IDs : Firebase Console → Paramètres → Vos applications
 
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
@@ -35,7 +36,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '779368619357',
     projectId: 'safepoint-b36fd',
     storageBucket: 'safepoint-b36fd.firebasestorage.app',
-    androidClientId: '779368619357-c2gbmtiralba9rtuvumj59ta62posn7l.apps.googleusercontent.com',
+    androidClientId:
+        '779368619357-c2gbmtiralba9rtuvumj59ta62posn7l.apps.googleusercontent.com',
   );
 
   // iOS — configuré le 2026-06-29

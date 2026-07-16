@@ -17,8 +17,8 @@ class ApiAuthRepository implements AuthRepository {
   final ApiClient _client;
 
   @override
-  Stream<String?> get authStateChanges =>
-      throw UnimplementedError('[V2] authStateChanges : implémenter avec Keycloak session');
+  Stream<String?> get authStateChanges => throw UnimplementedError(
+      '[V2] authStateChanges : implémenter avec Keycloak session');
 
   @override
   Future<UserModel?> signInWithEmail(String email, String password) =>
@@ -33,8 +33,8 @@ class ApiAuthRepository implements AuthRepository {
       throw UnimplementedError('[V2] POST /auth/login (agent code convention)');
 
   @override
-  Future<void> signOut() =>
-      throw UnimplementedError('[V2] POST /auth/logout + révocation token Keycloak');
+  Future<void> signOut() => throw UnimplementedError(
+      '[V2] POST /auth/logout + révocation token Keycloak');
 
   @override
   Future<UserModel?> getCurrentUser() =>

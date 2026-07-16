@@ -23,7 +23,8 @@ class ApiAlertRepository implements AlertRepository {
     required String organizationId,
     required String refugeId,
   }) =>
-      throw UnimplementedError('[V2] SSE GET /alerts/stream?refugeId=$refugeId (temps réel critique)');
+      throw UnimplementedError(
+          '[V2] SSE GET /alerts/stream?refugeId=$refugeId (temps réel critique)');
 
   @override
   Future<AlertModel?> getById(String id) =>
@@ -41,7 +42,8 @@ class ApiAlertRepository implements AlertRepository {
     String? assignedTo,
     required String updatedBy,
   }) =>
-      throw UnimplementedError('[V2] PATCH /alerts/$id (status: ${status.name})');
+      throw UnimplementedError(
+          '[V2] PATCH /alerts/$id (status: ${status.name})');
 
   @override
   Future<List<AlertModel>> getAllForCrisisEvent({

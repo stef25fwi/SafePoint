@@ -33,7 +33,8 @@ class FirebaseAuditRepository implements AuditRepository {
     if (action != null) q = q.where('action', isEqualTo: action);
     if (targetType != null) q = q.where('targetType', isEqualTo: targetType);
     if (from != null) {
-      q = q.where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(from));
+      q = q.where('timestamp',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(from));
     }
     if (to != null) {
       q = q.where('timestamp', isLessThanOrEqualTo: Timestamp.fromDate(to));
@@ -76,14 +77,14 @@ class FirebaseAuditRepository implements AuditRepository {
     final d = doc.data()!;
     return AuditLogModel(
       id: doc.id,
-      organizationId: d['organizationId'] as String? ?? AppDefaults.organizationId,
+      organizationId:
+          d['organizationId'] as String? ?? AppDefaults.organizationId,
       userId: d['userId'] as String? ?? '',
       role: d['role'] as String? ?? '',
       action: d['action'] as String? ?? '',
       targetType: d['targetType'] as String? ?? '',
       targetId: d['targetId'] as String?,
-      timestamp:
-          (d['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      timestamp: (d['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
       ipAddress: d['ipAddress'] as String?,
       deviceInfo: d['deviceInfo'] as String?,
       result: d['result'] as String? ?? 'success',

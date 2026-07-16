@@ -49,7 +49,8 @@ class AuthDomainService {
     String refugeId,
   ) async {
     try {
-      final user = await _repo.signInWithAgentCode(agentCode, password, refugeId);
+      final user =
+          await _repo.signInWithAgentCode(agentCode, password, refugeId);
       if (user != null) {
         await _audit.log(
           organizationId: user.organizationId,

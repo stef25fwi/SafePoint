@@ -149,11 +149,13 @@ class ServiceLocator {
   void _initDomainServices() {
     _auditService = AuditService(_auditRepository);
     _authService = AuthDomainService(_authRepository, _auditService);
-    _personService = PersonService(_personRepository, _checkinRepository, _auditService);
+    _personService =
+        PersonService(_personRepository, _checkinRepository, _auditService);
     _refugeService = RefugeService(_refugeRepository, _auditService);
     _alertService = AlertService(_alertRepository, _auditService);
     _transferService = TransferService(_transferRepository, _auditService);
-    _crisisEventService = CrisisEventService(_crisisEventRepository, _auditService);
+    _crisisEventService =
+        CrisisEventService(_crisisEventRepository, _auditService);
     _fileService = FileService(_fileRepository, _auditService);
     _messagingService = MessagingService(_messagingRepository, _auditService);
   }

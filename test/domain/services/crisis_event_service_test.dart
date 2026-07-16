@@ -8,8 +8,7 @@ import 'package:safepoint_app/domain/services/crisis_event_service.dart';
 import 'package:safepoint_app/models/emergency_event_model.dart';
 import 'package:safepoint_app/models/enums.dart';
 
-class MockCrisisEventRepository extends Mock
-    implements CrisisEventRepository {}
+class MockCrisisEventRepository extends Mock implements CrisisEventRepository {}
 
 class MockAuditRepository extends Mock implements AuditRepository {}
 
@@ -62,8 +61,8 @@ void main() {
 
     test('deactivate clôture l\'événement avec horodatage + audit', () async {
       when(() => repo.updateStatus(event.id, EventStatus.closed,
-              endedAt: any(named: 'endedAt'), updatedBy: 'user_1'))
-          .thenAnswer((_) async {});
+          endedAt: any(named: 'endedAt'),
+          updatedBy: 'user_1')).thenAnswer((_) async {});
 
       await service.deactivate(event,
           deactivatedBy: 'user_1', deactivatedByRole: 'PREFECTURE_ADMIN');

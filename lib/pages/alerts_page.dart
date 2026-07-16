@@ -237,8 +237,8 @@ class _AlertsPageState extends State<AlertsPage>
                         ? () => state.resolveAlert(alerts[i].id)
                         : null,
                     onSee: alerts[i].type == 'stock_low'
-                        ? () => Navigator.pushNamed(context,
-                            AppRoutes.shelterDetail,
+                        ? () => Navigator.pushNamed(
+                            context, AppRoutes.shelterDetail,
                             arguments: alerts[i].shelterId)
                         : null,
                   ),

@@ -99,7 +99,8 @@ class FirebaseAuthRepository implements AuthRepository {
       late GoogleSignInAccount? googleUser;
       if (kIsWeb) {
         googleUser = await GoogleSignIn(
-          clientId: '779368619357-c2gbmtiralba9rtuvumj59ta62posn7l.apps.googleusercontent.com',
+          clientId:
+              '779368619357-c2gbmtiralba9rtuvumj59ta62posn7l.apps.googleusercontent.com',
           scopes: ['email', 'profile'],
         ).signIn();
       } else {
@@ -117,10 +118,8 @@ class FirebaseAuthRepository implements AuthRepository {
       final userCred = await _auth.signInWithCredential(credential);
       final uid = userCred.user!.uid;
 
-      var userDoc = await _db
-          .collection(FirestoreCollections.users)
-          .doc(uid)
-          .get();
+      var userDoc =
+          await _db.collection(FirestoreCollections.users).doc(uid).get();
 
       if (!userDoc.exists) {
         final now = DateTime.now();
@@ -129,7 +128,8 @@ class FirebaseAuthRepository implements AuthRepository {
           organizationId: AppDefaults.organizationId,
           email: userCred.user!.email ?? '',
           firstName: userCred.user!.displayName?.split(' ').first ?? '',
-          lastName: userCred.user!.displayName?.split(' ').skip(1).join(' ') ?? '',
+          lastName:
+              userCred.user!.displayName?.split(' ').skip(1).join(' ') ?? '',
           role: UserRole.agent,
           isActive: true,
           createdAt: now,
@@ -165,10 +165,7 @@ class FirebaseAuthRepository implements AuthRepository {
   // -------------------------------------------------------------------------
 
   Future<UserModel?> _fetchProfile(String uid) async {
-    final doc = await _db
-        .collection(FirestoreCollections.users)
-        .doc(uid)
-        .get();
+    final doc = await _db.collection(FirestoreCollections.users).doc(uid).get();
     if (!doc.exists) return null;
     return _userFromDoc(doc);
   }
@@ -178,7 +175,8 @@ class FirebaseAuthRepository implements AuthRepository {
     final now = DateTime.now();
     return UserModel(
       id: doc.id,
-      organizationId: d['organizationId'] as String? ?? AppDefaults.organizationId,
+      organizationId:
+          d['organizationId'] as String? ?? AppDefaults.organizationId,
       territoryId: d['territoryId'] as String?,
       email: d['email'] as String? ?? '',
       agentCode: d['agentCode'] as String?,

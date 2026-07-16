@@ -130,9 +130,8 @@ class _StockEntrySheetState extends State<_StockEntrySheet> {
       expiryDate: _expiry,
       photoBytes: _photoBytes,
       organizationId: state.currentOrganizationId,
-      addedBy: state.currentAgentCode.isEmpty
-          ? 'Agent'
-          : state.currentAgentCode,
+      addedBy:
+          state.currentAgentCode.isEmpty ? 'Agent' : state.currentAgentCode,
     );
     state.addStockEntry(entry);
     Navigator.pop(context);
@@ -174,8 +173,8 @@ class _StockEntrySheetState extends State<_StockEntrySheet> {
                             color: AppColors.textPrimary)),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close,
-                        color: AppColors.textSecondary),
+                    icon:
+                        const Icon(Icons.close, color: AppColors.textSecondary),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -217,9 +216,8 @@ class _StockEntrySheetState extends State<_StockEntrySheet> {
                     TextFormField(
                       controller: _labelCtrl,
                       decoration: _dec('Ex : Palette eau Cristaline 1,5 L'),
-                      validator: (v) => v == null || v.trim().isEmpty
-                          ? 'Champ requis'
-                          : null,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'Champ requis' : null,
                     ),
                     const SizedBox(height: 14),
 
@@ -469,8 +467,8 @@ class _CategorySelector extends StatelessWidget {
               decoration: BoxDecoration(
                 color: sel ? AppColors.navy : Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: sel ? AppColors.navy : AppColors.divider),
+                border:
+                    Border.all(color: sel ? AppColors.navy : AppColors.divider),
               ),
               child: Row(
                 children: [

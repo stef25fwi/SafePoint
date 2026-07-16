@@ -96,7 +96,8 @@ class RefugeService {
     required String updatedBy,
     required String updatedByRole,
   }) async {
-    await _repo.updateResponsable(id, name: name, phone: phone, updatedBy: updatedBy);
+    await _repo.updateResponsable(id,
+        name: name, phone: phone, updatedBy: updatedBy);
     await _audit.log(
       organizationId: organizationId,
       userId: updatedBy,

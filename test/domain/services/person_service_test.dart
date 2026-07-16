@@ -52,8 +52,7 @@ void main() {
     personRepo = MockPersonRepository();
     checkinRepo = MockCheckinRepository();
     auditRepo = MockAuditRepository();
-    service = PersonService(
-        personRepo, checkinRepo, AuditService(auditRepo));
+    service = PersonService(personRepo, checkinRepo, AuditService(auditRepo));
     when(() => auditRepo.log(any())).thenAnswer((_) async {});
   });
 
@@ -92,7 +91,7 @@ void main() {
 
       verify(() => checkinRepo.save(checkin)).called(1);
       verify(() => personRepo.updateStatus(
-          person.id, PersonStatus.present, checkin.createdAt, 'user_1'))
+              person.id, PersonStatus.present, checkin.createdAt, 'user_1'))
           .called(1);
       verify(() => auditRepo.log(any())).called(1);
     });

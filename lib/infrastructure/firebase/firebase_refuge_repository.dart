@@ -101,10 +101,10 @@ class FirebaseRefugeRepository implements RefugeRepository {
   }
 
   @override
-  Future<List<ShelterModel>> getAllForOrganization(String organizationId) async {
-    final snap = await _col
-        .where('organizationId', isEqualTo: organizationId)
-        .get();
+  Future<List<ShelterModel>> getAllForOrganization(
+      String organizationId) async {
+    final snap =
+        await _col.where('organizationId', isEqualTo: organizationId).get();
     return snap.docs.map(_fromDoc).toList();
   }
 
@@ -136,7 +136,8 @@ class FirebaseRefugeRepository implements RefugeRepository {
     final d = doc.data()!;
     return ShelterModel(
       id: doc.id,
-      organizationId: d['organizationId'] as String? ?? AppDefaults.organizationId,
+      organizationId:
+          d['organizationId'] as String? ?? AppDefaults.organizationId,
       territoryId: d['territoryId'] as String?,
       eventId: d['eventId'] as String? ?? '',
       name: d['name'] as String? ?? '',

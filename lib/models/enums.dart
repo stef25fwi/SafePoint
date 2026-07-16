@@ -5,15 +5,15 @@
 
 enum UserRole {
   // Rôles canoniques V2 (Keycloak-ready)
-  superAdmin,        // Administration globale
-  prefectureAdmin,   // Vue régionale, activation crise, supervision
-  regionAdmin,       // Vue régionale et reporting
-  communeAdmin,      // Gestion des refuges de sa commune
-  refugeManager,     // Gestion d'un refuge (anciennement: responsableCentre)
-  agent,             // Pointage, consultation limitée (anciennement: agentAccueil)
-  readOnlyObserver,  // Lecture seule (anciennement: prefectureLecture)
-  crisisCell,        // Accès cellule de crise (anciennement: celluleCrise)
-  auditor,           // Consultation des logs et rapports
+  superAdmin, // Administration globale
+  prefectureAdmin, // Vue régionale, activation crise, supervision
+  regionAdmin, // Vue régionale et reporting
+  communeAdmin, // Gestion des refuges de sa commune
+  refugeManager, // Gestion d'un refuge (anciennement: responsableCentre)
+  agent, // Pointage, consultation limitée (anciennement: agentAccueil)
+  readOnlyObserver, // Lecture seule (anciennement: prefectureLecture)
+  crisisCell, // Accès cellule de crise (anciennement: celluleCrise)
+  auditor, // Consultation des logs et rapports
 }
 
 enum EventStatus { draft, active, paused, closed }

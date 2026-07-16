@@ -45,12 +45,12 @@ void main() {
 
     test('toMap exclut les octets de photo (transient) et sérialise les dates',
         () {
-      final map = sample()
-          .copyWith(photoBytes: Uint8List.fromList([9, 9]))
-          .toMap();
+      final map =
+          sample().copyWith(photoBytes: Uint8List.fromList([9, 9])).toMap();
       expect(map.containsKey('photoBytes'), isFalse);
       expect(map.containsKey('photo_bytes'), isFalse);
-      expect(map['date_entree'], DateTime(2026, 7, 14, 9, 30).toIso8601String());
+      expect(
+          map['date_entree'], DateTime(2026, 7, 14, 9, 30).toIso8601String());
       expect(map['expiry_date'], DateTime(2026, 12, 31).toIso8601String());
       expect(map['refuge_id'], 'shelter_1');
       expect(map['added_by'], 'Agent LUREL');

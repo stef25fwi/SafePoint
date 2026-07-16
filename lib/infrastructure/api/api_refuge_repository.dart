@@ -22,22 +22,25 @@ class ApiRefugeRepository implements RefugeRepository {
 
   @override
   Stream<List<ShelterModel>> refugesStream(String organizationId) =>
-      throw UnimplementedError('[V2] SSE ou polling GET /refuges (30s interval suffisant)');
+      throw UnimplementedError(
+          '[V2] SSE ou polling GET /refuges (30s interval suffisant)');
 
   @override
   Future<ShelterModel?> getById(String id) =>
       throw UnimplementedError('[V2] GET /refuges/$id');
 
   @override
-  Future<void> save(ShelterModel refuge) =>
-      throw UnimplementedError('[V2] POST /refuges ou PATCH /refuges/${refuge.id}');
+  Future<void> save(ShelterModel refuge) => throw UnimplementedError(
+      '[V2] POST /refuges ou PATCH /refuges/${refuge.id}');
 
   @override
-  Future<void> updateStatus(String id, ShelterStatus status, String updatedBy) =>
+  Future<void> updateStatus(
+          String id, ShelterStatus status, String updatedBy) =>
       throw UnimplementedError('[V2] PATCH /refuges/$id/status');
 
   @override
-  Future<void> updateStock(String id, Map<String, int> stock, String updatedBy) =>
+  Future<void> updateStock(
+          String id, Map<String, int> stock, String updatedBy) =>
       throw UnimplementedError('[V2] PATCH /refuges/$id/stock');
 
   @override
@@ -45,11 +48,13 @@ class ApiRefugeRepository implements RefugeRepository {
       throw UnimplementedError('[V2] PATCH /refuges/$id/zones');
 
   @override
-  Future<void> updateResponsable(String id, {String? name, String? phone, required String updatedBy}) =>
+  Future<void> updateResponsable(String id,
+          {String? name, String? phone, required String updatedBy}) =>
       throw UnimplementedError('[V2] PATCH /refuges/$id/responsable');
 
   @override
-  Future<void> updateAgents(String id, List<String> agentNames, String updatedBy) =>
+  Future<void> updateAgents(
+          String id, List<String> agentNames, String updatedBy) =>
       throw UnimplementedError('[V2] PATCH /refuges/$id/agents');
 
   @override

@@ -19,17 +19,25 @@ class DashboardPage extends StatelessWidget {
     final state = context.watch<AppState>();
     final shelter = state.currentShelter;
     final persons = state.allPersons;
-    final presentCount = persons.where((p) => p.status == PersonStatus.present).length;
+    final presentCount =
+        persons.where((p) => p.status == PersonStatus.present).length;
     final alertCount = state.openAlerts.length;
     final familyCount = state.currentFamilies.length;
     final needs = state.currentNeeds;
     final recentCheckins = state.recentCheckins.take(3).toList();
 
     // Indicators – situations requiring attention
-    final nonPointeeCount = persons.where((p) => p.status == PersonStatus.nonPointee).length;
+    final nonPointeeCount =
+        persons.where((p) => p.status == PersonStatus.nonPointee).length;
     final sansTelCount = persons.where((p) => p.phone == null).length;
-    final sansPapiersCount = persons.where((p) => p.vulnerabilityFlags.contains('sans_papiers')).length;
-    final ageesSeulCount = persons.where((p) => p.vulnerabilityFlags.contains('personne_agee') && p.familyId == null).length;
+    final sansPapiersCount = persons
+        .where((p) => p.vulnerabilityFlags.contains('sans_papiers'))
+        .length;
+    final ageesSeulCount = persons
+        .where((p) =>
+            p.vulnerabilityFlags.contains('personne_agee') &&
+            p.familyId == null)
+        .length;
 
     return Scaffold(
       backgroundColor: AppColors.bgPage,
@@ -45,7 +53,8 @@ class DashboardPage extends StatelessWidget {
                   alertCount: alertCount,
                   onNotificationTap: () => _goToAlerts(context),
                 ),
-                CrisisBanner(label: 'Événement actif : ${state.activeEvent.name}'),
+                CrisisBanner(
+                    label: 'Événement actif : ${state.activeEvent.name}'),
                 const SizedBox(height: 12),
               ],
             ),
@@ -57,7 +66,8 @@ class DashboardPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  Expanded(child: KpiCard(
+                  Expanded(
+                      child: KpiCard(
                     title: 'Présents',
                     value: '$presentCount',
                     icon: Icons.group_outlined,
@@ -65,14 +75,16 @@ class DashboardPage extends StatelessWidget {
                     onTap: () => _goToPersons(context),
                   )),
                   const SizedBox(width: 10),
-                  Expanded(child: KpiCard(
+                  Expanded(
+                      child: KpiCard(
                     title: 'Places restantes',
                     value: '${state.placesRestantesOf(shelter.id)}',
                     icon: Icons.bed_outlined,
                     color: AppColors.green,
                   )),
                   const SizedBox(width: 10),
-                  Expanded(child: KpiCard(
+                  Expanded(
+                      child: KpiCard(
                     title: 'Familles',
                     value: '$familyCount',
                     icon: Icons.family_restroom,
@@ -80,7 +92,8 @@ class DashboardPage extends StatelessWidget {
                     onTap: () => _goToFamilies(context),
                   )),
                   const SizedBox(width: 10),
-                  Expanded(child: KpiCard(
+                  Expanded(
+                      child: KpiCard(
                     title: 'Alertes',
                     value: '$alertCount',
                     icon: Icons.warning_amber_rounded,
@@ -101,7 +114,8 @@ class DashboardPage extends StatelessWidget {
                 child: _CrisisManagementCard(
                   isActive: state.isCrisisActive,
                   eventName: state.activeEvent.name,
-                  onTap: () => Navigator.pushNamed(context, AppRoutes.crisisActivation),
+                  onTap: () =>
+                      Navigator.pushNamed(context, AppRoutes.crisisActivation),
                 ),
               ),
             ),
@@ -117,7 +131,12 @@ class DashboardPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2))
+                    ],
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -125,29 +144,38 @@ class DashboardPage extends StatelessWidget {
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.qr_code_scanner, size: 20, color: AppColors.navy),
+                          Icon(Icons.qr_code_scanner,
+                              size: 20, color: AppColors.navy),
                           SizedBox(width: 8),
-                          Text('Pointage rapide', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                          Text('Pointage rapide',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary)),
                         ],
                       ),
                       const SizedBox(height: 14),
                       Row(
                         children: [
-                          Expanded(child: _QuickAction(
+                          Expanded(
+                              child: _QuickAction(
                             icon: Icons.qr_code_scanner,
                             label: 'Scanner QR',
                             onTap: () => _goToScanner(context),
                           )),
                           if (state.canCreatePerson) ...[
                             const SizedBox(width: 10),
-                            Expanded(child: _QuickAction(
+                            Expanded(
+                                child: _QuickAction(
                               icon: Icons.person_add_alt_1,
                               label: 'Ajouter\nune personne',
-                              onTap: () => Navigator.pushNamed(context, AppRoutes.personForm),
+                              onTap: () => Navigator.pushNamed(
+                                  context, AppRoutes.personForm),
                             )),
                           ],
                           const SizedBox(width: 10),
-                          Expanded(child: _QuickAction(
+                          Expanded(
+                              child: _QuickAction(
                             icon: Icons.groups,
                             label: 'Pointer un\ngroupe',
                             onTap: () => _goToFamilies(context),
@@ -162,7 +190,11 @@ class DashboardPage extends StatelessWidget {
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           // Situations à surveiller
-          if (nonPointeeCount + sansTelCount + sansPapiersCount + ageesSeulCount > 0)
+          if (nonPointeeCount +
+                  sansTelCount +
+                  sansPapiersCount +
+                  ageesSeulCount >
+              0)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -170,27 +202,61 @@ class DashboardPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2))
+                    ],
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.visibility_outlined, size: 20, color: AppColors.orange),
+                          Icon(Icons.visibility_outlined,
+                              size: 20, color: AppColors.orange),
                           SizedBox(width: 8),
-                          Text('Situations à surveiller', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                          Text('Situations à surveiller',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary)),
                         ],
                       ),
                       const SizedBox(height: 12),
                       if (nonPointeeCount > 0)
-                        _AlertIndicator(icon: Icons.person_off_outlined, label: 'Non pointé(e)s', count: nonPointeeCount, color: AppColors.grayText, bgColor: AppColors.grayLight, onTap: () => _goToPersons(context)),
+                        _AlertIndicator(
+                            icon: Icons.person_off_outlined,
+                            label: 'Non pointé(e)s',
+                            count: nonPointeeCount,
+                            color: AppColors.grayText,
+                            bgColor: AppColors.grayLight,
+                            onTap: () => _goToPersons(context)),
                       if (sansTelCount > 0)
-                        _AlertIndicator(icon: Icons.phone_disabled_outlined, label: 'Sans téléphone', count: sansTelCount, color: AppColors.blueText, bgColor: AppColors.blueLight, onTap: () => _goToPersons(context)),
+                        _AlertIndicator(
+                            icon: Icons.phone_disabled_outlined,
+                            label: 'Sans téléphone',
+                            count: sansTelCount,
+                            color: AppColors.blueText,
+                            bgColor: AppColors.blueLight,
+                            onTap: () => _goToPersons(context)),
                       if (sansPapiersCount > 0)
-                        _AlertIndicator(icon: Icons.badge_outlined, label: 'Sans papiers d\'identité', count: sansPapiersCount, color: AppColors.orangeText, bgColor: AppColors.orangeLight, onTap: () => _goToPersons(context)),
+                        _AlertIndicator(
+                            icon: Icons.badge_outlined,
+                            label: 'Sans papiers d\'identité',
+                            count: sansPapiersCount,
+                            color: AppColors.orangeText,
+                            bgColor: AppColors.orangeLight,
+                            onTap: () => _goToPersons(context)),
                       if (ageesSeulCount > 0)
-                        _AlertIndicator(icon: Icons.elderly_outlined, label: 'Personnes âgées seules', count: ageesSeulCount, color: AppColors.purpleText, bgColor: AppColors.purpleLight, onTap: () => _goToPersons(context)),
+                        _AlertIndicator(
+                            icon: Icons.elderly_outlined,
+                            label: 'Personnes âgées seules',
+                            count: ageesSeulCount,
+                            color: AppColors.purpleText,
+                            bgColor: AppColors.purpleLight,
+                            onTap: () => _goToPersons(context)),
                     ],
                   ),
                 ),
@@ -207,7 +273,12 @@ class DashboardPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2))
+                    ],
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -220,12 +291,15 @@ class DashboardPage extends StatelessWidget {
                         onAction: () => _goToAlerts(context),
                       ),
                       const SizedBox(height: 12),
-                      ...needs.map((n) => _NeedRow(
-                        icon: _needIcon(n.type),
-                        label: n.type.label,
-                        count: needs.where((x) => x.type == n.type).length,
-                        urgent: n.urgency == 'critical',
-                      )).toSet(),
+                      ...needs
+                          .map((n) => _NeedRow(
+                                icon: _needIcon(n.type),
+                                label: n.type.label,
+                                count:
+                                    needs.where((x) => x.type == n.type).length,
+                                urgent: n.urgency == 'critical',
+                              ))
+                          .toSet(),
                     ],
                   ),
                 ),
@@ -242,7 +316,12 @@ class DashboardPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2))
+                    ],
                   ),
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -255,7 +334,8 @@ class DashboardPage extends StatelessWidget {
                         onAction: () => _goToReports(context),
                       ),
                       const SizedBox(height: 12),
-                      ...recentCheckins.map((c) => _ActivityRow(checkin: c, state: state)),
+                      ...recentCheckins
+                          .map((c) => _ActivityRow(checkin: c, state: state)),
                     ],
                   ),
                 ),
@@ -268,49 +348,68 @@ class DashboardPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoutes.shelterDetail, arguments: shelter.id),
+                onTap: () => Navigator.pushNamed(
+                    context, AppRoutes.shelterDetail,
+                    arguments: shelter.id),
                 child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.bar_chart, size: 20, color: AppColors.navy),
-                        const SizedBox(width: 8),
-                        const Expanded(child: Text('Capacité du centre', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
-                        Text(
-                          '${state.occupancyOf(shelter.id)} / ${shelter.capacity}',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.blue),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: state.capacityPercentOf(shelter.id),
-                        backgroundColor: AppColors.divider,
-                        color: state.capacityPercentOf(shelter.id) > 0.9 ? AppColors.red : AppColors.blue,
-                        minHeight: 8,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2))
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.bar_chart,
+                              size: 20, color: AppColors.navy),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                              child: Text('Capacité du centre',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary))),
+                          Text(
+                            '${state.occupancyOf(shelter.id)} / ${shelter.capacity}',
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.blue),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${(state.capacityPercentOf(shelter.id) * 100).toStringAsFixed(0)} % de capacité utilisée',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: state.capacityPercentOf(shelter.id),
+                          backgroundColor: AppColors.divider,
+                          color: state.capacityPercentOf(shelter.id) > 0.9
+                              ? AppColors.red
+                              : AppColors.blue,
+                          minHeight: 8,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '${(state.capacityPercentOf(shelter.id) * 100).toStringAsFixed(0)} % de capacité utilisée',
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
       ),
@@ -319,13 +418,20 @@ class DashboardPage extends StatelessWidget {
 
   IconData _needIcon(NeedType type) {
     switch (type) {
-      case NeedType.medical: return Icons.medical_services_outlined;
-      case NeedType.babyKit: return Icons.child_friendly_outlined;
-      case NeedType.blanket: return Icons.airline_seat_flat_angled;
-      case NeedType.water: return Icons.water_drop_outlined;
-      case NeedType.food: return Icons.restaurant_outlined;
-      case NeedType.animal: return Icons.pets_outlined;
-      default: return Icons.inventory_2_outlined;
+      case NeedType.medical:
+        return Icons.medical_services_outlined;
+      case NeedType.babyKit:
+        return Icons.child_friendly_outlined;
+      case NeedType.blanket:
+        return Icons.airline_seat_flat_angled;
+      case NeedType.water:
+        return Icons.water_drop_outlined;
+      case NeedType.food:
+        return Icons.restaurant_outlined;
+      case NeedType.animal:
+        return Icons.pets_outlined;
+      default:
+        return Icons.inventory_2_outlined;
     }
   }
 
@@ -387,10 +493,16 @@ class _AlertIndicator extends StatelessWidget {
               child: Icon(icon, color: color, size: 18),
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary))),
-            Text('$count', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color)),
+            Expanded(
+                child: Text(label,
+                    style: const TextStyle(
+                        fontSize: 14, color: AppColors.textPrimary))),
+            Text('$count',
+                style: TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.bold, color: color)),
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, size: 18, color: AppColors.textHint),
+            const Icon(Icons.chevron_right,
+                size: 18, color: AppColors.textHint),
           ],
         ),
       ),
@@ -411,7 +523,11 @@ class _OfflineBannerSimple extends StatelessWidget {
         children: [
           Icon(Icons.wifi_off, color: Colors.white, size: 14),
           SizedBox(width: 6),
-          Text('Mode hors connexion', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12)),
+          Text('Mode hors connexion',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12)),
         ],
       ),
     );
@@ -423,7 +539,8 @@ class _QuickAction extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _QuickAction({required this.icon, required this.label, required this.onTap});
+  const _QuickAction(
+      {required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -442,7 +559,10 @@ class _QuickAction extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.navy),
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.navy),
               textAlign: TextAlign.center,
             ),
           ],
@@ -458,7 +578,11 @@ class _NeedRow extends StatelessWidget {
   final int count;
   final bool urgent;
 
-  const _NeedRow({required this.icon, required this.label, required this.count, required this.urgent});
+  const _NeedRow(
+      {required this.icon,
+      required this.label,
+      required this.count,
+      required this.urgent});
 
   @override
   Widget build(BuildContext context) {
@@ -476,7 +600,10 @@ class _NeedRow extends StatelessWidget {
             child: Icon(icon, color: AppColors.orange, size: 18),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary))),
+          Expanded(
+              child: Text(label,
+                  style: const TextStyle(
+                      fontSize: 14, color: AppColors.textPrimary))),
           Text(
             '$count',
             style: TextStyle(
@@ -502,7 +629,9 @@ class _ActivityRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final person = state.getPersonById(checkin.personId);
-    final family = checkin.familyId != null ? state.getFamilyById(checkin.familyId!) : null;
+    final family = checkin.familyId != null
+        ? state.getFamilyById(checkin.familyId!)
+        : null;
     final h = checkin.createdAt.hour.toString().padLeft(2, '0');
     final m = checkin.createdAt.minute.toString().padLeft(2, '0');
 
@@ -526,17 +655,23 @@ class _ActivityRow extends StatelessWidget {
               children: [
                 Text(
                   _title(person?.fullName, family?.displayName),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary),
                 ),
                 if (person != null)
                   Text(
                     person.currentZone ?? '',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
                   ),
               ],
             ),
           ),
-          Text('$h:$m', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+          Text('$h:$m',
+              style: const TextStyle(
+                  fontSize: 12, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -545,7 +680,9 @@ class _ActivityRow extends StatelessWidget {
   String _title(String? personName, String? familyName) {
     switch (checkin.type) {
       case CheckinType.arrival:
-        return familyName != null ? 'Arrivée de $familyName' : 'Arrivée de ${personName ?? "inconnu"}';
+        return familyName != null
+            ? 'Arrivée de $familyName'
+            : 'Arrivée de ${personName ?? "inconnu"}';
       case CheckinType.mealBreakfast:
         return 'Pointage repas – Petit-déjeuner';
       case CheckinType.mealLunch:
@@ -565,34 +702,46 @@ class _ActivityRow extends StatelessWidget {
 
   Color get _iconBg {
     switch (checkin.type) {
-      case CheckinType.arrival: return AppColors.greenLight;
+      case CheckinType.arrival:
+        return AppColors.greenLight;
       case CheckinType.mealBreakfast:
       case CheckinType.mealLunch:
-      case CheckinType.mealDinner: return AppColors.orangeLight;
-      case CheckinType.transferDeparture: return AppColors.blueLight;
-      default: return AppColors.grayLight;
+      case CheckinType.mealDinner:
+        return AppColors.orangeLight;
+      case CheckinType.transferDeparture:
+        return AppColors.blueLight;
+      default:
+        return AppColors.grayLight;
     }
   }
 
   Color get _iconColor {
     switch (checkin.type) {
-      case CheckinType.arrival: return AppColors.green;
+      case CheckinType.arrival:
+        return AppColors.green;
       case CheckinType.mealBreakfast:
       case CheckinType.mealLunch:
-      case CheckinType.mealDinner: return AppColors.orange;
-      case CheckinType.transferDeparture: return AppColors.blue;
-      default: return AppColors.grayText;
+      case CheckinType.mealDinner:
+        return AppColors.orange;
+      case CheckinType.transferDeparture:
+        return AppColors.blue;
+      default:
+        return AppColors.grayText;
     }
   }
 
   IconData get _icon {
     switch (checkin.type) {
-      case CheckinType.arrival: return Icons.group;
+      case CheckinType.arrival:
+        return Icons.group;
       case CheckinType.mealBreakfast:
       case CheckinType.mealLunch:
-      case CheckinType.mealDinner: return Icons.restaurant_outlined;
-      case CheckinType.transferDeparture: return Icons.directions_bus;
-      default: return Icons.check_circle_outline;
+      case CheckinType.mealDinner:
+        return Icons.restaurant_outlined;
+      case CheckinType.transferDeparture:
+        return Icons.directions_bus;
+      default:
+        return Icons.check_circle_outline;
     }
   }
 }
@@ -612,7 +761,8 @@ class _CrisisManagementCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isActive ? AppColors.red : AppColors.navy;
     final bg = isActive ? AppColors.redLight : AppColors.bgPage;
-    final borderColor = isActive ? AppColors.red.withValues(alpha: 0.35) : AppColors.divider;
+    final borderColor =
+        isActive ? AppColors.red.withValues(alpha: 0.35) : AppColors.divider;
 
     return GestureDetector(
       onTap: onTap,
@@ -622,7 +772,12 @@ class _CrisisManagementCard extends StatelessWidget {
           color: bg,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: borderColor, width: isActive ? 1.5 : 1),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2))
+          ],
         ),
         child: Row(
           children: [
@@ -646,12 +801,16 @@ class _CrisisManagementCard extends StatelessWidget {
                 children: [
                   Text(
                     isActive ? 'Crise active' : 'Aucun événement actif',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color),
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: color),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     isActive ? eventName : 'Activer un événement de crise',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

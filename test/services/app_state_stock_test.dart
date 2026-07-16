@@ -22,7 +22,8 @@ void main() {
         expect(
           entries[i].dateEntree.isBefore(entries[i + 1].dateEntree),
           isFalse,
-          reason: 'les entrées doivent être triées du plus récent au plus ancien',
+          reason:
+              'les entrées doivent être triées du plus récent au plus ancien',
         );
       }
     });

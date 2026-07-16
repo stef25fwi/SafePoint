@@ -56,8 +56,7 @@ void main() {
 
     test('markInProgress assigne l\'alerte à l\'agent traitant', () async {
       when(() => repo.updateStatus(alert.id, AlertStatus.inProgress,
-              assignedTo: 'user_1', updatedBy: 'user_1'))
-          .thenAnswer((_) async {});
+          assignedTo: 'user_1', updatedBy: 'user_1')).thenAnswer((_) async {});
 
       await service.markInProgress(alert,
           updatedBy: 'user_1', updatedByRole: 'AGENT');
@@ -68,15 +67,14 @@ void main() {
 
     test('resolve clôture l\'alerte avec horodatage et journalise', () async {
       when(() => repo.updateStatus(alert.id, AlertStatus.resolved,
-              resolvedAt: any(named: 'resolvedAt'), updatedBy: 'user_1'))
-          .thenAnswer((_) async {});
+          resolvedAt: any(named: 'resolvedAt'),
+          updatedBy: 'user_1')).thenAnswer((_) async {});
 
       await service.resolve(alert,
           resolvedBy: 'user_1', resolvedByRole: 'REFUGE_MANAGER');
 
       verify(() => repo.updateStatus(alert.id, AlertStatus.resolved,
-          resolvedAt: any(named: 'resolvedAt'),
-          updatedBy: 'user_1')).called(1);
+          resolvedAt: any(named: 'resolvedAt'), updatedBy: 'user_1')).called(1);
       verify(() => auditRepo.log(any())).called(1);
     });
   });
