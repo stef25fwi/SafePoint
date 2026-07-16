@@ -51,5 +51,30 @@ void main() {
       expect(a, b);
       expect(a.hashCode, b.hashCode);
     });
+
+    test('voiceLocale retombe sur speechLocale quand ttsLocale est absent', () {
+      const en = TranslationLanguage(
+          code: 'en', label: 'Anglais', flag: '🇬🇧', speechLocale: 'en-US');
+      expect(en.voiceLocale, 'en-US');
+    });
+
+    test('voiceLocale privilégie ttsLocale quand il est défini', () {
+      // Le créole haïtien n'a pas de voix TTS dédiée : on lit en français.
+      final ht = kTranslationLanguages.firstWhere((l) => l.code == 'ht');
+      expect(ht.ttsLocale, 'fr-FR');
+      expect(ht.voiceLocale, 'fr-FR');
+    });
+
+    test('voiceLocale retombe sur le code quand aucune locale n\'est fournie',
+        () {
+      const x = TranslationLanguage(code: 'xx', label: 'X', flag: 'x');
+      expect(x.voiceLocale, 'xx');
+    });
+
+    test('chaque langue interlocuteur expose une voiceLocale non vide', () {
+      for (final l in kTranslationLanguages) {
+        expect(l.voiceLocale, isNotEmpty);
+      }
+    });
   });
 }

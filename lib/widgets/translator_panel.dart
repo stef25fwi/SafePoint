@@ -3,8 +3,15 @@ import '../core/app_colors.dart';
 import '../models/translation_language.dart';
 import '../services/speech_service.dart';
 import '../services/translation_service.dart';
+import '../services/tts_service.dart';
 
 /// Ouvre le traducteur en plein écran (bottom sheet) au-dessus de [context].
+///
+/// À l'ouverture, le traducteur démarre automatiquement l'écoute de l'agent
+/// (français). Quand l'agent parle, sa phrase apparaît en français dans la
+/// conversation avec un bouton audio pour faire entendre la traduction dans
+/// la langue choisie. Quand l'interlocuteur répond dans sa langue, la
+/// traduction française s'affiche directement en texte.
 Future<void> showTranslatorPanel(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
@@ -14,10 +21,15 @@ Future<void> showTranslatorPanel(BuildContext context) {
   );
 }
 
+enum _Speaker { agent, interlocutor }
+
 class _ChatMessage {
   final String originalText;
   final String originalLangLabel;
   final String translatedText;
+
+  /// Locale à utiliser pour lire [translatedText] à voix haute.
+  final String translatedVoiceLocale;
   final String translatedLangLabel;
   final bool fromAgent;
   final DateTime at;
@@ -26,6 +38,7 @@ class _ChatMessage {
     required this.originalText,
     required this.originalLangLabel,
     required this.translatedText,
+    required this.translatedVoiceLocale,
     required this.translatedLangLabel,
     required this.fromAgent,
     required this.at,
@@ -43,19 +56,28 @@ class _TranslatorSheetState extends State<_TranslatorSheet> {
   TranslationLanguage _language = kTranslationLanguages.first;
   final List<_ChatMessage> _messages = [];
   final _scrollCtrl = ScrollController();
-  final _agentCtrl = TextEditingController();
-  final _interlocutorCtrl = TextEditingController();
+  final _manualCtrl = TextEditingController();
+
+  _Speaker _speaker = _Speaker.agent;
+  bool _micOn = false; // écoute continue active
+  bool _listening = false; // capture en cours
   bool _sending = false;
-  bool _agentListening = false;
-  bool _interlocutorListening = false;
+  int? _playingIndex; // bulle dont l'audio est en cours de lecture
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // Déclenchement automatique de l'écoute de l'agent à l'ouverture.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startLive());
+  }
 
   @override
   void dispose() {
     SpeechService.instance.stop();
+    TtsService.instance.stop();
     _scrollCtrl.dispose();
-    _agentCtrl.dispose();
-    _interlocutorCtrl.dispose();
+    _manualCtrl.dispose();
     super.dispose();
   }
 
@@ -78,139 +100,155 @@ class _TranslatorSheetState extends State<_TranslatorSheet> {
     return code.toUpperCase();
   }
 
-  Future<void> _sendAgentMessage() async {
-    final text = _agentCtrl.text.trim();
-    if (text.isEmpty || _sending) return;
+  // ── Écoute live ────────────────────────────────────────────────
+
+  Future<void> _startLive() async {
+    if (_micOn) return;
     setState(() {
-      _sending = true;
+      _micOn = true;
       _error = null;
     });
-    try {
-      final result = await TranslationService.instance.translate(
-        text: text,
-        source: 'fr',
-        target: _language.code,
-      );
-      setState(() {
-        _messages.add(_ChatMessage(
-          originalText: text,
-          originalLangLabel: kFrench.label,
-          translatedText: result.translatedText,
-          translatedLangLabel: _language.label,
-          fromAgent: true,
-          at: DateTime.now(),
-        ));
-        _agentCtrl.clear();
-      });
-      _scrollToBottom();
-    } on TranslationException catch (e) {
-      setState(() => _error = e.message);
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
+    await TtsService.instance.stop();
+    await _listenOnce();
   }
 
-  Future<void> _sendInterlocutorMessage() async {
-    final text = _interlocutorCtrl.text.trim();
-    if (text.isEmpty || _sending) return;
+  Future<void> _stopLive() async {
     setState(() {
-      _sending = true;
-      _error = null;
+      _micOn = false;
+      _listening = false;
     });
-    try {
-      // source: auto — l'IA détecte la langue parlée/saisie par
-      // l'interlocuteur plutôt que de présupposer la langue sélectionnée.
-      final result = await TranslationService.instance.translate(
-        text: text,
-        source: 'auto',
-        target: 'fr',
-      );
-      setState(() {
-        _messages.add(_ChatMessage(
-          originalText: text,
-          originalLangLabel: _labelForCode(result.detectedSourceLanguage),
-          translatedText: result.translatedText,
-          translatedLangLabel: kFrench.label,
-          fromAgent: false,
-          at: DateTime.now(),
-        ));
-        _interlocutorCtrl.clear();
-        // Aligne le sélecteur sur la langue détectée pour les prochaines
-        // réponses de l'agent, sans empêcher une correction manuelle.
-        for (final l in kTranslationLanguages) {
-          if (l.code == result.detectedSourceLanguage) _language = l;
-        }
-      });
-      _scrollToBottom();
-    } on TranslationException catch (e) {
-      setState(() => _error = e.message);
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
+    await SpeechService.instance.stop();
   }
 
-  Future<void> _toggleMic({required bool forAgent}) async {
-    final listening = forAgent ? _agentListening : _interlocutorListening;
-    if (listening) {
-      await SpeechService.instance.stop();
-      setState(() {
-        if (forAgent) {
-          _agentListening = false;
-        } else {
-          _interlocutorListening = false;
-        }
-      });
-      return;
-    }
-
+  /// Une passe d'écoute pour le locuteur actif ; en mode continu, se relance
+  /// automatiquement après le traitement de la phrase.
+  Future<void> _listenOnce() async {
+    if (!_micOn) return;
+    final forAgent = _speaker == _Speaker.agent;
     final locale = forAgent
         ? kFrench.speechLocale!
         : (_language.speechLocale ?? kFrench.speechLocale!);
 
-    setState(() {
-      if (forAgent) {
-        _agentListening = true;
-      } else {
-        _interlocutorListening = true;
-      }
-    });
+    setState(() => _listening = true);
 
     final started = await SpeechService.instance.listen(
       localeId: locale,
-      onResult: (r) {
-        final ctrl = forAgent ? _agentCtrl : _interlocutorCtrl;
-        ctrl.text = r.text;
-        ctrl.selection = TextSelection.collapsed(offset: ctrl.text.length);
-        if (r.isFinal) {
-          setState(() {
-            if (forAgent) {
-              _agentListening = false;
-            } else {
-              _interlocutorListening = false;
-            }
-          });
-          if (forAgent) {
-            _sendAgentMessage();
-          } else {
-            _sendInterlocutorMessage();
-          }
+      onResult: (r) async {
+        if (!r.isFinal) return;
+        setState(() => _listening = false);
+        final text = r.text.trim();
+        if (text.isNotEmpty) {
+          await _translateAndAdd(text, forAgent: forAgent);
+        }
+        // Relance l'écoute tant que le mode live est actif et sans erreur.
+        if (_micOn && _error == null && mounted) {
+          await _listenOnce();
         }
       },
     );
 
     if (!started && mounted) {
       setState(() {
-        if (forAgent) {
-          _agentListening = false;
-        } else {
-          _interlocutorListening = false;
-        }
+        _micOn = false;
+        _listening = false;
         _error =
             'Reconnaissance vocale indisponible sur cet appareil/navigateur. '
-            'Utilisez la saisie manuelle.';
+            'Utilisez la saisie manuelle ci-dessous.';
       });
     }
   }
+
+  void _setSpeaker(_Speaker s) {
+    if (_speaker == s) return;
+    setState(() => _speaker = s);
+    if (_micOn) {
+      // Redémarre l'écoute dans la langue du nouveau locuteur.
+      SpeechService.instance.stop().then((_) {
+        if (mounted && _micOn) _listenOnce();
+      });
+    }
+  }
+
+  // ── Traduction ─────────────────────────────────────────────────
+
+  Future<void> _translateAndAdd(String text, {required bool forAgent}) async {
+    setState(() {
+      _sending = true;
+      _error = null;
+    });
+    try {
+      final result = forAgent
+          ? await TranslationService.instance
+              .translate(text: text, source: 'fr', target: _language.code)
+          : await TranslationService.instance
+              .translate(text: text, source: 'auto', target: 'fr');
+
+      final message = forAgent
+          ? _ChatMessage(
+              originalText: text,
+              originalLangLabel: kFrench.label,
+              translatedText: result.translatedText,
+              translatedVoiceLocale: _language.voiceLocale,
+              translatedLangLabel: _language.label,
+              fromAgent: true,
+              at: DateTime.now(),
+            )
+          : _ChatMessage(
+              originalText: text,
+              originalLangLabel: _labelForCode(result.detectedSourceLanguage),
+              translatedText: result.translatedText,
+              translatedVoiceLocale: kFrench.voiceLocale,
+              translatedLangLabel: kFrench.label,
+              fromAgent: false,
+              at: DateTime.now(),
+            );
+
+      setState(() {
+        _messages.add(message);
+        if (!forAgent) {
+          for (final l in kTranslationLanguages) {
+            if (l.code == result.detectedSourceLanguage) _language = l;
+          }
+        }
+      });
+      _scrollToBottom();
+    } on TranslationException catch (e) {
+      setState(() {
+        _error = e.message;
+        _micOn = false; // stoppe la boucle live sur erreur de traduction
+      });
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  Future<void> _sendManual() async {
+    final text = _manualCtrl.text.trim();
+    if (text.isEmpty || _sending) return;
+    _manualCtrl.clear();
+    await _translateAndAdd(text, forAgent: _speaker == _Speaker.agent);
+  }
+
+  Future<void> _playTranslation(int index) async {
+    final msg = _messages[index];
+    if (_playingIndex == index) {
+      await TtsService.instance.stop();
+      setState(() => _playingIndex = null);
+      return;
+    }
+    setState(() => _playingIndex = index);
+    final ok = await TtsService.instance
+        .speak(msg.translatedText, localeId: msg.translatedVoiceLocale);
+    if (mounted) {
+      setState(() => _playingIndex = null);
+      if (!ok) {
+        setState(() => _error =
+            'Synthèse vocale indisponible sur cet appareil/navigateur.');
+      }
+    }
+  }
+
+  // ── Build ──────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -233,95 +271,46 @@ class _TranslatorSheetState extends State<_TranslatorSheet> {
               onClose: () => Navigator.pop(context),
             ),
             if (!configured)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.orangeLight,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                      color: AppColors.orange.withValues(alpha: 0.3)),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.info_outline,
-                        size: 18, color: AppColors.orangeText),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Service de traduction non configuré. Voir docs/securite pour '
-                        'choisir un fournisseur avant utilisation réelle.',
-                        style: TextStyle(
-                            fontSize: 12, color: AppColors.orangeText),
-                      ),
-                    ),
-                  ],
-                ),
+              const _Banner(
+                color: AppColors.orangeLight,
+                textColor: AppColors.orangeText,
+                icon: Icons.info_outline,
+                text:
+                    'Service de traduction non configuré. La reconnaissance vocale '
+                    'et la lecture audio fonctionnent ; la traduction texte '
+                    'nécessite un fournisseur (voir docs/securite).',
               ),
             if (_error != null)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.redLight,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline,
-                        size: 16, color: AppColors.redText),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(_error!,
-                          style: const TextStyle(
-                              fontSize: 12, color: AppColors.redText)),
-                    ),
-                  ],
-                ),
+              _Banner(
+                color: AppColors.redLight,
+                textColor: AppColors.redText,
+                icon: Icons.error_outline,
+                text: _error!,
               ),
             Expanded(
               child: _messages.isEmpty
-                  ? const Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.translate,
-                              size: 48, color: AppColors.textHint),
-                          SizedBox(height: 12),
-                          Text(
-                            'Parlez ou écrivez pour démarrer la conversation',
-                            style: TextStyle(color: AppColors.textSecondary),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    )
+                  ? _EmptyState(listening: _listening)
                   : ListView.builder(
                       controller: _scrollCtrl,
                       padding: const EdgeInsets.all(16),
                       itemCount: _messages.length,
-                      itemBuilder: (_, i) => _Bubble(message: _messages[i]),
+                      itemBuilder: (_, i) => _Bubble(
+                        message: _messages[i],
+                        playing: _playingIndex == i,
+                        onPlay: () => _playTranslation(i),
+                      ),
                     ),
             ),
-            _InputBar(
-              label: 'Vous (${kFrench.flag} Français)',
-              controller: _agentCtrl,
-              listening: _agentListening,
-              enabled: !_sending,
-              color: AppColors.blue,
-              onMicTap: () => _toggleMic(forAgent: true),
-              onSend: _sendAgentMessage,
-            ),
-            _InputBar(
-              label: 'Interlocuteur (${_language.flag} ${_language.label})',
-              controller: _interlocutorCtrl,
-              listening: _interlocutorListening,
-              enabled: !_sending,
-              color: AppColors.purple,
-              onMicTap: () => _toggleMic(forAgent: false),
-              onSend: _sendInterlocutorMessage,
+            _LiveControls(
+              speaker: _speaker,
+              language: _language,
+              micOn: _micOn,
+              listening: _listening,
+              sending: _sending,
+              manualController: _manualCtrl,
+              onSpeaker: _setSpeaker,
+              onToggleMic: () => _micOn ? _stopLive() : _startLive(),
+              onSendManual: _sendManual,
             ),
             SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
           ],
@@ -351,7 +340,7 @@ class _Header extends StatelessWidget {
           const Icon(Icons.translate, color: AppColors.navy, size: 22),
           const SizedBox(width: 10),
           const Expanded(
-            child: Text('Traducteur',
+            child: Text('Traducteur en direct',
                 style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -391,9 +380,78 @@ class _Header extends StatelessWidget {
   }
 }
 
+class _Banner extends StatelessWidget {
+  final Color color;
+  final Color textColor;
+  final IconData icon;
+  final String text;
+
+  const _Banner({
+    required this.color,
+    required this.textColor,
+    required this.icon,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: textColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text, style: TextStyle(fontSize: 12, color: textColor)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final bool listening;
+  const _EmptyState({required this.listening});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(listening ? Icons.mic : Icons.translate,
+              size: 48, color: listening ? AppColors.blue : AppColors.textHint),
+          const SizedBox(height: 12),
+          Text(
+            listening
+                ? 'Écoute en cours… parlez en français'
+                : 'Appuyez sur le micro pour démarrer la conversation',
+            style: const TextStyle(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _Bubble extends StatelessWidget {
   final _ChatMessage message;
-  const _Bubble({required this.message});
+  final bool playing;
+  final VoidCallback onPlay;
+
+  const _Bubble({
+    required this.message,
+    required this.playing,
+    required this.onPlay,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -414,6 +472,16 @@ class _Bubble extends StatelessWidget {
             bottomRight: Radius.circular(14),
           );
 
+    // L'agent voit sa phrase en français en grand (ce qu'il a dit) + une
+    // tuile audio pour faire entendre la traduction. L'interlocuteur voit
+    // la traduction française en grand (texte directement lisible).
+    final primaryText =
+        fromAgent ? message.originalText : message.translatedText;
+    final secondaryText =
+        fromAgent ? message.translatedText : message.originalText;
+    final secondaryLabel =
+        fromAgent ? message.translatedLangLabel : message.originalLangLabel;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -421,7 +489,7 @@ class _Bubble extends StatelessWidget {
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.78),
+                maxWidth: MediaQuery.of(context).size.width * 0.80),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -436,18 +504,50 @@ class _Bubble extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(message.translatedText,
+                  Text(primaryText,
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: fg)),
-                  const SizedBox(height: 4),
-                  Text(
-                      '« ${message.originalText} » — ${message.originalLangLabel}',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontStyle: FontStyle.italic,
-                          color: subFg)),
+                  const SizedBox(height: 6),
+                  // Tuile de traduction + audio.
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(10, 8, 6, 8),
+                    decoration: BoxDecoration(
+                      color: fromAgent
+                          ? Colors.white.withValues(alpha: 0.15)
+                          : AppColors.bgPage,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(secondaryLabel,
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: subFg)),
+                              const SizedBox(height: 2),
+                              Text(secondaryText,
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontStyle: FontStyle.italic,
+                                      color: fg)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        _AudioButton(
+                          playing: playing,
+                          onTap: onPlay,
+                          onAgent: fromAgent,
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -455,7 +555,6 @@ class _Bubble extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 2, left: 4, right: 4),
             child: Text(
-              '${message.translatedLangLabel} · '
               '${message.at.hour.toString().padLeft(2, '0')}:${message.at.minute.toString().padLeft(2, '0')}',
               style: const TextStyle(fontSize: 10, color: AppColors.textHint),
             ),
@@ -466,70 +565,149 @@ class _Bubble extends StatelessWidget {
   }
 }
 
-class _InputBar extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-  final bool listening;
-  final bool enabled;
-  final Color color;
-  final VoidCallback onMicTap;
-  final VoidCallback onSend;
+class _AudioButton extends StatelessWidget {
+  final bool playing;
+  final VoidCallback onTap;
+  final bool onAgent;
 
-  const _InputBar({
-    required this.label,
-    required this.controller,
-    required this.listening,
-    required this.enabled,
-    required this.color,
-    required this.onMicTap,
-    required this.onSend,
+  const _AudioButton({
+    required this.playing,
+    required this.onTap,
+    required this.onAgent,
   });
 
   @override
   Widget build(BuildContext context) {
+    final color = onAgent ? Colors.white : AppColors.blue;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 34,
+        height: 34,
+        decoration: BoxDecoration(
+          color: onAgent
+              ? Colors.white.withValues(alpha: 0.25)
+              : AppColors.blueLight,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(playing ? Icons.stop : Icons.volume_up,
+            size: 18, color: color),
+      ),
+    );
+  }
+}
+
+class _LiveControls extends StatelessWidget {
+  final _Speaker speaker;
+  final TranslationLanguage language;
+  final bool micOn;
+  final bool listening;
+  final bool sending;
+  final TextEditingController manualController;
+  final ValueChanged<_Speaker> onSpeaker;
+  final VoidCallback onToggleMic;
+  final VoidCallback onSendManual;
+
+  const _LiveControls({
+    required this.speaker,
+    required this.language,
+    required this.micOn,
+    required this.listening,
+    required this.sending,
+    required this.manualController,
+    required this.onSpeaker,
+    required this.onToggleMic,
+    required this.onSendManual,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final forAgent = speaker == _Speaker.agent;
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: AppColors.divider)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 4),
-            child: Text(label,
-                style: TextStyle(
-                    fontSize: 11, fontWeight: FontWeight.w600, color: color)),
-          ),
+          // Sélecteur de locuteur
           Row(
             children: [
-              GestureDetector(
-                onTap: enabled ? onMicTap : null,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: listening
-                        ? AppColors.red
-                        : color.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    listening ? Icons.mic : Icons.mic_none,
-                    color: listening ? Colors.white : color,
-                    size: 20,
-                  ),
+              Expanded(
+                child: _SpeakerPill(
+                  label: 'Vous ${kFrench.flag}',
+                  selected: forAgent,
+                  color: AppColors.blue,
+                  onTap: () => onSpeaker(_Speaker.agent),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
+                child: _SpeakerPill(
+                  label: 'Interlocuteur ${language.flag}',
+                  selected: !forAgent,
+                  color: AppColors.purple,
+                  onTap: () => onSpeaker(_Speaker.interlocutor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Micro + statut
+          Row(
+            children: [
+              GestureDetector(
+                onTap: onToggleMic,
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: micOn
+                        ? AppColors.red
+                        : (forAgent ? AppColors.blue : AppColors.purple),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      if (micOn)
+                        BoxShadow(
+                            color: AppColors.red.withValues(alpha: 0.4),
+                            blurRadius: 12,
+                            spreadRadius: 2),
+                    ],
+                  ),
+                  child: Icon(micOn ? Icons.stop : Icons.mic,
+                      color: Colors.white, size: 26),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  sending
+                      ? 'Traduction en cours…'
+                      : micOn
+                          ? (listening
+                              ? 'Écoute… ${forAgent ? "parlez en français" : "parlez en ${language.label}"}'
+                              : 'En pause…')
+                          : 'Appuyez pour parler '
+                              '(${forAgent ? "Français" : language.label})',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Saisie manuelle (repli)
+          Row(
+            children: [
+              Expanded(
                 child: TextField(
-                  controller: controller,
-                  enabled: enabled,
+                  controller: manualController,
+                  enabled: !sending,
                   decoration: InputDecoration(
-                    hintText:
-                        listening ? 'Écoute en cours…' : 'Écrire ou parler…',
+                    hintText: 'Ou écrire ici…',
                     isDense: true,
                     filled: true,
                     fillColor: AppColors.bgPage,
@@ -539,23 +717,64 @@ class _InputBar extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none),
                   ),
-                  onSubmitted: (_) => onSend(),
+                  onSubmitted: (_) => onSendManual(),
                 ),
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: enabled ? onSend : null,
+                onTap: sending ? null : onSendManual,
                 child: Container(
                   width: 40,
                   height: 40,
-                  decoration:
-                      BoxDecoration(color: color, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                      color: forAgent ? AppColors.blue : AppColors.purple,
+                      shape: BoxShape.circle),
                   child: const Icon(Icons.send, color: Colors.white, size: 18),
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SpeakerPill extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SpeakerPill({
+    required this.label,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected ? color.withValues(alpha: 0.12) : AppColors.bgPage,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+              color: selected ? color : AppColors.divider,
+              width: selected ? 1.5 : 1),
+        ),
+        child: Text(label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: selected ? color : AppColors.textSecondary)),
       ),
     );
   }
