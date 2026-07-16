@@ -9,6 +9,7 @@ import '../models/person_model.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
 import '../widgets/status_badge.dart';
+import '../widgets/zone_picker.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -79,20 +80,42 @@ class _ScannerPageState extends State<ScannerPage>
     });
   }
 
-  void _doQrCheckin(CheckinType type) {
+  /// Les pointages effectués à l'intérieur du centre demandent le lieu
+  /// (dortoir, zone repas…) pour tracer les mouvements ; les sorties non.
+  static const _zonelessTypes = {
+    CheckinType.exitTemporary,
+    CheckinType.exitFinal,
+  };
+
+  /// Demande le lieu du pointage si pertinent. Renvoie null si l'agent a
+  /// annulé (le pointage est alors abandonné).
+  Future<ZoneSelection?> _askZone(CheckinType type) async {
+    if (_zonelessTypes.contains(type)) return const ZoneSelection(null);
+    return showZonePicker(
+      context,
+      zones: context.read<AppState>().currentShelter.zones,
+      actionLabel: type.label,
+    );
+  }
+
+  Future<void> _doQrCheckin(CheckinType type) async {
     if (_scannedPerson == null) return;
-    final name = _scannedPerson!.fullName;
+    final person = _scannedPerson!;
+    final selection = await _askZone(type);
+    if (selection == null || !mounted) return;
+
     final result = context
         .read<AppState>()
-        .createCheckin(personId: _scannedPerson!.id, type: type);
+        .createCheckin(personId: person.id, type: type, zone: selection.zone);
+    final where = selection.zone != null ? ' (${selection.zone})' : '';
     setState(() {
       if (result.duplicateMinutes != null) {
         _qrWarning = true;
         _qrSuccess =
-            '${type.label} déjà pointé il y a ${result.duplicateMinutes} min pour $name — nouveau pointage enregistré';
+            '${type.label} déjà pointé il y a ${result.duplicateMinutes} min pour ${person.fullName} — nouveau pointage enregistré$where';
       } else {
         _qrWarning = false;
-        _qrSuccess = '${type.label} enregistré pour $name';
+        _qrSuccess = '${type.label} enregistré pour ${person.fullName}$where';
       }
       _scannedPerson = null;
     });
@@ -112,20 +135,25 @@ class _ScannerPageState extends State<ScannerPage>
         .toList();
   }
 
-  void _doSearchCheckin(CheckinType type) {
+  Future<void> _doSearchCheckin(CheckinType type) async {
     if (_selectedPerson == null) return;
-    final name = _selectedPerson!.fullName;
+    final person = _selectedPerson!;
+    final selection = await _askZone(type);
+    if (selection == null || !mounted) return;
+
     final result = context
         .read<AppState>()
-        .createCheckin(personId: _selectedPerson!.id, type: type);
+        .createCheckin(personId: person.id, type: type, zone: selection.zone);
+    final where = selection.zone != null ? ' (${selection.zone})' : '';
     setState(() {
       if (result.duplicateMinutes != null) {
         _searchWarning = true;
         _searchSuccess =
-            '${type.label} déjà pointé il y a ${result.duplicateMinutes} min pour $name — nouveau pointage enregistré';
+            '${type.label} déjà pointé il y a ${result.duplicateMinutes} min pour ${person.fullName} — nouveau pointage enregistré$where';
       } else {
         _searchWarning = false;
-        _searchSuccess = '${type.label} enregistré pour $name';
+        _searchSuccess =
+            '${type.label} enregistré pour ${person.fullName}$where';
       }
       _selectedPerson = null;
     });

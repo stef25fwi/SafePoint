@@ -9,6 +9,7 @@ import '../models/need_model.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
 import '../widgets/status_badge.dart';
+import '../widgets/zone_picker.dart';
 
 class PersonDetailPage extends StatefulWidget {
   const PersonDetailPage({super.key});
@@ -232,12 +233,26 @@ class _PersonDetailPageState extends State<PersonDetailPage> {
                           icon: Icons.how_to_reg,
                           label: 'Pointer présence',
                           color: AppColors.blue,
-                          onTap: () {
-                            context.read<AppState>().createCheckin(
-                                personId: personId, type: CheckinType.presence);
+                          onTap: () async {
+                            final state = context.read<AppState>();
+                            final selection = await showZonePicker(
+                              context,
+                              zones: state.currentShelter.zones,
+                              actionLabel: 'Présence',
+                            );
+                            if (selection == null || !context.mounted) {
+                              return;
+                            }
+                            state.createCheckin(
+                              personId: personId,
+                              type: CheckinType.presence,
+                              zone: selection.zone,
+                            );
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Présence enregistrée'),
+                              SnackBar(
+                                  content: Text(selection.zone != null
+                                      ? 'Présence enregistrée – ${selection.zone}'
+                                      : 'Présence enregistrée'),
                                   backgroundColor: AppColors.green),
                             );
                           },
@@ -528,9 +543,26 @@ class _CheckinRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-              child: Text(checkin.type.label,
-                  style: const TextStyle(
-                      fontSize: 14, color: AppColors.textPrimary))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(checkin.type.label,
+                    style: const TextStyle(
+                        fontSize: 14, color: AppColors.textPrimary)),
+                if (checkin.zone != null)
+                  Row(
+                    children: [
+                      const Icon(Icons.place,
+                          size: 11, color: AppColors.textSecondary),
+                      const SizedBox(width: 3),
+                      Text(checkin.zone!,
+                          style: const TextStyle(
+                              fontSize: 11, color: AppColors.textSecondary)),
+                    ],
+                  ),
+              ],
+            ),
+          ),
           Text(fmt.format(checkin.createdAt),
               style: const TextStyle(
                   fontSize: 13, color: AppColors.textSecondary)),

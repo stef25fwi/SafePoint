@@ -952,6 +952,7 @@ class AppState extends ChangeNotifier {
     required String personId,
     required CheckinType type,
     String? notes,
+    String? zone,
   }) {
     final now = DateTime.now();
 
@@ -976,6 +977,7 @@ class AppState extends ChangeNotifier {
       type: type,
       createdAt: now,
       notes: notes,
+      zone: zone,
       createdBy: currentUserId,
     );
     _checkins.add(checkin);
@@ -1001,6 +1003,9 @@ class AppState extends ChangeNotifier {
       }
       _persons[idx] = _persons[idx].copyWith(
         status: newStatus,
+        // Le lieu du pointage devient la position courante de la personne
+        // dans le centre : c'est ce qui trace ses mouvements.
+        currentZone: zone,
         lastCheckinAt: now,
         updatedBy: currentUserId,
       );

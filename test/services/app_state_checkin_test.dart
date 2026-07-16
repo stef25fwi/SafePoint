@@ -56,6 +56,39 @@ void main() {
       expect(result.duplicateMinutes, isNull);
     });
 
+    test(
+        'createCheckin enregistre le lieu et met à jour la position '
+        'de la personne (suivi des mouvements)', () {
+      final result = state.createCheckin(
+        personId: 'person_1',
+        type: CheckinType.presence,
+        zone: 'Dortoir A',
+      );
+
+      expect(result.checkin.zone, 'Dortoir A');
+      expect(state.getPersonById('person_1')?.currentZone, 'Dortoir A');
+
+      // Second pointage ailleurs : la position suit le dernier lieu pointé.
+      state.createCheckin(
+        personId: 'person_1',
+        type: CheckinType.mealLunch,
+        zone: 'Zone repas',
+      );
+      expect(state.getPersonById('person_1')?.currentZone, 'Zone repas');
+    });
+
+    test('createCheckin sans lieu conserve la position connue', () {
+      state.createCheckin(
+        personId: 'person_1',
+        type: CheckinType.presence,
+        zone: 'Dortoir B',
+      );
+      state.createCheckin(personId: 'person_1', type: CheckinType.presence);
+
+      expect(state.getPersonById('person_1')?.currentZone, 'Dortoir B',
+          reason: 'un pointage sans lieu ne doit pas effacer la position');
+    });
+
     test('douche et activite font passer la personne en présent', () {
       final result = state.createCheckin(
         personId: 'person_1',
