@@ -214,7 +214,6 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                                   fontSize: 12,
                                   color: AppColors.textSecondary)),
                           const SizedBox(height: 14),
-
                           const _FieldLabel('Quantité à transférer *'),
                           TextFormField(
                             controller: _qtyCtrl,
@@ -232,10 +231,9 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                             },
                           ),
                           const SizedBox(height: 14),
-
                           const _FieldLabel('Centre destinataire *'),
-                          // ignore: deprecated_member_use
                           DropdownButtonFormField<String>(
+                            // ignore: deprecated_member_use
                             value: _toShelterId ??
                                 (destinations.isNotEmpty
                                     ? destinations.first.id
@@ -252,7 +250,6 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                             validator: (v) => v == null ? 'Champ requis' : null,
                           ),
                           const SizedBox(height: 14),
-
                           const _FieldLabel('Notes'),
                           TextFormField(
                             controller: _notesCtrl,
@@ -260,7 +257,6 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                             maxLines: 2,
                           ),
                           const SizedBox(height: 20),
-
                           ElevatedButton.icon(
                             onPressed: () => _submit(state, available),
                             style: ElevatedButton.styleFrom(
