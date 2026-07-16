@@ -51,12 +51,33 @@ sous-traitants :
 
 ## Configuration
 
+L'URL de l'instance et la clé API éventuelle sont injectées **au build** via
+`--dart-define`, jamais écrites en dur dans le dépôt :
+
 ```dart
 // lib/services/translation_service.dart
-static const String baseUrl = '';       // ⚠️ à renseigner
-static const String? apiKey = null;     // si l'instance choisie en exige un
+static const String baseUrl = String.fromEnvironment('TRANSLATE_BASE_URL');
+static const String? apiKey = bool.hasEnvironment('TRANSLATE_API_KEY')
+    ? String.fromEnvironment('TRANSLATE_API_KEY')
+    : null;
 ```
 
-Tant que `baseUrl` est vide, le traducteur affiche un bandeau d'avertissement
-et refuse d'envoyer du texte — comportement identique à `firebase_options.dart`
-avant configuration.
+```bash
+flutter build web --release \
+  --dart-define=TRANSLATE_BASE_URL=https://translate.mon-domaine.gouv.fr \
+  --dart-define=TRANSLATE_API_KEY=VOTRE_CLE
+```
+
+Tant que `TRANSLATE_BASE_URL` n'est pas fourni, `baseUrl` est vide : le
+traducteur affiche un bandeau d'avertissement et refuse d'envoyer du texte
+(échec explicite plutôt qu'envoi silencieux vers un tiers).
+
+👉 Procédure complète d'hébergement (Docker, clé API, reverse proxy HTTPS +
+CORS, conformité) : **`docs/deploiement/libretranslate-self-hosted.md`**.
+
+## Synthèse vocale (lecture audio de la traduction)
+
+La lecture à voix haute de la traduction (bouton 🔊 des bulles) utilise
+`flutter_tts` (`lib/services/tts_service.dart`), **100 % local** à
+l'appareil/navigateur : aucun texte n'est envoyé à un tiers pour la synthèse.
+Elle fonctionne indépendamment de la configuration du service de traduction.
