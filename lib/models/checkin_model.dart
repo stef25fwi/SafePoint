@@ -12,6 +12,10 @@ class CheckinModel {
   final DateTime createdAt;
   final String? notes;
 
+  /// Lieu du pointage dans le centre (Dortoir A, Zone repas…) : permet de
+  /// suivre les mouvements de la personne à l'intérieur du centre.
+  final String? zone;
+
   // Champs multi-tenant (V2-ready)
   final String organizationId;
   final String? territoryId;
@@ -27,6 +31,7 @@ class CheckinModel {
     this.scannedBy,
     required this.createdAt,
     this.notes,
+    this.zone,
     this.organizationId = AppDefaults.organizationId,
     this.territoryId,
     this.createdBy = AppDefaults.demoUserId,
@@ -46,5 +51,6 @@ class CheckinModel {
         'created_at': createdAt.toIso8601String(),
         'created_by': createdBy,
         'notes': notes,
+        'zone': zone,
       };
 }
