@@ -27,9 +27,8 @@ void main() {
       final idxRecenses = table.headers.indexOf('Recensés');
       for (var i = 0; i < state.shelters.length; i++) {
         final shelter = state.shelters[i];
-        final expected = state.everyPerson
-            .where((p) => p.shelterId == shelter.id)
-            .length;
+        final expected =
+            state.everyPerson.where((p) => p.shelterId == shelter.id).length;
         expect(table.rows[i][idxRecenses], '$expected',
             reason: 'centre ${shelter.name}');
       }
@@ -53,9 +52,8 @@ void main() {
   group('ExportService — synthèse par commune d\'origine', () {
     test('total des lignes = total des personnes (agrégat exhaustif)', () {
       final table = svc.syntheseParCommune(state);
-      final total = table.rows
-          .map((r) => int.parse(r[1]))
-          .fold(0, (a, b) => a + b);
+      final total =
+          table.rows.map((r) => int.parse(r[1])).fold(0, (a, b) => a + b);
       expect(total, state.everyPerson.length);
     });
 

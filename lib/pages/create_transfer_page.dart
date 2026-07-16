@@ -31,7 +31,8 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
   Future<void> _submit(BuildContext context, List<String> personIds) async {
     if (_toShelterId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez choisir un centre de destination')),
+        const SnackBar(
+            content: Text('Veuillez choisir un centre de destination')),
       );
       return;
     }
@@ -59,7 +60,9 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
     if (!mounted) return;
     navigator.pop();
     messenger.showSnackBar(
-      const SnackBar(content: Text('Transfert créé avec succès'), backgroundColor: AppColors.green),
+      const SnackBar(
+          content: Text('Transfert créé avec succès'),
+          backgroundColor: AppColors.green),
     );
   }
 
@@ -68,7 +71,8 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
     final args = ModalRoute.of(context)?.settings.arguments;
     final personIds = (args is List<String>) ? args : <String>[];
     final state = context.watch<AppState>();
-    final destShelters = state.shelters.where((s) => s.id != state.currentShelterId).toList();
+    final destShelters =
+        state.shelters.where((s) => s.id != state.currentShelterId).toList();
 
     return Scaffold(
       backgroundColor: AppColors.bgPage,
@@ -89,7 +93,11 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
                     const SizedBox(height: 8),
                     const Align(
                       alignment: Alignment.centerLeft,
-                      child: Text('Créer un transfert', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                      child: Text('Créer un transfert',
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary)),
                     ),
                     const SizedBox(height: 16),
 
@@ -101,15 +109,20 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
                         decoration: BoxDecoration(
                           color: AppColors.blueLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.blue.withValues(alpha: 0.3)),
+                          border: Border.all(
+                              color: AppColors.blue.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.people_alt_outlined, color: AppColors.blue, size: 20),
+                            const Icon(Icons.people_alt_outlined,
+                                color: AppColors.blue, size: 20),
                             const SizedBox(width: 10),
                             Text(
                               '${personIds.length} personne${personIds.length > 1 ? 's' : ''} sélectionnée${personIds.length > 1 ? 's' : ''}',
-                              style: const TextStyle(color: AppColors.blueText, fontWeight: FontWeight.w600, fontSize: 14),
+                              style: const TextStyle(
+                                  color: AppColors.blueText,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14),
                             ),
                           ],
                         ),
@@ -128,26 +141,51 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 150),
                               margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
-                                color: selected ? AppColors.blueLight : AppColors.bgPage,
+                                color: selected
+                                    ? AppColors.blueLight
+                                    : AppColors.bgPage,
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: selected ? AppColors.blue : AppColors.divider, width: selected ? 1.5 : 1),
+                                border: Border.all(
+                                    color: selected
+                                        ? AppColors.blue
+                                        : AppColors.divider,
+                                    width: selected ? 1.5 : 1),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.business, size: 18, color: selected ? AppColors.blue : AppColors.textSecondary),
+                                  Icon(Icons.business,
+                                      size: 18,
+                                      color: selected
+                                          ? AppColors.blue
+                                          : AppColors.textSecondary),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(s.name, style: TextStyle(fontWeight: FontWeight.w600, color: selected ? AppColors.blue : AppColors.textPrimary, fontSize: 14)),
-                                        Text('${state.placesRestantesOf(s.id)} places restantes', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                        Text(s.name,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                color: selected
+                                                    ? AppColors.blue
+                                                    : AppColors.textPrimary,
+                                                fontSize: 14)),
+                                        Text(
+                                            '${state.placesRestantesOf(s.id)} places restantes',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color:
+                                                    AppColors.textSecondary)),
                                       ],
                                     ),
                                   ),
-                                  if (selected) const Icon(Icons.check_circle, color: AppColors.blue, size: 20),
+                                  if (selected)
+                                    const Icon(Icons.check_circle,
+                                        color: AppColors.blue, size: 20),
                                 ],
                               ),
                             ),
@@ -169,13 +207,26 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
                           return GestureDetector(
                             onTap: () => setState(() => _transportMode = t),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
                               decoration: BoxDecoration(
-                                color: sel ? AppColors.blueLight : AppColors.bgPage,
+                                color: sel
+                                    ? AppColors.blueLight
+                                    : AppColors.bgPage,
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: sel ? AppColors.blue : AppColors.divider, width: sel ? 1.5 : 1),
+                                border: Border.all(
+                                    color: sel
+                                        ? AppColors.blue
+                                        : AppColors.divider,
+                                    width: sel ? 1.5 : 1),
                               ),
-                              child: Text(t, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: sel ? AppColors.blue : AppColors.textPrimary)),
+                              child: Text(t,
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: sel
+                                          ? AppColors.blue
+                                          : AppColors.textPrimary)),
                             ),
                           );
                         }).toList(),
@@ -200,9 +251,14 @@ class _CreateTransferPageState extends State<CreateTransferPage> {
                     const SizedBox(height: 24),
 
                     ElevatedButton(
-                      onPressed: _isLoading ? null : () => _submit(context, personIds),
+                      onPressed:
+                          _isLoading ? null : () => _submit(context, personIds),
                       child: _isLoading
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
                           : const Text('Créer le transfert'),
                     ),
                     const SizedBox(height: 10),
@@ -227,7 +283,8 @@ class _FormCard extends StatelessWidget {
   final IconData icon;
   final Widget child;
 
-  const _FormCard({required this.title, required this.icon, required this.child});
+  const _FormCard(
+      {required this.title, required this.icon, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +293,12 @@ class _FormCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2))
+        ],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -246,7 +308,11 @@ class _FormCard extends StatelessWidget {
             children: [
               Icon(icon, size: 18, color: AppColors.navy),
               const SizedBox(width: 8),
-              Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary)),
             ],
           ),
           const SizedBox(height: 12),

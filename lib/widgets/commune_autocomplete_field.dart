@@ -80,8 +80,7 @@ class CommuneAutocompleteField extends StatelessWidget {
                     subtitle: Text(
                       [
                         if (c.codePostal != null) c.codePostal,
-                        if (c.population != null)
-                          '${c.population} hab.',
+                        if (c.population != null) '${c.population} hab.',
                       ].whereType<String>().join(' · '),
                       style: const TextStyle(fontSize: 12),
                     ),

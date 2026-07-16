@@ -240,17 +240,20 @@ class _TranslatorSheetState extends State<_TranslatorSheet> {
                 decoration: BoxDecoration(
                   color: AppColors.orangeLight,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.orange.withValues(alpha: 0.3)),
+                  border: Border.all(
+                      color: AppColors.orange.withValues(alpha: 0.3)),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.info_outline, size: 18, color: AppColors.orangeText),
+                    Icon(Icons.info_outline,
+                        size: 18, color: AppColors.orangeText),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Service de traduction non configuré. Voir docs/securite pour '
                         'choisir un fournisseur avant utilisation réelle.',
-                        style: TextStyle(fontSize: 12, color: AppColors.orangeText),
+                        style: TextStyle(
+                            fontSize: 12, color: AppColors.orangeText),
                       ),
                     ),
                   ],
@@ -267,11 +270,13 @@ class _TranslatorSheetState extends State<_TranslatorSheet> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline, size: 16, color: AppColors.redText),
+                    const Icon(Icons.error_outline,
+                        size: 16, color: AppColors.redText),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(_error!,
-                          style: const TextStyle(fontSize: 12, color: AppColors.redText)),
+                          style: const TextStyle(
+                              fontSize: 12, color: AppColors.redText)),
                     ),
                   ],
                 ),
@@ -348,7 +353,9 @@ class _Header extends StatelessWidget {
           const Expanded(
             child: Text('Traducteur',
                 style: TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary)),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -413,14 +420,17 @@ class _Bubble extends StatelessWidget {
         crossAxisAlignment: align,
         children: [
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+            constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.78),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: bg,
                 borderRadius: radius,
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)
+                  BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 4)
                 ],
               ),
               child: Column(
@@ -428,10 +438,16 @@ class _Bubble extends StatelessWidget {
                 children: [
                   Text(message.translatedText,
                       style: TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w600, color: fg)),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: fg)),
                   const SizedBox(height: 4),
-                  Text('« ${message.originalText} » — ${message.originalLangLabel}',
-                      style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: subFg)),
+                  Text(
+                      '« ${message.originalText} » — ${message.originalLangLabel}',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic,
+                          color: subFg)),
                 ],
               ),
             ),
@@ -483,7 +499,8 @@ class _InputBar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 4),
             child: Text(label,
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
+                style: TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w600, color: color)),
           ),
           Row(
             children: [
@@ -493,7 +510,9 @@ class _InputBar extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: listening ? AppColors.red : color.withValues(alpha: 0.1),
+                    color: listening
+                        ? AppColors.red
+                        : color.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -509,14 +528,16 @@ class _InputBar extends StatelessWidget {
                   controller: controller,
                   enabled: enabled,
                   decoration: InputDecoration(
-                    hintText: listening ? 'Écoute en cours…' : 'Écrire ou parler…',
+                    hintText:
+                        listening ? 'Écoute en cours…' : 'Écrire ou parler…',
                     isDense: true,
                     filled: true,
                     fillColor: AppColors.bgPage,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none),
                   ),
                   onSubmitted: (_) => onSend(),
                 ),
@@ -527,7 +548,8 @@ class _InputBar extends StatelessWidget {
                 child: Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                  decoration:
+                      BoxDecoration(color: color, shape: BoxShape.circle),
                   child: const Icon(Icons.send, color: Colors.white, size: 18),
                 ),
               ),

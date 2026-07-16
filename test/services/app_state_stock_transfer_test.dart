@@ -29,7 +29,8 @@ void main() {
       );
     });
 
-    test('addStockTransfer décrémente immédiatement l\'agrégat du centre source',
+    test(
+        'addStockTransfer décrémente immédiatement l\'agrégat du centre source',
         () {
       final before = state.stockQuantityOf('shelter_1', 'eau');
       final destBefore = state.stockQuantityOf('shelter_2', 'eau');
@@ -56,10 +57,12 @@ void main() {
 
       final shelter1 = state.shelters.firstWhere((s) => s.id == 'shelter_1');
       expect(shelter1.stock['eau'], state.stockQuantityOf('shelter_1', 'eau'),
-          reason: 'l\'agrégat affiché doit rester aligné sur la somme des entrées');
+          reason:
+              'l\'agrégat affiché doit rester aligné sur la somme des entrées');
     });
 
-    test('markStockTransferDeparted passe le statut en transit sans bouger le stock',
+    test(
+        'markStockTransferDeparted passe le statut en transit sans bouger le stock',
         () {
       state.addStockTransfer(
         fromShelterId: 'shelter_1',
@@ -76,8 +79,9 @@ void main() {
 
       state.markStockTransferDeparted(transfer.id);
 
-      final updated =
-          state.stockTransfersOf('shelter_1').firstWhere((t) => t.id == transfer.id);
+      final updated = state
+          .stockTransfersOf('shelter_1')
+          .firstWhere((t) => t.id == transfer.id);
       expect(updated.status, TransferStatus.inProgress);
       expect(updated.departedAt, isNotNull);
       expect(state.stockQuantityOf('shelter_1', 'repas'), qtyAfterCreate);
@@ -101,8 +105,9 @@ void main() {
       state.confirmStockTransferArrival(transfer.id);
 
       expect(state.stockQuantityOf('shelter_2', 'masques'), destBefore + 50);
-      final updated =
-          state.stockTransfersOf('shelter_2').firstWhere((t) => t.id == transfer.id);
+      final updated = state
+          .stockTransfersOf('shelter_2')
+          .firstWhere((t) => t.id == transfer.id);
       expect(updated.status, TransferStatus.confirmed);
       expect(updated.confirmedAt, isNotNull);
       expect(updated.inEntryId, isNotNull);
@@ -132,13 +137,13 @@ void main() {
 
       expect(
           state.stockQuantityOf('shelter_1', 'couches'), qtyAfterCreate + 15);
-      final updated =
-          state.stockTransfersOf('shelter_1').firstWhere((t) => t.id == transfer.id);
+      final updated = state
+          .stockTransfersOf('shelter_1')
+          .firstWhere((t) => t.id == transfer.id);
       expect(updated.status, TransferStatus.cancelled);
     });
 
-    test('cancelStockTransfer est un no-op une fois le transfert confirmé',
-        () {
+    test('cancelStockTransfer est un no-op une fois le transfert confirmé', () {
       state.addStockTransfer(
         fromShelterId: 'shelter_1',
         fromShelterName: 'Gymnase de Baie-Mahault',
@@ -156,9 +161,11 @@ void main() {
       state.cancelStockTransfer(transfer.id);
 
       expect(state.stockQuantityOf('shelter_1', 'medicaments'), qtyAfterConfirm,
-          reason: 'un transfert déjà confirmé ne doit plus pouvoir être annulé');
-      final updated =
-          state.stockTransfersOf('shelter_1').firstWhere((t) => t.id == transfer.id);
+          reason:
+              'un transfert déjà confirmé ne doit plus pouvoir être annulé');
+      final updated = state
+          .stockTransfersOf('shelter_1')
+          .firstWhere((t) => t.id == transfer.id);
       expect(updated.status, TransferStatus.confirmed);
     });
   });

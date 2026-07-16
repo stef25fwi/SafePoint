@@ -30,7 +30,9 @@ class FirebaseAgentAccountRepository implements AgentAccountRepository {
           .where('communeId', isEqualTo: communeId)
           .where('active', isEqualTo: true)
           .get();
-      return query.docs.map((d) => AgentAccountModel.fromFirestore(d.data())).toList();
+      return query.docs
+          .map((d) => AgentAccountModel.fromFirestore(d.data()))
+          .toList();
     } catch (e) {
       return [];
     }
@@ -44,7 +46,9 @@ class FirebaseAgentAccountRepository implements AgentAccountRepository {
           .where('centerId', isEqualTo: centerId)
           .where('active', isEqualTo: true)
           .get();
-      return query.docs.map((d) => AgentAccountModel.fromFirestore(d.data())).toList();
+      return query.docs
+          .map((d) => AgentAccountModel.fromFirestore(d.data()))
+          .toList();
     } catch (e) {
       return [];
     }
@@ -52,7 +56,10 @@ class FirebaseAgentAccountRepository implements AgentAccountRepository {
 
   @override
   Future<void> create(AgentAccountModel account) async {
-    await _firestore.collection('agent_accounts').doc(account.id).set(account.toFirestore());
+    await _firestore
+        .collection('agent_accounts')
+        .doc(account.id)
+        .set(account.toFirestore());
   }
 
   @override

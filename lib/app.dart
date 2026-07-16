@@ -33,7 +33,8 @@ class SafePointApp extends StatelessWidget {
           // mobile). Les pages autonomes sont centrées et bornées sur grand
           // écran via ResponsiveAppFrame ; sur mobile, c'est un passe-plat.
           routes: {
-            AppRoutes.login: (_) => const ResponsiveAppFrame(child: LoginPage()),
+            AppRoutes.login: (_) =>
+                const ResponsiveAppFrame(child: LoginPage()),
             AppRoutes.shell: (_) => const MainShellPage(),
             AppRoutes.personForm: (_) =>
                 const ResponsiveAppFrame(child: PersonFormPage()),
@@ -51,8 +52,8 @@ class SafePointApp extends StatelessWidget {
                 const ResponsiveAppFrame(child: ShelterDetailPage()),
             AppRoutes.agentGenerator: (_) =>
                 const ResponsiveAppFrame(child: AgentGeneratorPage()),
-            AppRoutes.analytics: (_) =>
-                const ResponsiveAppFrame(maxWidth: 1100, child: AnalyticsPage()),
+            AppRoutes.analytics: (_) => const ResponsiveAppFrame(
+                maxWidth: 1100, child: AnalyticsPage()),
           },
         ),
       ),

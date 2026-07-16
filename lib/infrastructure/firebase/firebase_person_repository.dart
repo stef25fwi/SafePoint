@@ -127,7 +127,8 @@ class FirebasePersonRepository implements PersonRepository {
         'qrCode': p.qrCode,
         'firstName': p.firstName,
         'lastName': p.lastName,
-        'birthDate': p.birthDate != null ? Timestamp.fromDate(p.birthDate!) : null,
+        'birthDate':
+            p.birthDate != null ? Timestamp.fromDate(p.birthDate!) : null,
         'ageApprox': p.ageApprox,
         'originCommune': p.originCommune,
         'originSector': p.originSector,
@@ -143,8 +144,9 @@ class FirebasePersonRepository implements PersonRepository {
         'updatedAt': FieldValue.serverTimestamp(),
         'createdBy': p.createdBy,
         'updatedBy': p.updatedBy,
-        'lastCheckinAt':
-            p.lastCheckinAt != null ? Timestamp.fromDate(p.lastCheckinAt!) : null,
+        'lastCheckinAt': p.lastCheckinAt != null
+            ? Timestamp.fromDate(p.lastCheckinAt!)
+            : null,
         'isDeleted': p.isDeleted,
         'visibilityLevel': p.visibilityLevel,
         'retentionPolicy': p.retentionPolicy,
@@ -155,7 +157,8 @@ class FirebasePersonRepository implements PersonRepository {
     final now = DateTime.now();
     return PersonModel(
       id: doc.id,
-      organizationId: d['organizationId'] as String? ?? AppDefaults.organizationId,
+      organizationId:
+          d['organizationId'] as String? ?? AppDefaults.organizationId,
       territoryId: d['territoryId'] as String?,
       eventId: d['eventId'] as String? ?? '',
       shelterId: d['shelterId'] as String? ?? '',

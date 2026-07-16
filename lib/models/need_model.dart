@@ -9,7 +9,7 @@ class NeedModel {
   final String? familyId;
   final NeedType type;
   final String urgency; // critical | high | medium | low
-  final String status;  // open | in_progress | resolved
+  final String status; // open | in_progress | resolved
   final String? description;
   final DateTime createdAt;
   final DateTime? resolvedAt;

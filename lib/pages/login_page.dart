@@ -40,9 +40,9 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       await context.read<AppState>().loginAgent(
-        agentCode: _agentCodeController.text,
-        password: _passwordController.text,
-      );
+            agentCode: _agentCodeController.text,
+            password: _passwordController.text,
+          );
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(AppRoutes.shell);
     } catch (e) {
@@ -63,7 +63,6 @@ class _LoginPageState extends State<LoginPage> {
         );
     Navigator.of(context).pushReplacementNamed(AppRoutes.shell);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +187,8 @@ class _LoginPageState extends State<LoginPage> {
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: TextStyle(
-                                    fontSize: 13, color: AppColors.textPrimary)),
+                                    fontSize: 13,
+                                    color: AppColors.textPrimary)),
                           ),
                           const SizedBox(width: 8),
                           GestureDetector(

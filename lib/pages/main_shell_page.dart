@@ -85,8 +85,7 @@ class MainShellPageState extends State<MainShellPage> {
             selectedIconTheme: const IconThemeData(color: AppColors.navy),
             selectedLabelTextStyle: const TextStyle(
                 color: AppColors.navy, fontWeight: FontWeight.w600),
-            unselectedIconTheme:
-                const IconThemeData(color: AppColors.grayText),
+            unselectedIconTheme: const IconThemeData(color: AppColors.grayText),
             leading: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
@@ -104,7 +103,8 @@ class MainShellPageState extends State<MainShellPage> {
                       color: roleColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.badge_outlined, size: 14, color: roleColor),
+                    child:
+                        Icon(Icons.badge_outlined, size: 14, color: roleColor),
                   ),
                 ],
               ),
@@ -121,7 +121,8 @@ class MainShellPageState extends State<MainShellPage> {
                 label: Text('Personnes'),
               ),
               NavigationRailDestination(
-                icon: Icon(canScan ? Icons.qr_code_scanner : Icons.lock_outline),
+                icon:
+                    Icon(canScan ? Icons.qr_code_scanner : Icons.lock_outline),
                 selectedIcon: const Icon(Icons.qr_code_scanner),
                 label: const Text('Scanner'),
               ),

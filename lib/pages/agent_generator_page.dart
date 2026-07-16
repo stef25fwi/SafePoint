@@ -88,7 +88,8 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
   }
 
   String _generateRandomPassword() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#\$%';
+    const chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#\$%';
     final random = List<int>.generate(12, (_) => _random.nextInt(chars.length));
     return random.map((i) => chars[i]).join();
   }
@@ -201,13 +202,15 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
             else
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'Créer un nouveau compte agent',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
                       TextField(
@@ -221,7 +224,8 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
                       const SizedBox(height: 16),
                       const Text(
                         'Rôle d\'accès *',
-                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 14),
                       ),
                       const SizedBox(height: 8),
                       Container(
@@ -246,7 +250,9 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
                                 ),
                               );
                             }).toList(),
-                            onChanged: canCreate ? (v) => setState(() => _selectedRole = v) : null,
+                            onChanged: canCreate
+                                ? (v) => setState(() => _selectedRole = v)
+                                : null,
                           ),
                         ),
                       ),
@@ -290,13 +296,15 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
                                     label: 'Mot de passe temporaire',
                                     value: _generatedPassword!,
                                     showPassword: _showPassword,
-                                    onToggleVisibility: () => setState(() => _showPassword = !_showPassword),
+                                    onToggleVisibility: () => setState(
+                                        () => _showPassword = !_showPassword),
                                     onCopy: _copyToClipboard,
                                   ),
                                   const SizedBox(height: 12),
                                   const Text(
                                     '⚠️ Le mot de passe s\'affiche une seule fois. Notez-le ou copiez-le maintenant.',
-                                    style: TextStyle(fontSize: 12, color: AppColors.orange),
+                                    style: TextStyle(
+                                        fontSize: 12, color: AppColors.orange),
                                   ),
                                 ],
                               ),
@@ -314,7 +322,8 @@ class _AgentGeneratorPageState extends State<AgentGeneratorPage> {
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    onPressed: () => setState(() => _generatedCode = null),
+                                    onPressed: () =>
+                                        setState(() => _generatedCode = null),
                                     icon: const Icon(Icons.add),
                                     label: const Text('Nouveau'),
                                   ),
@@ -360,9 +369,15 @@ class _CodeField extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary)),
                 const SizedBox(height: 4),
-                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+                Text(value,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'monospace')),
               ],
             ),
           ),
@@ -406,18 +421,25 @@ class _PasswordField extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary)),
                 const SizedBox(height: 4),
                 Text(
                   showPassword ? value : '•' * value.length,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'monospace'),
                 ),
               ],
             ),
           ),
           IconButton(
             icon: Icon(
-              showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+              showPassword
+                  ? Icons.visibility_off_outlined
+                  : Icons.visibility_outlined,
               size: 18,
             ),
             onPressed: onToggleVisibility,

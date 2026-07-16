@@ -195,13 +195,10 @@ class ExportService {
     return buffer.toString();
   }
 
-  String _csvLine(List<String> cells) =>
-      cells.map(_escapeCsv).join(';');
+  String _csvLine(List<String> cells) => cells.map(_escapeCsv).join(';');
 
   String _escapeCsv(String value) {
-    if (value.contains(';') ||
-        value.contains('"') ||
-        value.contains('\n')) {
+    if (value.contains(';') || value.contains('"') || value.contains('\n')) {
       return '"${value.replaceAll('"', '""')}"';
     }
     return value;
@@ -251,8 +248,8 @@ class ExportService {
               cellStyle: const pw.TextStyle(fontSize: 8),
               cellHeight: 18,
               rowDecoration: const pw.BoxDecoration(
-                border: pw.Border(
-                    bottom: pw.BorderSide(color: PdfColors.grey300)),
+                border:
+                    pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300)),
               ),
             ),
           pw.SizedBox(height: 12),
@@ -284,7 +281,8 @@ class ExportService {
   /// Partage / aperçu d'un rapport au format PDF.
   Future<void> sharePdf(ReportTable t, {String? subtitle}) async {
     final bytes = await toPdf(t, subtitle: subtitle);
-    await Printing.sharePdf(bytes: bytes, filename: '${_fileName(t.title)}.pdf');
+    await Printing.sharePdf(
+        bytes: bytes, filename: '${_fileName(t.title)}.pdf');
   }
 
   /// Aperçu imprimable (impression / enregistrement système).

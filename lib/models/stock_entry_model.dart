@@ -132,7 +132,7 @@ class StockEntryModel {
         organizationId:
             m['organization_id'] as String? ?? AppDefaults.organizationId,
         addedBy: m['added_by'] as String? ?? AppDefaults.demoUserId,
-        createdAt:
-            DateTime.tryParse(m['created_at'] as String? ?? '') ?? DateTime.now(),
+        createdAt: DateTime.tryParse(m['created_at'] as String? ?? '') ??
+            DateTime.now(),
       );
 }

@@ -19,12 +19,10 @@ class CommuneModel {
   });
 
   /// Premier code postal (le plus courant pour l'affichage).
-  String? get codePostal =>
-      codesPostaux.isNotEmpty ? codesPostaux.first : null;
+  String? get codePostal => codesPostaux.isNotEmpty ? codesPostaux.first : null;
 
   /// Libellé d'affichage : « Baie-Mahault (97122) ».
-  String get displayLabel =>
-      codePostal != null ? '$nom ($codePostal)' : nom;
+  String get displayLabel => codePostal != null ? '$nom ($codePostal)' : nom;
 
   factory CommuneModel.fromGeoApi(Map<String, dynamic> json) {
     return CommuneModel(

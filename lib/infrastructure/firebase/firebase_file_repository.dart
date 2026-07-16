@@ -18,7 +18,8 @@ class FirebaseFileRepository implements FileRepository {
     required List<int> fileBytes,
     required String mimeType,
   }) async {
-    final path = '${StoragePaths.organizations(organizationId)}/$ownerType/$ownerId/$fileName';
+    final path =
+        '${StoragePaths.organizations(organizationId)}/$ownerType/$ownerId/$fileName';
     final ref = _storage.ref(path);
 
     try {

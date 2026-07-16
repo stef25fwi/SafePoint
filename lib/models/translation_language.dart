@@ -41,7 +41,10 @@ const kTranslationLanguages = <TranslationLanguage>[
   TranslationLanguage(
       code: 'ar', label: 'Arabe', flag: '🇸🇦', speechLocale: 'ar-SA'),
   TranslationLanguage(
-      code: 'zh', label: 'Chinois (mandarin)', flag: '🇨🇳', speechLocale: 'zh-CN'),
+      code: 'zh',
+      label: 'Chinois (mandarin)',
+      flag: '🇨🇳',
+      speechLocale: 'zh-CN'),
   TranslationLanguage(
       code: 'it', label: 'Italien', flag: '🇮🇹', speechLocale: 'it-IT'),
   TranslationLanguage(

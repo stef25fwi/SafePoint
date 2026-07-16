@@ -86,8 +86,7 @@ class ReportsPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
               child: InkWell(
-                onTap: () =>
-                    Navigator.pushNamed(context, AppRoutes.analytics),
+                onTap: () => Navigator.pushNamed(context, AppRoutes.analytics),
                 borderRadius: BorderRadius.circular(14),
                 child: Container(
                   padding: const EdgeInsets.all(14),
@@ -172,52 +171,56 @@ class ReportsPage extends StatelessWidget {
                       ];
                       final colorIdx = state.shelters.indexOf(s) % 3;
                       return GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.shelterDetail, arguments: s.id),
+                        onTap: () => Navigator.pushNamed(
+                            context, AppRoutes.shelterDetail,
+                            arguments: s.id),
                         child: Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(s.commune,
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(s.commune,
+                                        style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: AppColors.textPrimary)),
+                                  ),
+                                  Text('$count',
                                       style: const TextStyle(
                                           fontSize: 13,
-                                          fontWeight: FontWeight.w500,
+                                          fontWeight: FontWeight.w700,
                                           color: AppColors.textPrimary)),
-                                ),
-                                Text('$count',
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.textPrimary)),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            LayoutBuilder(builder: (ctx, constraints) {
-                              return Stack(
-                                children: [
-                                  Container(
-                                      height: 10,
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                          color: AppColors.grayLight,
-                                          borderRadius:
-                                              BorderRadius.circular(5))),
-                                  AnimatedContainer(
-                                    duration: const Duration(milliseconds: 600),
-                                    height: 10,
-                                    width: constraints.maxWidth * pct,
-                                    decoration: BoxDecoration(
-                                        color: colors[colorIdx],
-                                        borderRadius: BorderRadius.circular(5)),
-                                  ),
                                 ],
-                              );
-                            }),
-                          ],
-                        ),
+                              ),
+                              const SizedBox(height: 6),
+                              LayoutBuilder(builder: (ctx, constraints) {
+                                return Stack(
+                                  children: [
+                                    Container(
+                                        height: 10,
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                            color: AppColors.grayLight,
+                                            borderRadius:
+                                                BorderRadius.circular(5))),
+                                    AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 600),
+                                      height: 10,
+                                      width: constraints.maxWidth * pct,
+                                      decoration: BoxDecoration(
+                                          color: colors[colorIdx],
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
+                                    ),
+                                  ],
+                                );
+                              }),
+                            ],
+                          ),
                         ),
                       );
                     }),
@@ -358,8 +361,10 @@ class ReportsPage extends StatelessWidget {
                         icon: Icons.warning_amber_rounded,
                         label: 'Liste des personnes non pointées',
                         color: AppColors.red,
-                        onTap: () => _showExportSheet(context,
-                            ExportService.instance.personnesNonPointees(state))),
+                        onTap: () => _showExportSheet(
+                            context,
+                            ExportService.instance
+                                .personnesNonPointees(state))),
                     const Divider(height: 1),
                     _ReportRow(
                         icon: Icons.inventory_2_outlined,
@@ -486,8 +491,7 @@ class ReportsPage extends StatelessWidget {
   int _niceStep(int maxValue) {
     if (maxValue <= 0) return 1;
     final raw = maxValue / 3;
-    final magnitude =
-        math.pow(10, (math.log(raw) / math.ln10).floor()).toInt();
+    final magnitude = math.pow(10, (math.log(raw) / math.ln10).floor()).toInt();
     final residual = raw / magnitude;
     final int niceResidual;
     if (residual <= 1) {

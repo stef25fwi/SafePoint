@@ -72,8 +72,11 @@ class AgentAccountModel {
               orElse: () => UserRole.agent,
             )
           : null,
-      createdAt: DateTime.parse(doc['createdAt'] ?? DateTime.now().toIso8601String()),
-      lastLoginAt: doc['lastLoginAt'] != null ? DateTime.parse(doc['lastLoginAt']) : null,
+      createdAt:
+          DateTime.parse(doc['createdAt'] ?? DateTime.now().toIso8601String()),
+      lastLoginAt: doc['lastLoginAt'] != null
+          ? DateTime.parse(doc['lastLoginAt'])
+          : null,
     );
   }
 }

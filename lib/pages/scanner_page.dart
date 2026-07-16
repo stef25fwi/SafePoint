@@ -80,7 +80,9 @@ class _ScannerPageState extends State<ScannerPage>
   void _doQrCheckin(CheckinType type) {
     if (_scannedPerson == null) return;
     final name = _scannedPerson!.fullName;
-    context.read<AppState>().createCheckin(personId: _scannedPerson!.id, type: type);
+    context
+        .read<AppState>()
+        .createCheckin(personId: _scannedPerson!.id, type: type);
     setState(() {
       _qrSuccess = '${type.label} enregistré pour $name';
       _scannedPerson = null;
@@ -200,9 +202,15 @@ class _ScannerPageState extends State<ScannerPage>
                     labelStyle:
                         TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                     tabs: [
-                      Tab(icon: Icon(Icons.qr_code_scanner, size: 20), text: 'QR Code'),
-                      Tab(icon: Icon(Icons.search, size: 20), text: 'Recherche'),
-                      Tab(icon: Icon(Icons.family_restroom, size: 20), text: 'Famille'),
+                      Tab(
+                          icon: Icon(Icons.qr_code_scanner, size: 20),
+                          text: 'QR Code'),
+                      Tab(
+                          icon: Icon(Icons.search, size: 20),
+                          text: 'Recherche'),
+                      Tab(
+                          icon: Icon(Icons.family_restroom, size: 20),
+                          text: 'Famille'),
                     ],
                   ),
                 ],
@@ -337,7 +345,8 @@ class _ScannerPageState extends State<ScannerPage>
           if (recentCheckins.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _RecentScansCard(recentCheckins: recentCheckins, state: state),
+              child: _RecentScansCard(
+                  recentCheckins: recentCheckins, state: state),
             ),
           const SizedBox(height: 24),
         ],
@@ -389,13 +398,11 @@ class _ScannerPageState extends State<ScannerPage>
             ),
           ),
         ),
-
         if (_searchSuccess != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: _SuccessBanner(message: _searchSuccess!),
           ),
-
         if (_selectedPerson != null) ...[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -413,7 +420,6 @@ class _ScannerPageState extends State<ScannerPage>
           ),
           const SizedBox(height: 8),
         ],
-
         Expanded(
           child: _searchQuery.isEmpty
               ? const Center(
@@ -452,9 +458,8 @@ class _ScannerPageState extends State<ScannerPage>
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: selected
-                                  ? AppColors.blueLight
-                                  : Colors.white,
+                              color:
+                                  selected ? AppColors.blueLight : Colors.white,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: selected
@@ -529,12 +534,14 @@ class _ScannerPageState extends State<ScannerPage>
           padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: Row(
             children: [
-              Icon(Icons.info_outline, size: 14, color: AppColors.textSecondary),
+              Icon(Icons.info_outline,
+                  size: 14, color: AppColors.textSecondary),
               SizedBox(width: 6),
               Expanded(
                 child: Text(
                   'Tapez « Pointer » pour pointer toute une famille. Décochez les absents avant de confirmer.',
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style:
+                      TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
               ),
             ],
@@ -546,8 +553,8 @@ class _ScannerPageState extends State<ScannerPage>
                   child: Text('Aucune famille enregistrée',
                       style: TextStyle(color: AppColors.textSecondary)))
               : ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   itemCount: families.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (_, i) {
@@ -656,7 +663,8 @@ class _ScannedPersonCard extends StatelessWidget {
                 height: 44,
                 decoration: const BoxDecoration(
                     color: AppColors.greenLight, shape: BoxShape.circle),
-                child: const Icon(Icons.person, color: AppColors.green, size: 24),
+                child:
+                    const Icon(Icons.person, color: AppColors.green, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -682,8 +690,8 @@ class _ScannedPersonCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.greenLight,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: AppColors.green.withValues(alpha: 0.3)),
+                  border:
+                      Border.all(color: AppColors.green.withValues(alpha: 0.3)),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -824,8 +832,7 @@ class _ActionGrid extends StatelessWidget {
             ),
             icon: const Icon(Icons.logout, size: 18),
             label: const Text('Sortie définitive',
-                style:
-                    TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -836,8 +843,7 @@ class _ActionGrid extends StatelessWidget {
 class _RecentScansCard extends StatelessWidget {
   final List<CheckinModel> recentCheckins;
   final AppState state;
-  const _RecentScansCard(
-      {required this.recentCheckins, required this.state});
+  const _RecentScansCard({required this.recentCheckins, required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -895,8 +901,7 @@ class _RecentScansCard extends StatelessWidget {
                                 color: AppColors.textPrimary)),
                         Text(c.type.label,
                             style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textSecondary)),
+                                fontSize: 12, color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -966,9 +971,8 @@ class _FamilyPointageCard extends StatelessWidget {
                   ),
                   child: Icon(Icons.family_restroom,
                       size: 20,
-                      color: isExpanded
-                          ? AppColors.blue
-                          : AppColors.purpleText),
+                      color:
+                          isExpanded ? AppColors.blue : AppColors.purpleText),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -991,12 +995,10 @@ class _FamilyPointageCard extends StatelessWidget {
                 GestureDetector(
                   onTap: onExpand,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: isExpanded
-                          ? AppColors.blueLight
-                          : AppColors.navy,
+                      color: isExpanded ? AppColors.blueLight : AppColors.navy,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -1162,9 +1164,7 @@ class _ScanAction extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                    color: color,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600),
+                    color: color, fontSize: 13, fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
             ),

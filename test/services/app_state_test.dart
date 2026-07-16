@@ -18,9 +18,8 @@ void main() {
     test('occupancyOf recalcule depuis les personnes réelles, pas currentCount',
         () {
       for (final shelter in state.shelters) {
-        final realCount = state.everyPerson
-            .where((p) => p.shelterId == shelter.id)
-            .length;
+        final realCount =
+            state.everyPerson.where((p) => p.shelterId == shelter.id).length;
         expect(state.occupancyOf(shelter.id), realCount,
             reason: 'occupancyOf(${shelter.id}) doit égaler le décompte réel');
       }
@@ -143,8 +142,7 @@ void main() {
         () {
       for (final family in state.currentFamilies) {
         final members = state.getFamilyMembers(family.id);
-        expect(
-            members.every((m) => m.familyId == family.id && !m.isDeleted),
+        expect(members.every((m) => m.familyId == family.id && !m.isDeleted),
             isTrue);
       }
     });

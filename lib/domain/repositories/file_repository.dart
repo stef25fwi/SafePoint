@@ -13,7 +13,8 @@ abstract class FileRepository {
   Future<List<int>> downloadFile(String storagePath);
 
   /// Get a signed URL (valid for 24 hours)
-  Future<String> getSignedUrl(String storagePath, {Duration validity = const Duration(hours: 24)});
+  Future<String> getSignedUrl(String storagePath,
+      {Duration validity = const Duration(hours: 24)});
 
   /// Delete a file by storage path
   Future<void> deleteFile(String storagePath);

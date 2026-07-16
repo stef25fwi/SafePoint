@@ -79,7 +79,8 @@ class FirebaseNeedRepository implements NeedRepository {
     final now = DateTime.now();
     return NeedModel(
       id: doc.id,
-      organizationId: d['organizationId'] as String? ?? AppDefaults.organizationId,
+      organizationId:
+          d['organizationId'] as String? ?? AppDefaults.organizationId,
       territoryId: d['territoryId'] as String?,
       eventId: d['eventId'] as String? ?? '',
       shelterId: d['shelterId'] as String? ?? '',

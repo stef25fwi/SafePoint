@@ -42,7 +42,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
     }
   }
 
-  void _showFamilySheet(BuildContext context, FamilyModel family, AppState state) {
+  void _showFamilySheet(
+      BuildContext context, FamilyModel family, AppState state) {
     final members = state.getFamilyMembers(family.id);
     showModalBottomSheet<void>(
       context: context,
@@ -59,7 +60,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
                 Expanded(
                   child: Text(family.displayName,
                       style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary)),
                 ),
                 IconButton(
@@ -83,7 +85,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
                 shrinkWrap: true,
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 itemCount: members.length,
-                separatorBuilder: (_, __) => const Divider(height: 1, indent: 72),
+                separatorBuilder: (_, __) =>
+                    const Divider(height: 1, indent: 72),
                 itemBuilder: (_, i) {
                   final PersonModel m = members[i];
                   return ListTile(
@@ -274,7 +277,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
                     itemBuilder: (ctx, i) => _FamilyCard(
                       family: families[i],
                       state: state,
-                      onTap: () => _showFamilySheet(context, families[i], state),
+                      onTap: () =>
+                          _showFamilySheet(context, families[i], state),
                       onMarkSeparated: () {
                         state.markFamilySeparated(
                             families[i].id, !families[i].isSeparated);
@@ -369,110 +373,112 @@ class _FamilyCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 6,
-              offset: const Offset(0, 2))
-        ],
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration:
-                    BoxDecoration(color: _iconBgColor, shape: BoxShape.circle),
-                child: Icon(Icons.family_restroom, color: _iconColor, size: 22),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  '${family.displayName} – ${members.length} personne${members.length > 1 ? 's' : ''}',
-                  style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary),
-                ),
-              ),
-              FamilyStatusBadge(
-                  isSeparated: family.isSeparated,
-                  isToVerify: family.hasChildrenAlone),
-              const SizedBox(width: 6),
-              const Icon(Icons.chevron_right,
-                  size: 18, color: AppColors.textHint),
-            ],
-          ),
-          if (members.isNotEmpty) ...[
-            const SizedBox(height: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 6,
+                offset: const Offset(0, 2))
+          ],
+        ),
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          children: [
             Row(
               children: [
-                ...members.take(4).map((m) => Container(
-                      margin: const EdgeInsets.only(right: 6),
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                      color: _iconBgColor, shape: BoxShape.circle),
+                  child:
+                      Icon(Icons.family_restroom, color: _iconColor, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '${family.displayName} – ${members.length} personne${members.length > 1 ? 's' : ''}',
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary),
+                  ),
+                ),
+                FamilyStatusBadge(
+                    isSeparated: family.isSeparated,
+                    isToVerify: family.hasChildrenAlone),
+                const SizedBox(width: 6),
+                const Icon(Icons.chevron_right,
+                    size: 18, color: AppColors.textHint),
+              ],
+            ),
+            if (members.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  ...members.take(4).map((m) => Container(
+                        margin: const EdgeInsets.only(right: 6),
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.grayLight,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(Icons.person,
+                            size: 18, color: AppColors.grayText),
+                      )),
+                  if (members.length > 4)
+                    Container(
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: AppColors.grayLight,
+                        color: AppColors.blueLight,
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                       ),
-                      child: const Icon(Icons.person,
-                          size: 18, color: AppColors.grayText),
-                    )),
-                if (members.length > 4)
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: AppColors.blueLight,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      child: Center(
+                          child: Text('+${members.length - 4}',
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.blue))),
                     ),
-                    child: Center(
-                        child: Text('+${members.length - 4}',
-                            style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.blue))),
-                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.location_on_outlined,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 4),
+                const Text(
+                  'Zone assignée : ',
+                  style:
+                      TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                ),
+                Text(
+                  family.assignedZone ?? 'Non définie',
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.navy),
+                ),
+                const Spacer(),
+                const Icon(Icons.group_outlined,
+                    size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 4),
+                Text(
+                    '${members.length} personne${members.length > 1 ? 's' : ''}',
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ],
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const Icon(Icons.location_on_outlined,
-                  size: 14, color: AppColors.textSecondary),
-              const SizedBox(width: 4),
-              const Text(
-                'Zone assignée : ',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-              Text(
-                family.assignedZone ?? 'Non définie',
-                style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.navy),
-              ),
-              const Spacer(),
-              const Icon(Icons.group_outlined,
-                  size: 14, color: AppColors.textSecondary),
-              const SizedBox(width: 4),
-              Text(
-                  '${members.length} personne${members.length > 1 ? 's' : ''}',
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.textSecondary)),
-            ],
-          ),
-        ],
-      ),
+        ),
       ),
     );
   }

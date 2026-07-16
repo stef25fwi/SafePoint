@@ -81,7 +81,8 @@ class FirebaseCrisisEventRepository implements CrisisEventRepository {
     final d = doc.data()!;
     return EmergencyEventModel(
       id: doc.id,
-      organizationId: d['organizationId'] as String? ?? AppDefaults.organizationId,
+      organizationId:
+          d['organizationId'] as String? ?? AppDefaults.organizationId,
       territoryId: d['territoryId'] as String?,
       name: d['name'] as String? ?? '',
       type: d['type'] as String? ?? '',

@@ -104,9 +104,8 @@ class ShelterModel {
       zones: zones ?? this.zones,
       responsableName:
           clearResponsable ? null : (responsableName ?? this.responsableName),
-      responsablePhone: clearResponsable
-          ? null
-          : (responsablePhone ?? this.responsablePhone),
+      responsablePhone:
+          clearResponsable ? null : (responsablePhone ?? this.responsablePhone),
       agentNames: agentNames ?? this.agentNames,
       stock: stock ?? this.stock,
       organizationId: organizationId,

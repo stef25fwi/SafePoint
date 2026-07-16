@@ -19,15 +19,26 @@ class _CrisisActivationPageState extends State<CrisisActivationPage> {
   final _zoneCtrl = TextEditingController();
 
   static const _types = [
-    _EventType('eruption', 'Éruption volcanique', Icons.local_fire_department, AppColors.red),
+    _EventType('eruption', 'Éruption volcanique', Icons.local_fire_department,
+        AppColors.red),
     _EventType('inondation', 'Inondation', Icons.water, AppColors.blue),
     _EventType('seisme', 'Séisme', Icons.vibration, AppColors.orange),
     _EventType('cyclone', 'Cyclone tropical', Icons.air, AppColors.purple),
   ];
 
   static const _monthsFr = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre',
   ];
 
   _EventType get _currentType =>
@@ -62,7 +73,9 @@ class _CrisisActivationPageState extends State<CrisisActivationPage> {
           children: [
             Icon(Icons.warning_rounded, color: AppColors.red),
             SizedBox(width: 8),
-            Expanded(child: Text('Confirmer l\'activation', style: TextStyle(fontSize: 17))),
+            Expanded(
+                child: Text('Confirmer l\'activation',
+                    style: TextStyle(fontSize: 17))),
           ],
         ),
         content: Column(
@@ -71,7 +84,8 @@ class _CrisisActivationPageState extends State<CrisisActivationPage> {
           children: [
             Text(
               '"$eventName"',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),
             const SizedBox(height: 12),
             const Text(
@@ -88,7 +102,8 @@ class _CrisisActivationPageState extends State<CrisisActivationPage> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.red),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Activer la crise', style: TextStyle(color: Colors.white)),
+            child: const Text('Activer la crise',
+                style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -137,7 +152,8 @@ class _CrisisActivationPageState extends State<CrisisActivationPage> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.green),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Clôturer', style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Clôturer', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -173,7 +189,9 @@ class _CrisisActivationPageState extends State<CrisisActivationPage> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: state.isCrisisActive
-                  ? _ActiveCrisisView(state: state, onDeactivate: () => _confirmDeactivate(context))
+                  ? _ActiveCrisisView(
+                      state: state,
+                      onDeactivate: () => _confirmDeactivate(context))
                   : _ActivationForm(
                       selectedType: _selectedType,
                       types: _types,
@@ -200,8 +218,12 @@ class _ActiveCrisisView extends StatelessWidget {
 
   String _elapsed(DateTime since) {
     final diff = DateTime.now().difference(since);
-    if (diff.inDays >= 1) return '${diff.inDays} j ${diff.inHours.remainder(24)} h';
-    if (diff.inHours >= 1) return '${diff.inHours} h ${diff.inMinutes.remainder(60)} min';
+    if (diff.inDays >= 1) {
+      return '${diff.inDays} j ${diff.inHours.remainder(24)} h';
+    }
+    if (diff.inHours >= 1) {
+      return '${diff.inHours} h ${diff.inMinutes.remainder(60)} min';
+    }
     return '${diff.inMinutes} min';
   }
 
@@ -226,18 +248,26 @@ class _ActiveCrisisView extends StatelessWidget {
               const SizedBox(height: 12),
               const Text(
                 'CRISE ACTIVE',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.red, letterSpacing: 1.5),
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.red,
+                    letterSpacing: 1.5),
               ),
               const SizedBox(height: 6),
               Text(
                 event.name,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               Text(
                 'Activé il y a ${_elapsed(event.startedAt)}',
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: const TextStyle(
+                    fontSize: 13, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -249,7 +279,12 @@ class _ActiveCrisisView extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2))
+            ],
           ),
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -259,15 +294,19 @@ class _ActiveCrisisView extends StatelessWidget {
                 children: [
                   Icon(Icons.business, size: 18, color: AppColors.navy),
                   SizedBox(width: 8),
-                  Text('État des centres', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                  Text('État des centres',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary)),
                 ],
               ),
               const SizedBox(height: 14),
               ...state.shelters.map((s) => _ShelterStatusRow(
                     shelter: s,
                     occupancy: state.occupancyOf(s.id),
-                    onTap: () => Navigator.pushNamed(context,
-                        AppRoutes.shelterDetail,
+                    onTap: () => Navigator.pushNamed(
+                        context, AppRoutes.shelterDetail,
                         arguments: s.id),
                   )),
             ],
@@ -278,21 +317,25 @@ class _ActiveCrisisView extends StatelessWidget {
         // Total stats
         Row(
           children: [
-            Expanded(child: _StatTile(
+            Expanded(
+                child: _StatTile(
               icon: Icons.group,
               label: 'Personnes\naccueillies',
               value: '${state.everyPerson.length}',
               color: AppColors.blue,
             )),
             const SizedBox(width: 12),
-            Expanded(child: _StatTile(
+            Expanded(
+                child: _StatTile(
               icon: Icons.business_outlined,
               label: 'Centres\nactifs',
-              value: '${state.shelters.where((s) => s.status == ShelterStatus.open || s.status == ShelterStatus.full).length}',
+              value:
+                  '${state.shelters.where((s) => s.status == ShelterStatus.open || s.status == ShelterStatus.full).length}',
               color: AppColors.green,
             )),
             const SizedBox(width: 12),
-            Expanded(child: _StatTile(
+            Expanded(
+                child: _StatTile(
               icon: Icons.warning_rounded,
               label: 'Alertes\nouvertes',
               value: '${state.openAlerts.length}',
@@ -328,7 +371,8 @@ class _ShelterStatusRow extends StatelessWidget {
   final dynamic shelter;
   final int occupancy;
   final VoidCallback? onTap;
-  const _ShelterStatusRow({required this.shelter, required this.occupancy, this.onTap});
+  const _ShelterStatusRow(
+      {required this.shelter, required this.occupancy, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -358,29 +402,34 @@ class _ShelterStatusRow extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          Icon(statusIcon, size: 16, color: statusColor),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(shelter.name as String,
-                style: const TextStyle(fontSize: 13, color: AppColors.textPrimary)),
-          ),
-          Text('$occupancy pers.',
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Row(
+          children: [
+            Icon(statusIcon, size: 16, color: statusColor),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(shelter.name as String,
+                  style: const TextStyle(
+                      fontSize: 13, color: AppColors.textPrimary)),
             ),
-            child: Text(statusLabel,
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor)),
-          ),
-        ],
-      ),
+            Text('$occupancy pers.',
+                style: const TextStyle(
+                    fontSize: 12, color: AppColors.textSecondary)),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(statusLabel,
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: statusColor)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -392,7 +441,11 @@ class _StatTile extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _StatTile({required this.icon, required this.label, required this.value, required this.color});
+  const _StatTile(
+      {required this.icon,
+      required this.label,
+      required this.value,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -401,15 +454,28 @@ class _StatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Column(
         children: [
           Icon(icon, size: 20, color: color),
           const SizedBox(height: 6),
-          Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color, height: 1.1)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  height: 1.1)),
           const SizedBox(height: 4),
-          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+          Text(label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 11, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -446,7 +512,12 @@ class _ActivationForm extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2))
+            ],
           ),
           child: const Column(
             children: [
@@ -455,7 +526,10 @@ class _ActivationForm extends StatelessWidget {
               Text(
                 'Activation d\'un événement de crise',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary),
               ),
               SizedBox(height: 6),
               Text(
@@ -470,7 +544,10 @@ class _ActivationForm extends StatelessWidget {
 
         // Type selector
         const Text('Type d\'événement',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary)),
         const SizedBox(height: 10),
         GridView.count(
           crossAxisCount: 2,
@@ -479,30 +556,39 @@ class _ActivationForm extends StatelessWidget {
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
           childAspectRatio: 2.4,
-          children: types.map((t) => _TypeTile(
-            type: t,
-            selected: selectedType == t.id,
-            onTap: () => onTypeChanged(t.id),
-          )).toList(),
+          children: types
+              .map((t) => _TypeTile(
+                    type: t,
+                    selected: selectedType == t.id,
+                    onTap: () => onTypeChanged(t.id),
+                  ))
+              .toList(),
         ),
         const SizedBox(height: 20),
 
         // Zone / volcano name
         const Text('Localisation / nom de zone',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary)),
         const SizedBox(height: 8),
         TextFormField(
           controller: zoneCtrl,
           decoration: const InputDecoration(
             hintText: 'Ex : Soufrière, Rivière Salée…',
-            prefixIcon: Icon(Icons.place_outlined, color: AppColors.textSecondary),
+            prefixIcon:
+                Icon(Icons.place_outlined, color: AppColors.textSecondary),
           ),
         ),
         const SizedBox(height: 20),
 
         // Live preview
         const Text('Aperçu de la bannière',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary)),
         const SizedBox(height: 8),
         ValueListenableBuilder<TextEditingValue>(
           valueListenable: zoneCtrl,
@@ -519,7 +605,8 @@ class _ActivationForm extends StatelessWidget {
             backgroundColor: AppColors.red,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            textStyle:
+                const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           icon: const Icon(Icons.warning_rounded),
           label: const Text('Activer la crise'),
@@ -541,7 +628,8 @@ class _TypeTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _TypeTile({required this.type, required this.selected, required this.onTap});
+  const _TypeTile(
+      {required this.type, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -556,12 +644,19 @@ class _TypeTile extends StatelessWidget {
             color: selected ? type.color : AppColors.divider,
             width: selected ? 1.5 : 1,
           ),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 1))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 4,
+                offset: const Offset(0, 1))
+          ],
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
-            Icon(type.icon, size: 20, color: selected ? type.color : AppColors.textSecondary),
+            Icon(type.icon,
+                size: 20,
+                color: selected ? type.color : AppColors.textSecondary),
             const SizedBox(width: 8),
             Expanded(
               child: Text(

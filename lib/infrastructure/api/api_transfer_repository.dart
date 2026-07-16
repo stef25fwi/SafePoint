@@ -25,7 +25,8 @@ class ApiTransferRepository implements TransferRepository {
     required String organizationId,
     required String refugeId,
   }) =>
-      throw UnimplementedError('[V2] SSE GET /transfers/stream?refugeId=$refugeId');
+      throw UnimplementedError(
+          '[V2] SSE GET /transfers/stream?refugeId=$refugeId');
 
   @override
   Future<TransferModel?> getById(String id) =>
@@ -43,7 +44,8 @@ class ApiTransferRepository implements TransferRepository {
     DateTime? arrivalConfirmedAt,
     required String updatedBy,
   }) =>
-      throw UnimplementedError('[V2] PATCH /transfers/$id (status: ${status.name})');
+      throw UnimplementedError(
+          '[V2] PATCH /transfers/$id (status: ${status.name})');
 
   @override
   Future<List<TransferModel>> getAllForCrisisEvent({

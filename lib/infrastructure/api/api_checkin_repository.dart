@@ -26,11 +26,13 @@ class ApiCheckinRepository implements CheckinRepository {
     required String organizationId,
     required String refugeId,
   }) =>
-      throw UnimplementedError('[V2] SSE GET /checkins/stream?refugeId=$refugeId');
+      throw UnimplementedError(
+          '[V2] SSE GET /checkins/stream?refugeId=$refugeId');
 
   @override
   Future<List<CheckinModel>> getForPerson(String personId, {int limit = 50}) =>
-      throw UnimplementedError('[V2] GET /checkins?personId=$personId&limit=$limit');
+      throw UnimplementedError(
+          '[V2] GET /checkins?personId=$personId&limit=$limit');
 
   @override
   Future<List<CheckinModel>> getAllForCrisisEvent({
@@ -40,12 +42,14 @@ class ApiCheckinRepository implements CheckinRepository {
     int limit = 1000,
     int offset = 0,
   }) =>
-      throw UnimplementedError('[V2] GET /checkins?eventId=$crisisEventId&limit=$limit&offset=$offset');
+      throw UnimplementedError(
+          '[V2] GET /checkins?eventId=$crisisEventId&limit=$limit&offset=$offset');
 
   @override
   Future<Map<String, int>> countByType({
     required String refugeId,
     required String crisisEventId,
   }) =>
-      throw UnimplementedError('[V2] GET /checkins/count?refugeId=$refugeId&eventId=$crisisEventId');
+      throw UnimplementedError(
+          '[V2] GET /checkins/count?refugeId=$refugeId&eventId=$crisisEventId');
 }

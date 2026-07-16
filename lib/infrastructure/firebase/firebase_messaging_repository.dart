@@ -89,7 +89,8 @@ class FirebaseMessagingRepository implements MessagingRepository {
   @override
   Stream<Map<String, dynamic>> onMessageReceived() {
     return FirebaseMessaging.onMessage.map((RemoteMessage message) {
-      debugPrint('[FCM] Message received in foreground: ${message.notification?.title}');
+      debugPrint(
+          '[FCM] Message received in foreground: ${message.notification?.title}');
       return _extractNotificationData(message);
     });
   }

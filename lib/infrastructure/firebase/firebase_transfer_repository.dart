@@ -105,7 +105,8 @@ class FirebaseTransferRepository implements TransferRepository {
     final now = DateTime.now();
     return TransferModel(
       id: doc.id,
-      organizationId: d['organizationId'] as String? ?? AppDefaults.organizationId,
+      organizationId:
+          d['organizationId'] as String? ?? AppDefaults.organizationId,
       territoryId: d['territoryId'] as String?,
       eventId: d['eventId'] as String? ?? '',
       fromShelterId: d['fromShelterId'] as String? ?? '',

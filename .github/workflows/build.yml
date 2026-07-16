@@ -17,7 +17,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
+          flutter-version: '3.44.4'
           channel: 'stable'
 
       - name: Install dependencies
@@ -27,13 +27,14 @@ jobs:
         run: flutter build web --release
 
       - name: Upload web artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: safepoint-web
           path: build/web
 
   build-android:
     runs-on: ubuntu-latest
+    if: false  # Désactivé : projet Android jamais scaffoldé (pas de dossier android/, flutter create --platforms=android requis avant de réactiver)
 
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +48,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
+          flutter-version: '3.44.4'
           channel: 'stable'
 
       - name: Install dependencies
@@ -57,7 +58,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Upload APK artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: safepoint-apk
           path: build/app/outputs/flutter-apk/
@@ -72,7 +73,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
+          flutter-version: '3.44.4'
           channel: 'stable'
 
       - name: Install dependencies
@@ -82,7 +83,7 @@ jobs:
         run: flutter build ios --release --no-codesign
 
       - name: Upload iOS artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: safepoint-ios
           path: build/ios/

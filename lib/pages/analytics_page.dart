@@ -380,8 +380,7 @@ class _TableCard extends StatelessWidget {
                       .toList(),
                   rows: table.rows
                       .map((r) => DataRow(
-                          cells:
-                              r.map((c) => DataCell(Text(c))).toList()))
+                          cells: r.map((c) => DataCell(Text(c))).toList()))
                       .toList(),
                 ),
               ),

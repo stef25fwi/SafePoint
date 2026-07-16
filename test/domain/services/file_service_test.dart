@@ -43,14 +43,15 @@ void main() {
         const uploadedByRole = 'AGENT';
 
         when(() => mockFileRepository.uploadFile(
-              organizationId: organizationId,
-              ownerType: ownerType,
-              ownerId: ownerId,
-              fileName: fileName,
-              fileBytes: fileBytes,
-              mimeType: mimeType,
-            )).thenAnswer((_) async =>
-            'organizations/$organizationId/$ownerType/$ownerId/$fileName');
+                  organizationId: organizationId,
+                  ownerType: ownerType,
+                  ownerId: ownerId,
+                  fileName: fileName,
+                  fileBytes: fileBytes,
+                  mimeType: mimeType,
+                ))
+            .thenAnswer((_) async =>
+                'organizations/$organizationId/$ownerType/$ownerId/$fileName');
 
         when(() => mockAuditRepository.log(any())).thenAnswer((_) async {});
 

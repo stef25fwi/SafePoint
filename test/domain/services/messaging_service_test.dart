@@ -27,7 +27,8 @@ void main() {
       mockMessagingRepository = MockMessagingRepository();
       mockAuditRepository = MockAuditRepository();
       auditService = AuditService(mockAuditRepository);
-      messagingService = MessagingService(mockMessagingRepository, auditService);
+      messagingService =
+          MessagingService(mockMessagingRepository, auditService);
     });
 
     group('requestNotificationPermission', () {
@@ -106,8 +107,7 @@ void main() {
           userRole: userRole,
         );
 
-        verify(() => mockMessagingRepository.subscribeToTopic(topic))
-            .called(1);
+        verify(() => mockMessagingRepository.subscribeToTopic(topic)).called(1);
         verify(() => mockAuditRepository.log(any())).called(1);
       });
     });

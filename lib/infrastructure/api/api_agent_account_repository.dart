@@ -22,8 +22,8 @@ class ApiAgentAccountRepository implements AgentAccountRepository {
       throw UnimplementedError('[V2] GET /agent-accounts?centerId=$centerId');
 
   @override
-  Future<void> create(AgentAccountModel account) =>
-      throw UnimplementedError('[V2] POST /agent-accounts/create (Cloud Function)');
+  Future<void> create(AgentAccountModel account) => throw UnimplementedError(
+      '[V2] POST /agent-accounts/create (Cloud Function)');
 
   @override
   Future<void> updatePasswordHash(String accountId, String passwordHash) =>
@@ -31,7 +31,8 @@ class ApiAgentAccountRepository implements AgentAccountRepository {
 
   @override
   Future<void> updateLastLogin(String accountId, DateTime loginTime) =>
-      throw UnimplementedError('[V2] PATCH /agent-accounts/$accountId/last-login');
+      throw UnimplementedError(
+          '[V2] PATCH /agent-accounts/$accountId/last-login');
 
   @override
   Future<void> disable(String accountId) =>
@@ -39,5 +40,6 @@ class ApiAgentAccountRepository implements AgentAccountRepository {
 
   @override
   Future<void> setMustChangePassword(String accountId, bool value) =>
-      throw UnimplementedError('[V2] PATCH /agent-accounts/$accountId/must-change-password');
+      throw UnimplementedError(
+          '[V2] PATCH /agent-accounts/$accountId/must-change-password');
 }
