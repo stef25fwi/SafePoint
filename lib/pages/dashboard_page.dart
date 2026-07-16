@@ -25,6 +25,7 @@ class DashboardPage extends StatelessWidget {
     final familyCount = state.currentFamilies.length;
     final needs = state.currentNeeds;
     final recentCheckins = state.recentCheckins.take(3).toList();
+    final todayCounts = state.todayCheckinCounts();
 
     // Indicators – situations requiring attention
     final nonPointeeCount =
@@ -188,6 +189,82 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+          // Pointages du jour — répartition par service
+          if (state.canCheckIn)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2))
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.fact_check_outlined,
+                              size: 20, color: AppColors.navy),
+                          SizedBox(width: 8),
+                          Text('Pointages du jour',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary)),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: KpiCard(
+                            title: 'Repas',
+                            value: '${todayCounts['repas']}',
+                            icon: Icons.restaurant_outlined,
+                            color: AppColors.orange,
+                          )),
+                          const SizedBox(width: 10),
+                          Expanded(
+                              child: KpiCard(
+                            title: 'Soins',
+                            value: '${todayCounts['soins']}',
+                            icon: Icons.local_hospital_outlined,
+                            color: AppColors.purple,
+                          )),
+                          const SizedBox(width: 10),
+                          Expanded(
+                              child: KpiCard(
+                            title: 'Douches',
+                            value: '${todayCounts['douche']}',
+                            icon: Icons.shower_outlined,
+                            color: AppColors.blueAccent,
+                          )),
+                          const SizedBox(width: 10),
+                          Expanded(
+                              child: KpiCard(
+                            title: 'Activités',
+                            value: '${todayCounts['activite']}',
+                            icon: Icons.directions_run,
+                            color: AppColors.amber,
+                          )),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          if (state.canCheckIn)
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           // Situations à surveiller
           if (nonPointeeCount +
