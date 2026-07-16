@@ -14,6 +14,11 @@ class AlertModel {
   final AlertStatus status;
   final String? assignedTo;
   final String? location;
+
+  /// Transfert à l'origine de l'alerte (notification « transfert entrant »),
+  /// permettant d'ouvrir directement sa fiche depuis la notification.
+  final String? relatedTransferId;
+
   final DateTime createdAt;
   final DateTime? resolvedAt;
 
@@ -37,6 +42,7 @@ class AlertModel {
     required this.status,
     this.assignedTo,
     this.location,
+    this.relatedTransferId,
     required this.createdAt,
     this.resolvedAt,
     this.organizationId = AppDefaults.organizationId,
@@ -62,6 +68,7 @@ class AlertModel {
         'status': status.name,
         'assigned_to': assignedTo,
         'location': location,
+        'related_transfer_id': relatedTransferId,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
         'created_by': createdBy,
@@ -89,6 +96,7 @@ class AlertModel {
       status: status ?? this.status,
       assignedTo: assignedTo ?? this.assignedTo,
       location: location,
+      relatedTransferId: relatedTransferId,
       createdAt: createdAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,
       organizationId: organizationId,

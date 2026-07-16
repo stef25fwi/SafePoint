@@ -5,6 +5,7 @@ import '../core/app_routes.dart';
 import '../models/enums.dart';
 import '../services/app_state.dart';
 import '../widgets/app_header.dart';
+import '../widgets/departure_dialog.dart';
 import '../widgets/transfer_card.dart';
 
 class TransfersPage extends StatefulWidget {
@@ -16,6 +17,19 @@ class TransfersPage extends StatefulWidget {
 
 class _TransfersPageState extends State<TransfersPage> {
   TransferStatus? _filter;
+
+  Future<void> _markDeparted(BuildContext context, String transferId) async {
+    final state = context.read<AppState>();
+    final info = await showDepartureDialog(context);
+    if (info == null) return;
+    state.markTransferDeparted(
+      transferId,
+      transportMode: info.transportMode,
+      vehicleRegistration: info.vehicleRegistration,
+      driverName: info.driverName,
+      driverPhone: info.driverPhone,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,25 +56,69 @@ class _TransfersPageState extends State<TransfersPage> {
             alertCount: state.openAlerts.length,
           ),
 
-          // Title
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+          // Title + sélecteur de centre
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Row(
               children: [
-                Icon(Icons.swap_horiz, size: 26, color: AppColors.navy),
-                SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Transferts inter-centres',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary)),
-                    Text('Suivi des départs et arrivées',
-                        style: TextStyle(
-                            fontSize: 13, color: AppColors.textSecondary)),
+                const Icon(Icons.swap_horiz, size: 26, color: AppColors.navy),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Transferts inter-centres',
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary)),
+                      Text('Suivi des départs et arrivées',
+                          style: TextStyle(
+                              fontSize: 13, color: AppColors.textSecondary)),
+                    ],
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  tooltip: 'Changer de centre',
+                  onSelected: state.switchShelter,
+                  itemBuilder: (_) => [
+                    for (final s in state.shelters)
+                      PopupMenuItem(
+                        value: s.id,
+                        child: Row(
+                          children: [
+                            Icon(
+                              s.id == state.currentShelterId
+                                  ? Icons.check_circle
+                                  : Icons.business_outlined,
+                              size: 18,
+                              color: s.id == state.currentShelterId
+                                  ? AppColors.green
+                                  : AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(s.name)),
+                          ],
+                        ),
+                      ),
                   ],
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.blueLight,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.business, size: 15, color: AppColors.blue),
+                        SizedBox(width: 4),
+                        Icon(Icons.expand_more,
+                            size: 16, color: AppColors.blue),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -153,6 +211,9 @@ class _TransfersPageState extends State<TransfersPage> {
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (ctx, i) => TransferCard(
                       transfer: filtered[i],
+                      onTap: () => Navigator.pushNamed(
+                          context, AppRoutes.transferDetail,
+                          arguments: filtered[i].id),
                       onConfirmArrival: filtered[i].status ==
                                   TransferStatus.inProgress &&
                               state.canValidateTransfers
@@ -161,7 +222,7 @@ class _TransfersPageState extends State<TransfersPage> {
                       onMarkDeparted:
                           filtered[i].status == TransferStatus.pending &&
                                   state.canValidateTransfers
-                              ? () => state.markTransferDeparted(filtered[i].id)
+                              ? () => _markDeparted(context, filtered[i].id)
                               : null,
                     ),
                   ),

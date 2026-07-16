@@ -11,6 +11,7 @@ import 'pages/person_detail_page.dart';
 import 'pages/families_page.dart';
 import 'pages/transfers_page.dart';
 import 'pages/create_transfer_page.dart';
+import 'pages/transfer_detail_page.dart';
 import 'pages/crisis_activation_page.dart';
 import 'pages/shelter_detail_page.dart';
 import 'pages/agent_generator_page.dart';
@@ -46,6 +47,8 @@ class SafePointApp extends StatelessWidget {
                 const ResponsiveAppFrame(child: TransfersPage()),
             AppRoutes.createTransfer: (_) =>
                 const ResponsiveAppFrame(child: CreateTransferPage()),
+            AppRoutes.transferDetail: (_) =>
+                const ResponsiveAppFrame(child: TransferDetailPage()),
             AppRoutes.crisisActivation: (_) =>
                 const ResponsiveAppFrame(child: CrisisActivationPage()),
             AppRoutes.shelterDetail: (_) =>

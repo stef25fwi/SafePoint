@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:safepoint_app/models/alert_model.dart';
 import 'package:safepoint_app/models/enums.dart';
 import 'package:safepoint_app/models/transfer_model.dart';
 import 'package:safepoint_app/services/app_state.dart';
@@ -121,5 +122,80 @@ void main() {
       expect(state.getPersonById('person_1')?.shelterId, 'shelter_2');
       expect(state.getPersonById('person_2')?.shelterId, 'shelter_2');
     });
+
+    test('markTransferDeparted enregistre le convoi (véhicule + chauffeur)',
+        () {
+      state.addTransfer(makeTransfer(['person_1']));
+      state.markTransferDeparted(
+        'transfer_test',
+        transportMode: 'Bus',
+        vehicleRegistration: 'AB-123-CD',
+        driverName: 'Jean Dupont',
+        driverPhone: '0690112233',
+      );
+
+      final transfer = state.getTransferById('transfer_test');
+      expect(transfer?.transportMode, 'Bus');
+      expect(transfer?.vehicleRegistration, 'AB-123-CD');
+      expect(transfer?.driverName, 'Jean Dupont');
+      expect(transfer?.driverPhone, '0690112233');
+      expect(transfer?.convoySummary, 'Bus • AB-123-CD • Jean Dupont');
+    });
+
+    test(
+        'le départ crée une notification « transfert entrant » sur le '
+        'centre destinataire', () {
+      state.addTransfer(makeTransfer(['person_1']));
+      state.markTransferDeparted('transfer_test',
+          vehicleRegistration: 'AB-123-CD');
+
+      // La notification appartient au centre destination (shelter_2).
+      state.switchShelter('shelter_2');
+      final incoming =
+          state.openAlerts.where((a) => a.type == 'transfer_incoming').toList();
+      expect(incoming, isNotEmpty);
+      expect(incoming.first.relatedTransferId, 'transfer_test');
+      expect(incoming.first.severity, AlertSeverity.warning);
+    });
+
+    test('confirmer l\'arrivée résout la notification du centre destinataire',
+        () {
+      state.addTransfer(makeTransfer(['person_1']));
+      state.markTransferDeparted('transfer_test');
+      state.confirmTransferArrival('transfer_test');
+
+      state.switchShelter('shelter_2');
+      final openIncoming =
+          state.openAlerts.where((a) => a.type == 'transfer_incoming').toList();
+      expect(openIncoming, isEmpty,
+          reason: 'la notification doit être résolue à la réception');
+    });
+
+    test('getTransferById renvoie null pour un id inconnu', () {
+      expect(state.getTransferById('inexistant'), isNull);
+    });
+
+    test('switchShelter ignore un centre inconnu', () {
+      final before = state.currentShelterId;
+      state.switchShelter('shelter_inexistant');
+      expect(state.currentShelterId, before);
+    });
+  });
+
+  test('AlertModel sérialise relatedTransferId', () {
+    final alert = AlertModel(
+      id: 'a',
+      eventId: 'event_1',
+      shelterId: 'shelter_2',
+      type: 'transfer_incoming',
+      severity: AlertSeverity.warning,
+      title: 't',
+      description: 'd',
+      status: AlertStatus.open,
+      relatedTransferId: 'transfer_test',
+      createdAt: DateTime(2026),
+    );
+    expect(alert.toSqlMap()['related_transfer_id'], 'transfer_test');
+    expect(alert.copyWith().relatedTransferId, 'transfer_test');
   });
 }

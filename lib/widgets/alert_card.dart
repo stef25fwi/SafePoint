@@ -186,9 +186,13 @@ class AlertCard extends StatelessWidget {
                         onTap: onResolve!,
                       ),
                     ],
-                    if (alert.type == 'stock_low' && onSee != null)
+                    if ((alert.type == 'stock_low' ||
+                            alert.type == 'transfer_incoming') &&
+                        onSee != null)
                       _ActionButton(
-                        label: 'Voir',
+                        label: alert.type == 'transfer_incoming'
+                            ? 'Consulter'
+                            : 'Voir',
                         color: AppColors.blue,
                         onTap: onSee!,
                         outlined: true,
