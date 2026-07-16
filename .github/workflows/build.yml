@@ -27,7 +27,7 @@ jobs:
         run: flutter build web --release
 
       - name: Upload web artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: safepoint-web
           path: build/web
@@ -57,7 +57,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Upload APK artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: safepoint-apk
           path: build/app/outputs/flutter-apk/
@@ -82,7 +82,7 @@ jobs:
         run: flutter build ios --release --no-codesign
 
       - name: Upload iOS artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: safepoint-ios
           path: build/ios/
