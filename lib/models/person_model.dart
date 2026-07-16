@@ -138,6 +138,7 @@ class PersonModel {
       };
 
   PersonModel copyWith({
+    String? shelterId,
     String? familyId,
     PersonStatus? status,
     String? currentZone,
@@ -151,7 +152,7 @@ class PersonModel {
     return PersonModel(
       id: id,
       eventId: eventId,
-      shelterId: shelterId,
+      shelterId: shelterId ?? this.shelterId,
       familyId: familyId ?? this.familyId,
       qrCode: qrCode,
       firstName: firstName,
