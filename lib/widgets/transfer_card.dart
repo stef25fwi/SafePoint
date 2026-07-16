@@ -9,12 +9,14 @@ class TransferCard extends StatelessWidget {
   final TransferModel transfer;
   final VoidCallback? onConfirmArrival;
   final VoidCallback? onMarkDeparted;
+  final VoidCallback? onTap;
 
   const TransferCard({
     super.key,
     required this.transfer,
     this.onConfirmArrival,
     this.onMarkDeparted,
+    this.onTap,
   });
 
   IconData get _icon {
@@ -46,173 +48,200 @@ class TransferCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fmt = DateFormat('HH:mm');
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(_icon, color: _iconColor, size: 22),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  transfer.displayName,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+              Row(
+                children: [
+                  Icon(_icon, color: _iconColor, size: 22),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      transfer.displayName,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
                   ),
-                ),
+                  StatusBadge.fromTransferStatus(transfer.status),
+                ],
               ),
-              StatusBadge.fromTransferStatus(transfer.status),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Origine',
-                        style: TextStyle(
-                            fontSize: 11, color: AppColors.textSecondary)),
-                    const SizedBox(height: 2),
-                    Row(
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.business,
-                            size: 14, color: _iconColor.withValues(alpha: 0.7)),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            transfer.fromShelterName,
-                            style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary),
-                          ),
+                        const Text('Origine',
+                            style: TextStyle(
+                                fontSize: 11, color: AppColors.textSecondary)),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Icon(Icons.business,
+                                size: 14,
+                                color: _iconColor.withValues(alpha: 0.7)),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                transfer.fromShelterName,
+                                style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Icon(Icons.arrow_forward,
-                    size: 18, color: AppColors.textSecondary),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Destination',
-                        style: TextStyle(
-                            fontSize: 11, color: AppColors.textSecondary)),
-                    const SizedBox(height: 2),
-                    Row(
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Icon(Icons.arrow_forward,
+                        size: 18, color: AppColors.textSecondary),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.business,
-                            size: 14,
-                            color: AppColors.green.withValues(alpha: 0.8)),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            transfer.toShelterName,
-                            style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary),
-                          ),
+                        const Text('Destination',
+                            style: TextStyle(
+                                fontSize: 11, color: AppColors.textSecondary)),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Icon(Icons.business,
+                                size: 14,
+                                color: AppColors.green.withValues(alpha: 0.8)),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                transfer.toShelterName,
+                                style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today_outlined,
+                      size: 14, color: AppColors.textSecondary),
+                  const SizedBox(width: 4),
+                  Text(
+                    transfer.departedAt != null
+                        ? 'Départ : Aujourd\'hui • ${fmt.format(transfer.departedAt!)}'
+                        : transfer.departurePlannedAt != null
+                            ? 'Départ prévu : Aujourd\'hui • ${fmt.format(transfer.departurePlannedAt!)}'
+                            : 'Heure non définie',
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+              if (transfer.arrivalConfirmedAt != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.check_circle_outline,
+                        size: 14, color: AppColors.green),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Arrivée confirmée • ${fmt.format(transfer.arrivalConfirmedAt!)}',
+                      style:
+                          const TextStyle(fontSize: 12, color: AppColors.green),
+                    ),
                   ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const Icon(Icons.calendar_today_outlined,
-                  size: 14, color: AppColors.textSecondary),
-              const SizedBox(width: 4),
-              Text(
-                transfer.departedAt != null
-                    ? 'Départ : Aujourd\'hui • ${fmt.format(transfer.departedAt!)}'
-                    : transfer.departurePlannedAt != null
-                        ? 'Départ prévu : Aujourd\'hui • ${fmt.format(transfer.departurePlannedAt!)}'
-                        : 'Heure non définie',
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textSecondary),
-              ),
-            ],
-          ),
-          if (transfer.arrivalConfirmedAt != null) ...[
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.check_circle_outline,
-                    size: 14, color: AppColors.green),
-                const SizedBox(width: 4),
-                Text(
-                  'Arrivée confirmée • ${fmt.format(transfer.arrivalConfirmedAt!)}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.green),
                 ),
               ],
-            ),
-          ],
-          if (transfer.status == TransferStatus.inProgress &&
-              onConfirmArrival != null) ...[
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton(
-                onPressed: onConfirmArrival,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 36),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  side: const BorderSide(color: AppColors.blue),
-                  foregroundColor: AppColors.blue,
-                  textStyle: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600),
+              if (transfer.convoySummary != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.local_shipping_outlined,
+                        size: 14, color: AppColors.blue),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        transfer.convoySummary!,
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.blue),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-                child: const Text('Confirmer l\'arrivée'),
-              ),
-            ),
-          ],
-          if (transfer.status == TransferStatus.pending &&
-              onMarkDeparted != null) ...[
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: onMarkDeparted,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(0, 36),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  backgroundColor: AppColors.blue,
-                  textStyle: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600),
+              ],
+              if (transfer.status == TransferStatus.inProgress &&
+                  onConfirmArrival != null) ...[
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: OutlinedButton(
+                    onPressed: onConfirmArrival,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      side: const BorderSide(color: AppColors.blue),
+                      foregroundColor: AppColors.blue,
+                      textStyle: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                    child: const Text('Confirmer l\'arrivée'),
+                  ),
                 ),
-                child: const Text('Marquer départ'),
-              ),
-            ),
-          ],
-        ],
+              ],
+              if (transfer.status == TransferStatus.pending &&
+                  onMarkDeparted != null) ...[
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: onMarkDeparted,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(0, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      backgroundColor: AppColors.blue,
+                      textStyle: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                    child: const Text('Marquer départ'),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

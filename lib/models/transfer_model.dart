@@ -13,6 +13,14 @@ class TransferModel {
   final String? familyName;
   final TransferStatus status;
   final String? transportMode;
+
+  /// Informations de convoi, renseignées au départ (statut « en cours ») :
+  /// immatriculation du véhicule et coordonnées du chauffeur, pour que le
+  /// centre destinataire puisse suivre et joindre le convoi.
+  final String? vehicleRegistration;
+  final String? driverName;
+  final String? driverPhone;
+
   final DateTime? departurePlannedAt;
   final DateTime? departedAt;
   final DateTime? arrivalConfirmedAt;
@@ -38,6 +46,9 @@ class TransferModel {
     this.familyName,
     required this.status,
     this.transportMode,
+    this.vehicleRegistration,
+    this.driverName,
+    this.driverPhone,
     this.departurePlannedAt,
     this.departedAt,
     this.arrivalConfirmedAt,
@@ -51,6 +62,17 @@ class TransferModel {
   }) : updatedAt = updatedAt ?? createdAt;
 
   int get personCount => personIds.length;
+
+  /// Résumé du convoi, s'il est renseigné (« Bus • AB-123-CD • Jean »).
+  String? get convoySummary {
+    final parts = <String>[
+      if (transportMode != null && transportMode!.isNotEmpty) transportMode!,
+      if (vehicleRegistration != null && vehicleRegistration!.isNotEmpty)
+        vehicleRegistration!,
+      if (driverName != null && driverName!.isNotEmpty) driverName!,
+    ];
+    return parts.isEmpty ? null : parts.join(' • ');
+  }
 
   String get displayName {
     if (familyName != null) {
@@ -74,6 +96,9 @@ class TransferModel {
         'family_name': familyName,
         'status': status.name,
         'transport_mode': transportMode,
+        'vehicle_registration': vehicleRegistration,
+        'driver_name': driverName,
+        'driver_phone': driverPhone,
         'departure_planned_at': departurePlannedAt?.toIso8601String(),
         'departed_at': departedAt?.toIso8601String(),
         'arrival_confirmed_at': arrivalConfirmedAt?.toIso8601String(),
@@ -86,6 +111,10 @@ class TransferModel {
 
   TransferModel copyWith({
     TransferStatus? status,
+    String? transportMode,
+    String? vehicleRegistration,
+    String? driverName,
+    String? driverPhone,
     DateTime? departedAt,
     DateTime? arrivalConfirmedAt,
     DateTime? updatedAt,
@@ -102,7 +131,10 @@ class TransferModel {
       familyId: familyId,
       familyName: familyName,
       status: status ?? this.status,
-      transportMode: transportMode,
+      transportMode: transportMode ?? this.transportMode,
+      vehicleRegistration: vehicleRegistration ?? this.vehicleRegistration,
+      driverName: driverName ?? this.driverName,
+      driverPhone: driverPhone ?? this.driverPhone,
       departurePlannedAt: departurePlannedAt,
       departedAt: departedAt ?? this.departedAt,
       arrivalConfirmedAt: arrivalConfirmedAt ?? this.arrivalConfirmedAt,

@@ -1113,6 +1113,9 @@ class AppState extends ChangeNotifier {
         checkinShelterId: transfer.toShelterId,
         at: now,
       );
+      // La notification « transfert entrant » du centre destinataire est
+      // résolue automatiquement une fois l'arrivée confirmée.
+      _resolveTransferAlert(transfer.id);
       _transferService?.confirmArrival(
         transfer,
         updatedBy: currentUserId,
@@ -1122,33 +1125,104 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Marque le départ : les personnes passent « transfert en cours » et un
-  /// pointage transferDeparture est tracé côté centre de départ.
-  void markTransferDeparted(String transferId) {
+  /// Marque le départ : les personnes passent « transfert en cours », un
+  /// pointage transferDeparture est tracé côté centre de départ, les infos
+  /// de convoi (véhicule + chauffeur) sont enregistrées, et le centre
+  /// destinataire reçoit une notification l'informant du transfert entrant.
+  void markTransferDeparted(
+    String transferId, {
+    String? transportMode,
+    String? vehicleRegistration,
+    String? driverName,
+    String? driverPhone,
+  }) {
     final idx = _transfers.indexWhere((t) => t.id == transferId);
     if (idx >= 0) {
       final now = DateTime.now();
       final transfer = _transfers[idx];
       if (transfer.status != TransferStatus.pending) return;
-      _transfers[idx] = transfer.copyWith(
+      final updated = transfer.copyWith(
         status: TransferStatus.inProgress,
+        transportMode: transportMode,
+        vehicleRegistration: vehicleRegistration,
+        driverName: driverName,
+        driverPhone: driverPhone,
         departedAt: now,
         updatedBy: currentUserId,
       );
+      _transfers[idx] = updated;
       _movePersonsForTransfer(
-        transfer,
+        updated,
         newStatus: PersonStatus.transfertEnCours,
         checkinType: CheckinType.transferDeparture,
-        checkinShelterId: transfer.fromShelterId,
+        checkinShelterId: updated.fromShelterId,
         at: now,
       );
+      _notifyIncomingTransfer(updated);
       _transferService?.markDeparted(
-        transfer,
+        updated,
         updatedBy: currentUserId,
         updatedByRole: currentRole.keycloakName,
       );
     }
     notifyListeners();
+  }
+
+  /// Crée l'alerte « transfert entrant » sur le centre destinataire :
+  /// c'est ce qui fait sonner la cloche du centre qui reçoit le convoi.
+  void _notifyIncomingTransfer(TransferModel transfer) {
+    final convoy = transfer.convoySummary;
+    _alerts.add(AlertModel(
+      id: 'alert_transfer_${transfer.id}',
+      eventId: transfer.eventId,
+      shelterId: transfer.toShelterId,
+      familyId: transfer.familyId,
+      type: 'transfer_incoming',
+      severity: AlertSeverity.warning,
+      title: 'Transfert entrant en cours',
+      description:
+          '${transfer.personCount} personne${transfer.personCount > 1 ? 's' : ''} '
+          'en provenance de ${transfer.fromShelterName}'
+          '${convoy != null ? ' — $convoy' : ''}.',
+      status: AlertStatus.open,
+      location: transfer.fromShelterName,
+      relatedTransferId: transfer.id,
+      createdAt: DateTime.now(),
+      organizationId: currentOrganizationId,
+    ));
+    _alertService?.createAlert(
+      _alerts.last,
+      createdBy: currentUserId,
+      createdByRole: currentRole.keycloakName,
+    );
+  }
+
+  void _resolveTransferAlert(String transferId) {
+    final aidx = _alerts.indexWhere((a) => a.relatedTransferId == transferId);
+    if (aidx >= 0 && _alerts[aidx].status != AlertStatus.resolved) {
+      _alerts[aidx] = _alerts[aidx].copyWith(
+        status: AlertStatus.resolved,
+        resolvedAt: DateTime.now(),
+        updatedBy: currentUserId,
+      );
+    }
+  }
+
+  TransferModel? getTransferById(String id) {
+    try {
+      return _transfers.firstWhere((t) => t.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Change le centre actif (démo mono-appareil : permet de se placer côté
+  /// centre destinataire pour voir la notification et consulter le convoi).
+  void switchShelter(String shelterId) {
+    if (shelters.any((s) => s.id == shelterId)) {
+      currentShelterId = shelterId;
+      notifyListeners();
+    }
   }
 
   /// Crée le transfert : les personnes concernées passent immédiatement en

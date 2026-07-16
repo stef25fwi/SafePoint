@@ -240,7 +240,12 @@ class _AlertsPageState extends State<AlertsPage>
                         ? () => Navigator.pushNamed(
                             context, AppRoutes.shelterDetail,
                             arguments: alerts[i].shelterId)
-                        : null,
+                        : alerts[i].type == 'transfer_incoming' &&
+                                alerts[i].relatedTransferId != null
+                            ? () => Navigator.pushNamed(
+                                context, AppRoutes.transferDetail,
+                                arguments: alerts[i].relatedTransferId)
+                            : null,
                   ),
                 );
               }).toList(),
