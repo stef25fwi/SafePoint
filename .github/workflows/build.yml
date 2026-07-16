@@ -34,6 +34,7 @@ jobs:
 
   build-android:
     runs-on: ubuntu-latest
+    if: false  # Désactivé : projet Android jamais scaffoldé (pas de dossier android/, flutter create --platforms=android requis avant de réactiver)
 
     steps:
       - uses: actions/checkout@v4

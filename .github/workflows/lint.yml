@@ -34,7 +34,7 @@ jobs:
 
       - name: Check for secure storage credentials
         run: |
-          if grep -r "String\|password\|token\|secret" lib/ | grep -i "const.*=.*['\"]"; then
+          if grep -rEi "(password|token|secret|api[_-]?key)[a-zA-Z0-9_]*\s*=\s*['\"][^'\"]+['\"]" lib/; then
             echo "Potential credentials found in code"
             exit 1
           fi

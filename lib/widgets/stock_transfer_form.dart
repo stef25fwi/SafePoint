@@ -31,8 +31,7 @@ _CatMeta _metaOf(String key) =>
     _catMeta[key] ?? _CatMeta(key, Icons.inventory_2, 'unités');
 
 /// Ouvre le formulaire de transfert de stock depuis [fromShelterId].
-Future<void> showStockTransferForm(
-    BuildContext context, String fromShelterId) {
+Future<void> showStockTransferForm(BuildContext context, String fromShelterId) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -124,8 +123,7 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
               padding: const EdgeInsets.fromLTRB(16, 14, 8, 4),
               child: Row(
                 children: [
-                  const Icon(Icons.swap_horiz,
-                      color: AppColors.navy, size: 22),
+                  const Icon(Icons.swap_horiz, color: AppColors.navy, size: 22),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text('Transférer depuis ${fromShelter.name}',
@@ -135,8 +133,8 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                             color: AppColors.textPrimary)),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close,
-                        color: AppColors.textSecondary),
+                    icon:
+                        const Icon(Icons.close, color: AppColors.textSecondary),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -179,9 +177,8 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 12),
                                     decoration: BoxDecoration(
-                                      color: sel
-                                          ? AppColors.navy
-                                          : Colors.white,
+                                      color:
+                                          sel ? AppColors.navy : Colors.white,
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
                                           color: sel
@@ -211,7 +208,8 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Text('Disponible : $maxQty ${_metaOf(_category ?? '').defaultUnit}',
+                          Text(
+                              'Disponible : $maxQty ${_metaOf(_category ?? '').defaultUnit}',
                               style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.textSecondary)),
@@ -236,6 +234,7 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                           const SizedBox(height: 14),
 
                           const _FieldLabel('Centre destinataire *'),
+                          // ignore: deprecated_member_use
                           DropdownButtonFormField<String>(
                             value: _toShelterId ??
                                 (destinations.isNotEmpty
@@ -250,8 +249,7 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                                     ))
                                 .toList(),
                             onChanged: (v) => setState(() => _toShelterId = v),
-                            validator: (v) =>
-                                v == null ? 'Champ requis' : null,
+                            validator: (v) => v == null ? 'Champ requis' : null,
                           ),
                           const SizedBox(height: 14),
 
@@ -274,9 +272,8 @@ class _StockTransferSheetState extends State<_StockTransferSheet> {
                             label: const Text('Lancer le transfert'),
                           ),
                           SizedBox(
-                              height:
-                                  MediaQuery.of(context).viewInsets.bottom +
-                                      12),
+                              height: MediaQuery.of(context).viewInsets.bottom +
+                                  12),
                         ],
                       ),
                     ),
