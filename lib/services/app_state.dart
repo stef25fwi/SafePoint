@@ -1080,15 +1080,33 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Confirme l'arrivée : les personnes sont réellement déplacées vers le
+  /// centre de destination (shelterId), repassent « présentes » et un
+  /// pointage transferArrival est tracé côté destination. C'est ce qui fait
+  /// évoluer les effectifs des deux centres (occupancyOf recalcule depuis
+  /// les personnes réelles).
   void confirmTransferArrival(String transferId) {
     final idx = _transfers.indexWhere((t) => t.id == transferId);
     if (idx >= 0) {
       final now = DateTime.now();
       final transfer = _transfers[idx];
+      if (transfer.status == TransferStatus.confirmed ||
+          transfer.status == TransferStatus.cancelled) {
+        return;
+      }
       _transfers[idx] = transfer.copyWith(
         status: TransferStatus.confirmed,
         arrivalConfirmedAt: now,
         updatedBy: currentUserId,
+      );
+      _movePersonsForTransfer(
+        transfer,
+        newShelterId: transfer.toShelterId,
+        newStatus: PersonStatus.present,
+        newZone: 'Accueil',
+        checkinType: CheckinType.transferArrival,
+        checkinShelterId: transfer.toShelterId,
+        at: now,
       );
       _transferService?.confirmArrival(
         transfer,
@@ -1099,15 +1117,25 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Marque le départ : les personnes passent « transfert en cours » et un
+  /// pointage transferDeparture est tracé côté centre de départ.
   void markTransferDeparted(String transferId) {
     final idx = _transfers.indexWhere((t) => t.id == transferId);
     if (idx >= 0) {
       final now = DateTime.now();
       final transfer = _transfers[idx];
+      if (transfer.status != TransferStatus.pending) return;
       _transfers[idx] = transfer.copyWith(
         status: TransferStatus.inProgress,
         departedAt: now,
         updatedBy: currentUserId,
+      );
+      _movePersonsForTransfer(
+        transfer,
+        newStatus: PersonStatus.transfertEnCours,
+        checkinType: CheckinType.transferDeparture,
+        checkinShelterId: transfer.fromShelterId,
+        at: now,
       );
       _transferService?.markDeparted(
         transfer,
@@ -1118,14 +1146,72 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Crée le transfert : les personnes concernées passent immédiatement en
+  /// « transfert en attente », visible sur leur fiche et dans les listes.
   void addTransfer(TransferModel transfer) {
     _transfers.add(transfer);
+    for (final personId in transfer.personIds) {
+      final idx = _persons.indexWhere((p) => p.id == personId);
+      if (idx >= 0) {
+        _persons[idx] = _persons[idx].copyWith(
+          status: PersonStatus.transfertEnAttente,
+          currentZone: 'Transfert en attente',
+          updatedBy: currentUserId,
+        );
+      }
+    }
     _transferService?.createTransfer(
       transfer,
       createdBy: currentUserId,
       createdByRole: currentRole.keycloakName,
     );
     notifyListeners();
+  }
+
+  /// Applique un changement d'étape de transfert à toutes les personnes du
+  /// lot : mise à jour de leur fiche + pointage de traçabilité.
+  void _movePersonsForTransfer(
+    TransferModel transfer, {
+    String? newShelterId,
+    required PersonStatus newStatus,
+    String? newZone,
+    required CheckinType checkinType,
+    required String checkinShelterId,
+    required DateTime at,
+  }) {
+    for (var i = 0; i < transfer.personIds.length; i++) {
+      final personId = transfer.personIds[i];
+      final idx = _persons.indexWhere((p) => p.id == personId);
+      if (idx < 0) continue;
+
+      _persons[idx] = _persons[idx].copyWith(
+        shelterId: newShelterId,
+        status: newStatus,
+        currentZone: newZone,
+        lastCheckinAt: at,
+        updatedBy: currentUserId,
+      );
+
+      final checkin = CheckinModel(
+        id: 'checkin_${at.millisecondsSinceEpoch}_t$i',
+        eventId: transfer.eventId,
+        shelterId: checkinShelterId,
+        personId: personId,
+        familyId: transfer.familyId,
+        type: checkinType,
+        createdAt: at,
+        createdBy: currentUserId,
+        notes: '${transfer.fromShelterName} vers ${transfer.toShelterName}',
+      );
+      _checkins.add(checkin);
+      _personService?.createCheckin(
+        person: _persons[idx],
+        checkin: checkin,
+        newStatus: newStatus,
+        updatedBy: currentUserId,
+        updatedByRole: currentRole.keycloakName,
+      );
+    }
   }
 
   void markFamilySeparated(String familyId, bool separated) {

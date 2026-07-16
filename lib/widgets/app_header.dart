@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
+import '../pages/main_shell_page.dart';
 
 class AppHeader extends StatelessWidget {
   final String title;
@@ -7,6 +8,9 @@ class AppHeader extends StatelessWidget {
   final bool showNotification;
   final int alertCount;
   final bool showBack;
+
+  /// Action de la cloche. Si null, la cloche ouvre l'onglet Alertes
+  /// (comportement par défaut sur toutes les pages).
   final VoidCallback? onNotificationTap;
 
   const AppHeader({
@@ -75,10 +79,12 @@ class AppHeader extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.notifications_outlined,
                       size: 26, color: AppColors.textSecondary),
-                  onPressed: onNotificationTap,
+                  onPressed: onNotificationTap ??
+                      () => MainShellPageState.goToAlerts(context),
                   padding: EdgeInsets.zero,
                   constraints:
                       const BoxConstraints(minWidth: 36, minHeight: 36),
+                  tooltip: 'Alertes',
                 ),
                 if (alertCount > 0)
                   Positioned(

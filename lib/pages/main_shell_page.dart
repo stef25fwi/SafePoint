@@ -20,6 +20,11 @@ class MainShellPage extends StatefulWidget {
 class MainShellPageState extends State<MainShellPage> {
   int _currentIndex = 0;
 
+  /// Dernier shell monté. Permet aux pages poussées au-dessus du shell
+  /// (fiche personne, transferts, détail centre…) de revenir sur un onglet
+  /// précis — la cloche d'alertes s'appuie dessus depuis n'importe où.
+  static MainShellPageState? _current;
+
   final _pages = const [
     DashboardPage(),
     PersonsPage(),
@@ -28,8 +33,33 @@ class MainShellPageState extends State<MainShellPage> {
     ReportsPage(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _current = this;
+  }
+
+  @override
+  void dispose() {
+    if (_current == this) _current = null;
+    super.dispose();
+  }
+
   void setTab(int index) {
     setState(() => _currentIndex = index);
+  }
+
+  /// Ouvre l'onglet Alertes depuis n'importe quelle page de l'app :
+  /// directement si on est dans le shell, sinon en dépilant d'abord les
+  /// pages modales pour revenir au shell.
+  static void goToAlerts(BuildContext context) {
+    final shell = context.findAncestorStateOfType<MainShellPageState>();
+    if (shell != null) {
+      shell.setTab(3);
+      return;
+    }
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    _current?.setTab(3);
   }
 
   Color _roleColor(UserRole role) {
